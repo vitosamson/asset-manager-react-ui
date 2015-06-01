@@ -1,8 +1,12 @@
 'use strict';
 var React = require('react'),
-    Dropdown = require('react-semantify').Dropdown;
+    Dropdown = require('react-semantify').Dropdown,
+    userStore = require('./user/store');
 
 var topNav = React.createClass({
+  logout: function() {
+    userStore.userActions.logout();
+  },
   render: function() {
     return (
       <div className="row">
@@ -22,7 +26,7 @@ var topNav = React.createClass({
           
                   <div className="menu">
                     <a className="item">My Account</a>
-                    <a className="item">Logout</a>
+                    <a className="item" onClick={this.logout}>Logout</a>
                   </div>
                 </Dropdown>
               </div>

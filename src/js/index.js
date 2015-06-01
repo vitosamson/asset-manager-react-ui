@@ -2,12 +2,34 @@
 
 var React = require('react'),
     Router = require('react-router'),
+    Route = Router.Route,
     TopNav = require('./components/topnav'),
-    Sidemenu = require('./components/sidemenu');
+    Sidemenu = require('./components/sidemenu'),
+    userStore = require('./components/user/store').userStore,
+    Login = require('./components/user/views/login'),
+    Register = require('./components/user/views/register'),
+    Authenticated = require('./components/user/mixins').Authenticated;
 
 var App = React.createClass({
+  mixins: [Router.Navigation],
+  componentDidMount: function() {
+    userStore.listen(function(token) {
+      if (!token)
+        this.transitionTo('login');
+      else
+        this.transitionTo('app');
+    }.bind(this));
+  },
   render: function() {
-    console.log(this.props);
+    return (
+      <Router.RouteHandler/>
+    );
+  }
+});
+
+var LoggedIn = React.createClass({
+  mixins: [Authenticated],
+  render: function() {
     return (
       <div className="ui page grid">
         <TopNav/>
@@ -22,20 +44,30 @@ var App = React.createClass({
   }
 });
 
-var Dashboard = React.createClass({
+var LoggedOut = React.createClass({
+  statics: {
+    willTransitionTo: function(transition) {
+      if (userStore.token)
+        transition.redirect('app', {});
+    }
+  },
   render: function() {
     return (
-      <div className="twelve wide column">Welcome</div>
+      <Router.RouteHandler/>
     );
   }
 });
 
 var routes = (
-  <Router.Route path='/' handler={App}>
-    <Router.DefaultRoute handler={Dashboard} name='dashboard'/>
-  </Router.Route>
+  <Route handler={App}>
+    <Route path='/' name='user' handler={LoggedOut}>
+      <Router.DefaultRoute name='login' handler={Login}/>
+      <Route path='register' name='register' handler={Register}/>
+    </Route>
+    <Route path='/app' name='app' handler={LoggedIn}></Route>
+  </Route>
 );
 
-Router.run(routes, Router.HistoryLocation, function(Handler) {
+Router.run(routes, Router.HashLocation, function(Handler) {
   React.render(<Handler/>, document.getElementById('app'));
 });

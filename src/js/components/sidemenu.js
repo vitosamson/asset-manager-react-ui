@@ -16,7 +16,7 @@ var sidemenu = React.createClass({
             </div>
           </div>
         
-          <Link to="dashboard" className="item">
+          <Link to="app" className="item">
             <i className="home icon"></i>
             Dashboard
           </Link>
