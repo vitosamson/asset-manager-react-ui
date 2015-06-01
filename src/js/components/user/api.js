@@ -65,9 +65,22 @@ function me(token) {
   });
 }
 
+function update(user) {
+  return $.ajax({
+    url: paths.me,
+    type: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + userStore.store.token,
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(user)
+  });
+}
+
 module.exports = {
   validate: validate,
   login: login,
   register: register,
-  me: me
+  me: me,
+  update: update
 };

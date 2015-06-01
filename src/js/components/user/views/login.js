@@ -2,10 +2,12 @@
 
 var React = require('react'),
     Link = require('react-router').Link,
+    Navigation = require('react-router').Navigation,
     userStore = require('../store'),
     userApi = require('../api');
 
 var login = React.createClass({
+  mixins: [Navigation],
   getInitialState: function() {
     return {
       error: {},
@@ -34,9 +36,12 @@ var login = React.createClass({
         this.setState({loading: true});
         userApi.login(this.state.user).then(function(data) {
           userStore.actions.login(data.token, data.user);
-        }, function(err) {
+          setImmediate(function() {
+            this.transitionTo('app');
+          }.bind(this));
+        }.bind(this), function(err) {
           console.error(err);
-        }.bind(this));
+        });
       }.bind(this));
     }
   },

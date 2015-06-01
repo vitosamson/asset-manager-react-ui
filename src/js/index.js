@@ -10,18 +10,13 @@ var React = require('react'),
     userApi = require('./components/user/api'),
     Login = require('./components/user/views/login'),
     Register = require('./components/user/views/register'),
+    Account = require('./components/user/views/account'),
     Authenticated = require('./components/user/mixins').Authenticated;
 
 var App = React.createClass({
   mixins: [Router.Navigation],
   componentDidMount: function() {
     userStore.init();
-    userStore.listen(function(token) {
-      if (!token)
-        this.transitionTo('login');
-      else
-        this.transitionTo('app');
-    }.bind(this));
   },
   render: function() {
     return (
@@ -43,7 +38,9 @@ var LoggedIn = React.createClass({
         <div className="row">
           <Sidemenu/>
 
-          <Router.RouteHandler/>
+          <div className="twelve wide column">
+            <Router.RouteHandler/>
+          </div>
         </div>
       </div>
     );
@@ -71,7 +68,7 @@ var routes = (
       <Route path='register' name='register' handler={Register}/>
     </Route>
     <Route path='/app' name='app' handler={LoggedIn}>
-      <Route path='account' name='account' handler={LoggedIn}/>
+      <Route path='account' name='account' handler={Account}/>
     </Route>
   </Route>
 );

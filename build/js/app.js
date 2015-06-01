@@ -56,7 +56,8 @@
 	    userApi = __webpack_require__(6),
 	    Login = __webpack_require__(7),
 	    Register = __webpack_require__(8),
-	    Authenticated = __webpack_require__(9).Authenticated;
+	    Account = __webpack_require__(9),
+	    Authenticated = __webpack_require__(10).Authenticated;
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -64,9 +65,6 @@
 	  mixins: [Router.Navigation],
 	  componentDidMount: function componentDidMount() {
 	    userStore.init();
-	    userStore.listen((function (token) {
-	      if (!token) this.transitionTo('login');else this.transitionTo('app');
-	    }).bind(this));
 	  },
 	  render: function render() {
 	    return React.createElement(Router.RouteHandler, null);
@@ -89,7 +87,11 @@
 	        'div',
 	        { className: 'row' },
 	        React.createElement(Sidemenu, null),
-	        React.createElement(Router.RouteHandler, null)
+	        React.createElement(
+	          'div',
+	          { className: 'twelve wide column' },
+	          React.createElement(Router.RouteHandler, null)
+	        )
 	      )
 	    );
 	  }
@@ -120,7 +122,7 @@
 	  React.createElement(
 	    Route,
 	    { path: '/app', name: 'app', handler: LoggedIn },
-	    React.createElement(Route, { path: 'account', name: 'account', handler: LoggedIn })
+	    React.createElement(Route, { path: 'account', name: 'account', handler: Account })
 	  )
 	);
 
@@ -144,18 +146,19 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(10).Dropdown,
-	    Reflux = __webpack_require__(11),
+	    Dropdown = __webpack_require__(11).Dropdown,
+	    Reflux = __webpack_require__(12),
+	    Navigation = __webpack_require__(2).Navigation,
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5);
 
 	var topNav = React.createClass({
 	  displayName: 'topNav',
 
-	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
 	      user: userStore.store.user
@@ -163,6 +166,9 @@
 	  },
 	  logout: function logout() {
 	    userStore.actions.logout();
+	    setImmediate((function () {
+	      this.transitionTo('login');
+	    }).bind(this));
 	  },
 	  onUserUpdate: function onUserUpdate(token, user) {
 	    this.setState({
@@ -221,6 +227,7 @@
 	});
 
 	module.exports = topNav;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
 
 /***/ },
 /* 4 */
@@ -229,7 +236,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(10).Dropdown,
+	    Dropdown = __webpack_require__(11).Dropdown,
 	    Link = __webpack_require__(2).Link;
 
 	var sidemenu = React.createClass({
@@ -321,7 +328,7 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(11);
+	var Reflux = __webpack_require__(12);
 
 	var userActions = Reflux.createActions(['login', 'logout', 'update']);
 
@@ -364,9 +371,9 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(12),
+	var $ = __webpack_require__(13),
 	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(13).API_BASE;
+	    basePath = __webpack_require__(14).API_BASE;
 
 	basePath = basePath + 'users/';
 	var paths = {
@@ -428,27 +435,42 @@
 	  });
 	}
 
+	function update(user) {
+	  return $.ajax({
+	    url: paths.me,
+	    type: 'PUT',
+	    headers: {
+	      'Authorization': 'Bearer ' + userStore.store.token,
+	      'Content-Type': 'application/json'
+	    },
+	    data: JSON.stringify(user)
+	  });
+	}
+
 	module.exports = {
 	  validate: validate,
 	  login: login,
 	  register: register,
-	  me: me
+	  me: me,
+	  update: update
 	};
 
 /***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
 
 	var React = __webpack_require__(1),
 	    Link = __webpack_require__(2).Link,
+	    Navigation = __webpack_require__(2).Navigation,
 	    userStore = __webpack_require__(5),
 	    userApi = __webpack_require__(6);
 
 	var login = React.createClass({
 	  displayName: 'login',
 
+	  mixins: [Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
 	      error: {},
@@ -475,11 +497,14 @@
 	        error: {}
 	      }, (function () {
 	        this.setState({ loading: true });
-	        userApi.login(this.state.user).then(function (data) {
+	        userApi.login(this.state.user).then((function (data) {
 	          userStore.actions.login(data.token, data.user);
-	        }, (function (err) {
+	          setImmediate((function () {
+	            this.transitionTo('app');
+	          }).bind(this));
+	        }).bind(this), function (err) {
 	          console.error(err);
-	        }).bind(this));
+	        });
 	      }).bind(this));
 	    }
 	  },
@@ -549,6 +574,7 @@
 	});
 
 	module.exports = login;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
 
 /***/ },
 /* 8 */
@@ -708,6 +734,151 @@
 
 	'use strict';
 
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(12),
+	    Link = __webpack_require__(2).Link,
+	    userStore = __webpack_require__(5),
+	    userApi = __webpack_require__(6);
+
+	var Account = React.createClass({
+	  displayName: 'Account',
+
+	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      user: userStore.store.user || {},
+	      error: {},
+	      loading: false,
+	      success: false
+	    };
+	  },
+	  onUserUpdate: function onUserUpdate(token, user) {
+	    this.setState({
+	      user: user
+	    });
+	  },
+	  inputChange: function inputChange(e) {
+	    var input = e.target,
+	        name = input.getAttribute('name'),
+	        state = this.state;
+
+	    state.user[name] = input.value;
+	    state.error[name] = false;
+	    this.setState(state);
+	  },
+	  onSubmit: function onSubmit(e) {
+	    e.preventDefault();
+
+	    var user = this.state.user,
+	        error = this.state.error;
+
+	    if (!user.firstName) error.firstName = true;
+
+	    if (!user.email) error.email = true;
+
+	    if (user.password && user.password !== user.passwordConfirm) error.password = true;
+
+	    this.setState({ error: error });
+
+	    if (user.firstName && user.email && (!user.password || user.password == user.passwordConfirm)) {
+	      this.setState({ loading: true });
+	      userApi.update(user).success((function (updatedUser) {
+	        userStore.actions.update(updatedUser);
+	        this.setState({ success: true, loading: false });
+
+	        setTimeout((function () {
+	          this.setState({ success: false });
+	        }).bind(this), 2000);
+	      }).bind(this)).fail(function (err) {
+	        console.error(err);
+	      });
+	    }
+	  },
+	  render: function render() {
+	    var user = this.state.user,
+	        error = this.state.error;
+
+	    var btnClass = this.state.success ? 'ui green button' : this.state.loading ? 'ui primary button loading' : 'ui primary button',
+	        btnText = this.state.success ? 'Account updated' : 'Update account';
+
+	    return React.createElement(
+	      'form',
+	      { className: 'ui form', onSubmit: this.onSubmit, noValidate: true },
+	      React.createElement(
+	        'div',
+	        { className: 'two fields' },
+	        React.createElement(
+	          'div',
+	          { className: error.firstName ? 'field error' : 'field' },
+	          React.createElement(
+	            'label',
+	            { htmlFor: 'firstName' },
+	            'First name'
+	          ),
+	          React.createElement('input', { required: true, type: 'text', id: 'firstName', name: 'firstName', onChange: this.inputChange, value: user.firstName, placeholder: 'Required' })
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'field' },
+	          React.createElement(
+	            'label',
+	            { htmlFor: 'lastName' },
+	            'Last name'
+	          ),
+	          React.createElement('input', { type: 'text', id: 'lastName', name: 'lastName', onChange: this.inputChange, placeholder: 'Optional', value: user.lastName })
+	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: error.email ? 'field error' : 'field' },
+	        React.createElement(
+	          'label',
+	          { htmlFor: 'email' },
+	          'Email'
+	        ),
+	        React.createElement('input', { required: true, type: 'email', id: 'email', name: 'email', onChange: this.inputChange, value: user.email, placeholder: 'Required' })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: error.password ? 'field error' : 'field' },
+	        React.createElement(
+	          'label',
+	          { htmlFor: 'password' },
+	          'Change password'
+	        ),
+	        React.createElement('input', { type: 'password', id: 'password', name: 'password', onChange: this.inputChange })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: error.password ? 'field error' : 'field' },
+	        React.createElement(
+	          'label',
+	          { htmlFor: 'passwordConfirm' },
+	          'Confirm new password'
+	        ),
+	        React.createElement('input', { type: 'password', id: 'passwordConfirm', name: 'passwordConfirm', onChange: this.inputChange })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'field' },
+	        React.createElement(
+	          'button',
+	          { type: 'submit', className: btnClass },
+	          btnText
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Account;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var userStore = __webpack_require__(5).store,
 	    userApi = __webpack_require__(6);
 
@@ -724,25 +895,25 @@
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Semantify;
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Reflux;
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = $;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -750,6 +921,184 @@
 	module.exports = {
 	  API_BASE: 'http://localhost:3000/v1/'
 	};
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(16).nextTick;
+	var apply = Function.prototype.apply;
+	var slice = Array.prototype.slice;
+	var immediateIds = {};
+	var nextImmediateId = 0;
+
+	// DOM APIs, for completeness
+
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) { timeout.close(); };
+
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// That's not how node.js implements it but the exposed api is the same.
+	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+	  var id = nextImmediateId++;
+	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+	  immediateIds[id] = true;
+
+	  nextTick(function onNextTick() {
+	    if (immediateIds[id]) {
+	      // fn.call() is faster so we optimize for the common use-case
+	      // @see http://jsperf.com/call-apply-segu
+	      if (args) {
+	        fn.apply(null, args);
+	      } else {
+	        fn.call(null);
+	      }
+	      // Prevent ids from leaking
+	      exports.clearImmediate(id);
+	    }
+	  });
+
+	  return id;
+	};
+
+	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+	  delete immediateIds[id];
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate, __webpack_require__(15).clearImmediate))
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+
+	function cleanUpNextTick() {
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = setTimeout(cleanUpNextTick);
+	    draining = true;
+
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            currentQueue[queueIndex].run();
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    clearTimeout(timeout);
+	}
+
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
 
 /***/ }
 /******/ ]);

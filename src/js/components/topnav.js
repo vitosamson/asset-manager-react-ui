@@ -3,11 +3,12 @@
 var React = require('react'),
     Dropdown = require('react-semantify').Dropdown,
     Reflux = require('reflux'),
+    Navigation = require('react-router').Navigation,
     Link = require('react-router').Link,
     userStore = require('./user/store');
 
 var topNav = React.createClass({
-  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
   getInitialState: function() {
     return {
       user: userStore.store.user
@@ -15,6 +16,9 @@ var topNav = React.createClass({
   },
   logout: function() {
     userStore.actions.logout();
+    setImmediate(function() {
+      this.transitionTo('login');
+    }.bind(this));
   },
   onUserUpdate: function(token, user) {
     this.setState({
