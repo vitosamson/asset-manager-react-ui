@@ -2,7 +2,8 @@
 
 var srcRoot = 'src/',
     buildRoot = 'build/',
-    bowerRoot = 'bower_components/';
+    bowerRoot = 'bower_components/',
+    npmRoot = 'node_modules/';
 
 var app = {
   js: {
@@ -14,10 +15,12 @@ var app = {
 };
 
 var vendorScripts = [
-  'jquery/dist/jquery.min.js',
-  'react/react.min.js',
-  'react-router/build/umd/ReactRouter.min.js',
-].map(function(s) { return bowerRoot + s; });
+  bowerRoot + 'jquery/dist/jquery.min.js',
+  bowerRoot + 'react/react.js',
+  bowerRoot + 'react-router/build/umd/ReactRouter.js',
+  bowerRoot + 'semantic-ui/dist/semantic.js',
+  npmRoot + 'react-semantify/dst/react-semantify.js'
+];
 
 var vendorCss = [
   'semantic-ui/dist/semantic.min.css',
@@ -43,6 +46,7 @@ var dirs = {
 var externals = {
   'react': 'React',
   'react-router': 'ReactRouter',
+  'react-semantify': 'Semantify',
   'jQuery': '$'
 };
 

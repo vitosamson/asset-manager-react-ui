@@ -1,21 +1,270 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
 
-var React = require('react');
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
 
-var App = React.createClass({displayName: "App",
-  render: function() {
-    return (
-      React.createElement("div", {id: "content", role: "main"}, 
-        "Asset manager"
-      )
-    );
-  }
-});
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
 
-React.render(React.createElement(App, null), document.getElementById('app'));
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
 
-},{"react":"react"}]},{},[1])
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
 
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9icm93c2VyaWZ5L25vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJzcmMvanMvaW5kZXguanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7QUNBQSxZQUFZLENBQUM7O0FBRWIsSUFBSSxLQUFLLEdBQUcsT0FBTyxDQUFDLE9BQU8sQ0FBQyxDQUFDOztBQUU3QixJQUFJLHlCQUF5QixtQkFBQTtFQUMzQixNQUFNLEVBQUUsV0FBVztJQUNqQjtNQUNFLG9CQUFBLEtBQUksRUFBQSxDQUFBLENBQUMsRUFBQSxFQUFFLENBQUMsU0FBQSxFQUFTLENBQUMsSUFBQSxFQUFJLENBQUMsTUFBTyxDQUFBLEVBQUE7QUFBQSxRQUFBLGVBQUE7QUFBQSxNQUV4QixDQUFBO01BQ047R0FDSDtBQUNILENBQUMsQ0FBQyxDQUFDOztBQUVILEtBQUssQ0FBQyxNQUFNLENBQUMsb0JBQUMsR0FBRyxFQUFBLElBQUEsQ0FBRyxDQUFBLEVBQUUsUUFBUSxDQUFDLGNBQWMsQ0FBQyxLQUFLLENBQUMsQ0FBQyxDQUFDIiwiZmlsZSI6ImFwcC5qcyIsInNvdXJjZVJvb3QiOiIvc291cmNlLyIsInNvdXJjZXNDb250ZW50IjpbIihmdW5jdGlvbiBlKHQsbixyKXtmdW5jdGlvbiBzKG8sdSl7aWYoIW5bb10pe2lmKCF0W29dKXt2YXIgYT10eXBlb2YgcmVxdWlyZT09XCJmdW5jdGlvblwiJiZyZXF1aXJlO2lmKCF1JiZhKXJldHVybiBhKG8sITApO2lmKGkpcmV0dXJuIGkobywhMCk7dmFyIGY9bmV3IEVycm9yKFwiQ2Fubm90IGZpbmQgbW9kdWxlICdcIitvK1wiJ1wiKTt0aHJvdyBmLmNvZGU9XCJNT0RVTEVfTk9UX0ZPVU5EXCIsZn12YXIgbD1uW29dPXtleHBvcnRzOnt9fTt0W29dWzBdLmNhbGwobC5leHBvcnRzLGZ1bmN0aW9uKGUpe3ZhciBuPXRbb11bMV1bZV07cmV0dXJuIHMobj9uOmUpfSxsLGwuZXhwb3J0cyxlLHQsbixyKX1yZXR1cm4gbltvXS5leHBvcnRzfXZhciBpPXR5cGVvZiByZXF1aXJlPT1cImZ1bmN0aW9uXCImJnJlcXVpcmU7Zm9yKHZhciBvPTA7bzxyLmxlbmd0aDtvKyspcyhyW29dKTtyZXR1cm4gc30pIiwiJ3VzZSBzdHJpY3QnO1xuXG52YXIgUmVhY3QgPSByZXF1aXJlKCdyZWFjdCcpO1xuXG52YXIgQXBwID0gUmVhY3QuY3JlYXRlQ2xhc3Moe1xuICByZW5kZXI6IGZ1bmN0aW9uKCkge1xuICAgIHJldHVybiAoXG4gICAgICA8ZGl2IGlkPVwiY29udGVudFwiIHJvbGU9XCJtYWluXCI+XG4gICAgICAgIEFzc2V0IG1hbmFnZXJcbiAgICAgIDwvZGl2PlxuICAgICk7XG4gIH1cbn0pO1xuXG5SZWFjdC5yZW5kZXIoPEFwcCAvPiwgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FwcCcpKTtcbiJdfQ==
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Router = __webpack_require__(2),
+	    TopNav = __webpack_require__(3),
+	    Sidemenu = __webpack_require__(4);
+
+	var App = React.createClass({
+	  displayName: 'App',
+
+	  render: function render() {
+	    console.log(this.props);
+	    return React.createElement(
+	      'div',
+	      { className: 'ui page grid' },
+	      React.createElement(TopNav, null),
+	      React.createElement(
+	        'div',
+	        { className: 'row' },
+	        React.createElement(Sidemenu, null),
+	        React.createElement(Router.RouteHandler, null)
+	      )
+	    );
+	  }
+	});
+
+	var Dashboard = React.createClass({
+	  displayName: 'Dashboard',
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'twelve wide column' },
+	      'Welcome'
+	    );
+	  }
+	});
+
+	var routes = React.createElement(
+	  Router.Route,
+	  { path: '/', handler: App },
+	  React.createElement(Router.DefaultRoute, { handler: Dashboard, name: 'dashboard' })
+	);
+
+	Router.run(routes, Router.HistoryLocation, function (Handler) {
+	  React.render(React.createElement(Handler, null), document.getElementById('app'));
+	});
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = React;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = ReactRouter;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var React = __webpack_require__(1),
+	    Dropdown = __webpack_require__(5).Dropdown;
+
+	var topNav = React.createClass({
+	  displayName: 'topNav',
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'row' },
+	      React.createElement(
+	        'div',
+	        { className: 'sixteen wide column' },
+	        React.createElement(
+	          'div',
+	          { id: 'content', role: 'main' },
+	          React.createElement(
+	            'div',
+	            { className: 'ui inverted large menu' },
+	            React.createElement(
+	              'div',
+	              { className: 'item' },
+	              'Asset Manager'
+	            ),
+	            React.createElement('div', { className: 'item' }),
+	            React.createElement(
+	              'div',
+	              { className: 'right menu' },
+	              React.createElement(
+	                Dropdown,
+	                { className: 'ui item', init: true },
+	                React.createElement('i', { className: 'icon user' }),
+	                'Vito LaVilla',
+	                React.createElement(
+	                  'div',
+	                  { className: 'menu' },
+	                  React.createElement(
+	                    'a',
+	                    { className: 'item' },
+	                    'My Account'
+	                  ),
+	                  React.createElement(
+	                    'a',
+	                    { className: 'item' },
+	                    'Logout'
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = topNav;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Dropdown = __webpack_require__(5).Dropdown,
+	    Link = __webpack_require__(2).Link;
+
+	var sidemenu = React.createClass({
+	  displayName: 'sidemenu',
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'four wide column' },
+	      React.createElement(
+	        'div',
+	        { className: 'ui vertical fluid menu' },
+	        React.createElement(
+	          'div',
+	          { className: 'item' },
+	          React.createElement(
+	            'div',
+	            { className: 'ui icon input' },
+	            React.createElement('input', { type: 'search', placeholder: 'Search' }),
+	            React.createElement('i', { className: 'search icon' })
+	          )
+	        ),
+	        React.createElement(
+	          Link,
+	          { to: 'dashboard', className: 'item' },
+	          React.createElement('i', { className: 'home icon' }),
+	          'Dashboard'
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'item' },
+	          React.createElement('i', { className: 'folder icon' }),
+	          'Organizations',
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Foo'
+	            ),
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Bar'
+	            ),
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Baz'
+	            )
+	          )
+	        ),
+	        React.createElement(
+	          Dropdown,
+	          { className: 'ui dropdown item', init: true },
+	          React.createElement('i', { className: 'icon dropdown' }),
+	          'Admin',
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Organizations'
+	            ),
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Templates'
+	            ),
+	            React.createElement(
+	              'a',
+	              { className: 'item' },
+	              'Users'
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = sidemenu;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Semantify;
+
+/***/ }
+/******/ ]);
