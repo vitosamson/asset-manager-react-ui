@@ -1,6 +1,6 @@
 'use strict';
 
-var userStore = require('./store').userStore,
+var userStore = require('./store').store,
     userApi = require('./api');
 
 var Authenticated = {

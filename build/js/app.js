@@ -51,16 +51,19 @@
 	    Route = Router.Route,
 	    TopNav = __webpack_require__(3),
 	    Sidemenu = __webpack_require__(4),
-	    userStore = __webpack_require__(5).userStore,
-	    Login = __webpack_require__(6),
-	    Register = __webpack_require__(7),
-	    Authenticated = __webpack_require__(8).Authenticated;
+	    userStore = __webpack_require__(5).store,
+	    userActions = __webpack_require__(5).actions,
+	    userApi = __webpack_require__(6),
+	    Login = __webpack_require__(7),
+	    Register = __webpack_require__(8),
+	    Authenticated = __webpack_require__(9).Authenticated;
 
 	var App = React.createClass({
 	  displayName: 'App',
 
 	  mixins: [Router.Navigation],
 	  componentDidMount: function componentDidMount() {
+	    userStore.init();
 	    userStore.listen((function (token) {
 	      if (!token) this.transitionTo('login');else this.transitionTo('app');
 	    }).bind(this));
@@ -74,6 +77,9 @@
 	  displayName: 'LoggedIn',
 
 	  mixins: [Authenticated],
+	  componentDidMount: function componentDidMount() {
+	    userApi.me();
+	  },
 	  render: function render() {
 	    return React.createElement(
 	      'div',
@@ -111,7 +117,11 @@
 	    React.createElement(Router.DefaultRoute, { name: 'login', handler: Login }),
 	    React.createElement(Route, { path: 'register', name: 'register', handler: Register })
 	  ),
-	  React.createElement(Route, { path: '/app', name: 'app', handler: LoggedIn })
+	  React.createElement(
+	    Route,
+	    { path: '/app', name: 'app', handler: LoggedIn },
+	    React.createElement(Route, { path: 'account', name: 'account', handler: LoggedIn })
+	  )
 	);
 
 	Router.run(routes, Router.HashLocation, function (Handler) {
@@ -135,17 +145,32 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
+
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(9).Dropdown,
+	    Dropdown = __webpack_require__(10).Dropdown,
+	    Reflux = __webpack_require__(11),
+	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5);
 
 	var topNav = React.createClass({
 	  displayName: 'topNav',
 
+	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      user: userStore.store.user
+	    };
+	  },
 	  logout: function logout() {
-	    userStore.userActions.logout();
+	    userStore.actions.logout();
+	  },
+	  onUserUpdate: function onUserUpdate(token, user) {
+	    this.setState({
+	      user: user
+	    });
 	  },
 	  render: function render() {
+	    var user = this.state.user;
 	    return React.createElement(
 	      'div',
 	      { className: 'row' },
@@ -171,13 +196,13 @@
 	                Dropdown,
 	                { className: 'ui item', init: true },
 	                React.createElement('i', { className: 'icon user' }),
-	                'Vito LaVilla',
+	                user ? user.firstName + ' ' + user.lastName : '',
 	                React.createElement(
 	                  'div',
 	                  { className: 'menu' },
 	                  React.createElement(
-	                    'a',
-	                    { className: 'item' },
+	                    Link,
+	                    { to: 'account', className: 'item' },
 	                    'My Account'
 	                  ),
 	                  React.createElement(
@@ -204,7 +229,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(9).Dropdown,
+	    Dropdown = __webpack_require__(10).Dropdown,
 	    Link = __webpack_require__(2).Link;
 
 	var sidemenu = React.createClass({
@@ -296,24 +321,29 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(10);
+	var Reflux = __webpack_require__(11);
 
-	var userActions = Reflux.createActions(['login', 'logout']);
+	var userActions = Reflux.createActions(['login', 'logout', 'update']);
 
 	var userStore = Reflux.createStore({
 	  init: function init() {
 	    this.load();
 	    this.listenToMany(userActions);
 	  },
-	  onLogin: function onLogin(token) {
+	  onLogin: function onLogin(token, user) {
 	    this.token = token;
+	    this.user = user;
 	    this.save();
-	    this.trigger(this.token);
+	    this.trigger(this.token, this.user);
 	  },
 	  onLogout: function onLogout() {
 	    this.token = null;
 	    this.save();
-	    this.trigger(this.token);
+	    this.trigger(this.token, this.user);
+	  },
+	  onUpdate: function onUpdate(user) {
+	    if (user) this.user = user;
+	    this.trigger(this.token, this.user);
 	  },
 	  save: function save() {
 	    if (this.token) localStorage.setItem('token', this.token);else localStorage.removeItem('token');
@@ -324,8 +354,8 @@
 	});
 
 	module.exports = {
-	  userStore: userStore,
-	  userActions: userActions
+	  store: userStore,
+	  actions: userActions
 	};
 
 /***/ },
@@ -334,10 +364,87 @@
 
 	'use strict';
 
+	var $ = __webpack_require__(12),
+	    userStore = __webpack_require__(5),
+	    basePath = __webpack_require__(13).API_BASE;
+
+	basePath = basePath + 'users/';
+	var paths = {
+	  validate: basePath + 'validate',
+	  login: basePath + 'login',
+	  register: basePath + 'signup',
+	  me: basePath + 'me'
+	};
+
+	/**
+	 * Validates current auth token
+	 */
+	function validate(cb) {
+	  $.ajax({
+	    url: paths.validate,
+	    type: 'GET',
+	    headers: {
+	      'Authorization': 'Bearer ' + userStore.store.token
+	    }
+	  }).success(function (data) {
+	    userStore.actions.login(data.token);
+	    cb(null);
+	  }).fail(function (err) {
+	    cb(err);
+	  });
+	}
+
+	function login(user) {
+	  return $.ajax({
+	    url: paths.login,
+	    type: 'POST',
+	    data: JSON.stringify(user),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	  });
+	}
+
+	function register(user) {
+	  return $.ajax({
+	    url: paths.register,
+	    type: 'POST',
+	    data: JSON.stringify(user),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	  });
+	}
+
+	function me(token) {
+	  $.ajax({
+	    url: paths.me,
+	    type: 'GET',
+	    headers: {
+	      'Authorization': 'Bearer ' + userStore.store.token
+	    }
+	  }).success(function (data) {
+	    userStore.actions.update(data);
+	  });
+	}
+
+	module.exports = {
+	  validate: validate,
+	  login: login,
+	  register: register,
+	  me: me
+	};
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1),
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5),
-	    userApi = __webpack_require__(11);
+	    userApi = __webpack_require__(6);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -369,7 +476,7 @@
 	      }, (function () {
 	        this.setState({ loading: true });
 	        userApi.login(this.state.user).then(function (data) {
-	          userStore.userActions.login(data.token);
+	          userStore.actions.login(data.token, data.user);
 	        }, (function (err) {
 	          console.error(err);
 	        }).bind(this));
@@ -444,7 +551,7 @@
 	module.exports = login;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -452,7 +559,7 @@
 	var React = __webpack_require__(1),
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5),
-	    userApi = __webpack_require__(11);
+	    userApi = __webpack_require__(6);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -486,7 +593,7 @@
 
 	    if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
 	      userApi.register(user).success(function (data) {
-	        userStore.userActions.login(data.token);
+	        userStore.actions.login(data.token);
 	      }).fail(function (err) {
 	        console.error(err);
 	      });
@@ -596,13 +703,13 @@
 	module.exports = register;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var userStore = __webpack_require__(5).userStore,
-	    userApi = __webpack_require__(11);
+	var userStore = __webpack_require__(5).store,
+	    userApi = __webpack_require__(6);
 
 	var Authenticated = {
 	  statics: {
@@ -617,79 +724,16 @@
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Semantify;
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Reflux;
-
-/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	var $ = __webpack_require__(12),
-	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(13).API_BASE;
-
-	basePath = basePath + 'users/';
-	var paths = {
-	  validate: basePath + 'validate',
-	  login: basePath + 'login',
-	  register: basePath + 'signup'
-	};
-
-	/**
-	 * Validates current auth token
-	 */
-	function validate(cb) {
-	  $.ajax({
-	    url: paths.validate,
-	    type: 'GET',
-	    headers: {
-	      'Authorization': 'Bearer ' + userStore.userStore.token
-	    }
-	  }).success(function (data) {
-	    userStore.userActions.login(data.token);
-	    cb(null);
-	  }).fail(function (err) {
-	    cb(err);
-	  });
-	}
-
-	function login(user) {
-	  return $.ajax({
-	    url: paths.login,
-	    type: 'POST',
-	    data: JSON.stringify(user),
-	    headers: {
-	      'Content-Type': 'application/json'
-	    }
-	  });
-	}
-
-	function register(user) {
-	  return $.ajax({
-	    url: paths.register,
-	    type: 'POST',
-	    data: JSON.stringify(user),
-	    headers: {
-	      'Content-Type': 'application/json'
-	    }
-	  });
-	}
-
-	module.exports = {
-	  validate: validate,
-	  login: login,
-	  register: register
-	};
+	module.exports = Reflux;
 
 /***/ },
 /* 12 */

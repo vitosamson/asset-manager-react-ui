@@ -5,7 +5,9 @@ var React = require('react'),
     Route = Router.Route,
     TopNav = require('./components/topnav'),
     Sidemenu = require('./components/sidemenu'),
-    userStore = require('./components/user/store').userStore,
+    userStore = require('./components/user/store').store,
+    userActions = require('./components/user/store').actions,
+    userApi = require('./components/user/api'),
     Login = require('./components/user/views/login'),
     Register = require('./components/user/views/register'),
     Authenticated = require('./components/user/mixins').Authenticated;
@@ -13,6 +15,7 @@ var React = require('react'),
 var App = React.createClass({
   mixins: [Router.Navigation],
   componentDidMount: function() {
+    userStore.init();
     userStore.listen(function(token) {
       if (!token)
         this.transitionTo('login');
@@ -29,6 +32,9 @@ var App = React.createClass({
 
 var LoggedIn = React.createClass({
   mixins: [Authenticated],
+  componentDidMount: function() {
+    userApi.me();
+  },
   render: function() {
     return (
       <div className="ui page grid">
@@ -64,7 +70,9 @@ var routes = (
       <Router.DefaultRoute name='login' handler={Login}/>
       <Route path='register' name='register' handler={Register}/>
     </Route>
-    <Route path='/app' name='app' handler={LoggedIn}></Route>
+    <Route path='/app' name='app' handler={LoggedIn}>
+      <Route path='account' name='account' handler={LoggedIn}/>
+    </Route>
   </Route>
 );
 

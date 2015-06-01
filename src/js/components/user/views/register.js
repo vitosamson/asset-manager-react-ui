@@ -36,7 +36,7 @@ var register = React.createClass({
     if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
       userApi.register(user)
       .success(function(data) {
-        userStore.userActions.login(data.token);
+        userStore.actions.login(data.token);
       }).fail(function(err) {
         console.error(err);
       });

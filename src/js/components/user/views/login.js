@@ -33,7 +33,7 @@ var login = React.createClass({
       }, function() {
         this.setState({loading: true});
         userApi.login(this.state.user).then(function(data) {
-          userStore.userActions.login(data.token);
+          userStore.actions.login(data.token, data.user);
         }, function(err) {
           console.error(err);
         }.bind(this));

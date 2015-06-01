@@ -8,7 +8,8 @@ basePath = basePath + 'users/';
 var paths = {
   validate: basePath + 'validate',
   login: basePath + 'login',
-  register: basePath + 'signup'
+  register: basePath + 'signup',
+  me: basePath + 'me'
 };
 
 /**
@@ -19,11 +20,11 @@ function validate(cb) {
     url: paths.validate,
     type: 'GET',
     headers: {
-      'Authorization': 'Bearer ' + userStore.userStore.token
+      'Authorization': 'Bearer ' + userStore.store.token
     }
   })
   .success(function(data) {
-    userStore.userActions.login(data.token);
+    userStore.actions.login(data.token);
     cb(null);
   }).fail(function(err) {
     cb(err);
@@ -52,8 +53,21 @@ function register(user) {
   });
 }
 
+function me(token) {
+  $.ajax({
+    url: paths.me,
+    type: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + userStore.store.token
+    }
+  }).success(function(data) {
+    userStore.actions.update(data);
+  });
+}
+
 module.exports = {
   validate: validate,
   login: login,
-  register: register
+  register: register,
+  me: me
 };

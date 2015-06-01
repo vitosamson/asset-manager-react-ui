@@ -4,7 +4,8 @@ var Reflux = require('reflux');
 
 var userActions = Reflux.createActions([
   'login',
-  'logout'
+  'logout',
+  'update'
 ]);
 
 var userStore = Reflux.createStore({
@@ -12,15 +13,21 @@ var userStore = Reflux.createStore({
     this.load();
     this.listenToMany(userActions);
   },
-  onLogin: function(token) {
+  onLogin: function(token, user) {
     this.token = token;
+    this.user = user;
     this.save();
-    this.trigger(this.token);
+    this.trigger(this.token, this.user);
   },
   onLogout: function() {
     this.token = null;
     this.save();
-    this.trigger(this.token);
+    this.trigger(this.token, this.user);
+  },
+  onUpdate: function(user) {
+    if (user)
+      this.user = user;
+    this.trigger(this.token, this.user);
   },
   save: function() {
     if (this.token)
@@ -34,6 +41,6 @@ var userStore = Reflux.createStore({
 });
 
 module.exports = {
-  userStore: userStore,
-  userActions: userActions
+  store: userStore,
+  actions: userActions
 };

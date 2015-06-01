@@ -1,13 +1,28 @@
 'use strict';
+
 var React = require('react'),
     Dropdown = require('react-semantify').Dropdown,
+    Reflux = require('reflux'),
+    Link = require('react-router').Link,
     userStore = require('./user/store');
 
 var topNav = React.createClass({
+  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+  getInitialState: function() {
+    return {
+      user: userStore.store.user
+    };
+  },
   logout: function() {
-    userStore.userActions.logout();
+    userStore.actions.logout();
+  },
+  onUserUpdate: function(token, user) {
+    this.setState({
+      user: user
+    });
   },
   render: function() {
+    var user = this.state.user;
     return (
       <div className="row">
         <div className="sixteen wide column">
@@ -22,10 +37,10 @@ var topNav = React.createClass({
               <div className="right menu">
                 <Dropdown className="ui item" init={true}>
                   <i className="icon user"></i>
-                  Vito LaVilla
+                  {user ? user.firstName + ' ' + user.lastName : ''}
           
                   <div className="menu">
-                    <a className="item">My Account</a>
+                    <Link to="account" className="item">My Account</Link>
                     <a className="item" onClick={this.logout}>Logout</a>
                   </div>
                 </Dropdown>
