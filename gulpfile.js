@@ -1,57 +1,34 @@
 'use strict';
 
 var gulp = require('gulp'),
-    browserify = require('browserify'),
     browserSync = require('browser-sync'),
-    reactify = require('reactify'),
     plugins = require('gulp-load-plugins')(),
-    sourceStream = require('vinyl-source-stream'),
-    buffer = require('vinyl-buffer'),
-    bowerResolve = require('bower-resolve'),
     config = require('./gulp.config.js');
 
 gulp.task('build:js:app', function() {
-  var b = browserify({
-    entries: [config.files.js.vendor.src, config.files.js.app.src],
-    debug: true,
-    transform: [reactify],
-  });
-
-  config.bowerDeps.forEach(function(dep) {
-    b.external(dep);
-  });
-
-  return b.bundle()
-    .pipe(sourceStream(config.files.js.app.build))
-    .pipe(buffer())
-    .pipe(plugins.sourcemaps.init({loadMaps: true}))
-    .pipe(plugins.sourcemaps.write())
+  return gulp.src(config.app.js.src)
+    .pipe(plugins.webpack(config.webpack.bundle))
+    .pipe(plugins.rename(config.app.js.build))
     .pipe(gulp.dest(config.dirs.js));
 });
 
 gulp.task('js:app:watch', ['build:js:app'], reload);
 
 gulp.task('build:js:vendor', function() {
-
-  var b = browserify({
-    debug: true
-  });
-
-  config.bowerDeps.forEach(function(dep) {
-    var path = bowerResolve.fastReadSync(dep);
-    b.require(path, {
-      expose: dep
-    });
-  });
-
-  return b.bundle()
-    .pipe(sourceStream(config.files.js.vendor.build))
-    .pipe(buffer())
+  return gulp.src(config.vendor.js.src)
+    .pipe(plugins.concat(config.vendor.js.build))
     .pipe(gulp.dest(config.dirs.js));
 });
 
+gulp.task('build:styles:vendor', function() {
+  return gulp.src(config.vendor.css.src)
+    .pipe(plugins.concat(config.vendor.css.build))
+    .pipe(gulp.dest(config.dirs.styles));
+});
+
 gulp.task('watch', function() {
-  gulp.watch(config.files.js.app.glob,    ['js:app:watch']);
+  gulp.watch(config.app.js.glob,    ['js:app:watch']);
+  gulp.watch(config.app.html,              reload);
 
   browserSync.init({
     open: false,
@@ -65,7 +42,8 @@ gulp.task('watch', function() {
 
 gulp.task('build', [
   'build:js:vendor',
-  'build:js:app'
+  'build:js:app',
+  'build:styles:vendor'
 ]);
 
 gulp.task('default', [
