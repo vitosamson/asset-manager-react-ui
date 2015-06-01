@@ -502,9 +502,10 @@
 	          setImmediate((function () {
 	            this.transitionTo('app');
 	          }).bind(this));
-	        }).bind(this), function (err) {
-	          console.error(err);
-	        });
+	        }).bind(this), (function (err) {
+	          if (err.status == 401) error.form = 'Invalid email or password';else error.form = 'Something went wrong, please try again';
+	          this.setState({ error: error, loading: false });
+	        }).bind(this));
 	      }).bind(this));
 	    }
 	  },
@@ -519,10 +520,13 @@
 	  },
 	  render: function render() {
 	    var emailError = this.state.error.email,
-	        passwordError = this.state.error.password;
+	        passwordError = this.state.error.password,
+	        formError = this.state.error.form;
 
 	    var emailClass = emailError ? 'field error' : 'field',
-	        passwordClass = passwordError ? 'field error' : 'field';
+	        passwordClass = passwordError ? 'field error' : 'field',
+	        formClass = formError ? 'ui form error' : 'ui form',
+	        btnClass = this.state.loading ? 'ui primary button loading' : 'ui primary button';
 
 	    return React.createElement(
 	      'div',
@@ -532,7 +536,16 @@
 	        { className: 'column' },
 	        React.createElement(
 	          'form',
-	          { className: 'ui form', onSubmit: this.submit, noValidate: true },
+	          { className: formClass, onSubmit: this.submit, noValidate: true },
+	          React.createElement(
+	            'div',
+	            { className: 'ui error message' },
+	            React.createElement(
+	              'p',
+	              null,
+	              formError
+	            )
+	          ),
 	          React.createElement(
 	            'div',
 	            { className: emailClass },
@@ -558,7 +571,7 @@
 	            { className: 'two fields' },
 	            React.createElement(
 	              'button',
-	              { type: 'submit', className: 'ui primary button' },
+	              { type: 'submit', className: btnClass },
 	              'Login'
 	            ),
 	            React.createElement(
@@ -717,7 +730,7 @@
 	            React.createElement(
 	              Link,
 	              { to: 'login', className: 'ui basic button' },
-	              'Sign in'
+	              'I already have an account'
 	            )
 	          )
 	        )

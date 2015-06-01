@@ -88,7 +88,7 @@ var register = React.createClass({
             </div>
             <div className="two fields">
               <button type="submit" className="ui primary button">Register</button>
-              <Link to="login" className="ui basic button">Sign in</Link>
+              <Link to="login" className="ui basic button">I already have an account</Link>
             </div>
           </form>
         </div>
