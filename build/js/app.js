@@ -74,9 +74,14 @@
 	var LoggedIn = React.createClass({
 	  displayName: 'LoggedIn',
 
-	  mixins: [Authenticated],
+	  mixins: [Authenticated, Router.Navigation],
 	  componentDidMount: function componentDidMount() {
-	    userApi.me();
+	    userApi.me((function (err) {
+	      if (err) {
+	        userActions.logout();
+	        this.transitionTo('login');
+	      }
+	    }).bind(this));
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -161,7 +166,7 @@
 	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
-	      user: userStore.store.user
+	      user: userStore.store.user || {}
 	    };
 	  },
 	  logout: function logout() {
@@ -202,7 +207,9 @@
 	                Dropdown,
 	                { className: 'ui item', init: true },
 	                React.createElement('i', { className: 'icon user' }),
-	                user ? user.firstName + ' ' + user.lastName : '',
+	                user.firstName,
+	                ' ',
+	                user.lastName ? user.lastName : '',
 	                React.createElement(
 	                  'div',
 	                  { className: 'menu' },
@@ -423,7 +430,7 @@
 	  });
 	}
 
-	function me(token) {
+	function me(cb) {
 	  $.ajax({
 	    url: paths.me,
 	    type: 'GET',
@@ -432,6 +439,8 @@
 	    }
 	  }).success(function (data) {
 	    userStore.actions.update(data);
+	  }).fail(function (err) {
+	    cb(err);
 	  });
 	}
 
@@ -593,16 +602,18 @@
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
 
 	var React = __webpack_require__(1),
 	    Link = __webpack_require__(2).Link,
+	    Navigation = __webpack_require__(2).Navigation,
 	    userStore = __webpack_require__(5),
 	    userApi = __webpack_require__(6);
 
 	var register = React.createClass({
 	  displayName: 'register',
 
+	  mixins: [Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
 	      error: {},
@@ -617,25 +628,29 @@
 
 	    if (!user.email) {
 	      error.email = true;
-	      this.setState({ error: error });
 	    }
 
 	    if (!user.firstName) {
-	      error.name = true;
-	      this.setState({ error: error });
+	      error.firstName = true;
 	    }
 
 	    if (!user.password || user.password !== user.passwordConfirm) {
 	      error.password = true;
-	      this.setState({ error: error });
 	    }
 
+	    this.setState({ error: error });
+
 	    if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
-	      userApi.register(user).success(function (data) {
+	      this.setState({ loading: true });
+	      userApi.register(user).success((function (data) {
 	        userStore.actions.login(data.token);
-	      }).fail(function (err) {
-	        console.error(err);
-	      });
+	        setImmediate((function () {
+	          this.transitionTo('app');
+	        }).bind(this));
+	      }).bind(this)).fail((function (err) {
+	        if (err.status == 400) error.form = 'That email is already in use';else error.form = 'Something went wrong, please try again';
+	        this.setState({ error: error, loading: false });
+	      }).bind(this));
 	    }
 	  },
 	  inputChange: function inputChange(e) {
@@ -650,11 +665,14 @@
 	  render: function render() {
 	    var emailError = this.state.error.email,
 	        passwordError = this.state.error.password,
-	        nameError = this.state.error.name;
+	        nameError = this.state.error.firstName,
+	        formError = this.state.error.form;
 
 	    var emailClass = emailError ? 'field error' : 'field',
 	        passwordClass = passwordError ? 'field error' : 'field',
-	        nameClass = nameError ? 'field error' : 'field';
+	        nameClass = nameError ? 'field error' : 'field',
+	        formClass = formError ? 'ui form error' : 'ui form',
+	        btnClass = this.state.loading ? 'ui primary button loading' : 'ui primary button';
 
 	    return React.createElement(
 	      'div',
@@ -664,7 +682,16 @@
 	        { className: 'column' },
 	        React.createElement(
 	          'form',
-	          { className: 'ui form', onSubmit: this.submit, noValidate: true },
+	          { className: formClass, onSubmit: this.submit, noValidate: true },
+	          React.createElement(
+	            'div',
+	            { className: 'ui error message' },
+	            React.createElement(
+	              'p',
+	              null,
+	              formError
+	            )
+	          ),
 	          React.createElement(
 	            'div',
 	            { className: 'two fields' },
@@ -676,7 +703,7 @@
 	                { htmlFor: 'firstName' },
 	                'First name'
 	              ),
-	              React.createElement('input', { required: 'true', type: 'text', id: 'firstName', name: 'firstName', onChange: this.inputChange, error: this.state.error.email, placeholder: 'Required' })
+	              React.createElement('input', { required: 'true', type: 'text', id: 'firstName', name: 'firstName', onChange: this.inputChange, placeholder: 'Required' })
 	            ),
 	            React.createElement(
 	              'div',
@@ -724,7 +751,7 @@
 	            { className: 'two fields' },
 	            React.createElement(
 	              'button',
-	              { type: 'submit', className: 'ui primary button' },
+	              { type: 'submit', className: btnClass },
 	              'Register'
 	            ),
 	            React.createElement(
@@ -740,6 +767,7 @@
 	});
 
 	module.exports = register;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
 
 /***/ },
 /* 9 */

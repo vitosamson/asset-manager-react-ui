@@ -2,10 +2,12 @@
 
 var React = require('react'),
     Link = require('react-router').Link,
+    Navigation = require('react-router').Navigation,
     userStore = require('../store'),
     userApi = require('../api');
 
 var register = React.createClass({
+  mixins: [Navigation],
   getInitialState: function() {
     return {
       error: {},
@@ -20,26 +22,33 @@ var register = React.createClass({
 
     if (!user.email) {
       error.email = true;
-      this.setState({error: error});
     }
 
     if (!user.firstName) {
-      error.name = true;
-      this.setState({error: error});
+      error.firstName = true;
     }
 
     if (!user.password || user.password !== user.passwordConfirm) {
       error.password = true;
-      this.setState({error: error});
     }
 
+    this.setState({error: error});
+
     if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
+      this.setState({loading: true});
       userApi.register(user)
       .success(function(data) {
         userStore.actions.login(data.token);
-      }).fail(function(err) {
-        console.error(err);
-      });
+        setImmediate(function() {
+          this.transitionTo('app');
+        }.bind(this));
+      }.bind(this)).fail(function(err) {
+        if (err.status == 400)
+          error.form = 'That email is already in use';
+        else
+          error.form = 'Something went wrong, please try again';
+        this.setState({error: error, loading: false});
+      }.bind(this));
     }
   },
   inputChange: function(e) {
@@ -54,20 +63,26 @@ var register = React.createClass({
   render: function() {
     var emailError = this.state.error.email,
         passwordError = this.state.error.password,
-        nameError = this.state.error.name;
+        nameError = this.state.error.firstName,
+        formError = this.state.error.form;
 
     var emailClass = emailError ? 'field error' : 'field',
         passwordClass = passwordError ? 'field error': 'field',
-        nameClass = nameError ? 'field error' : 'field';
+        nameClass = nameError ? 'field error' : 'field',
+        formClass = formError ? 'ui form error' : 'ui form',
+        btnClass = this.state.loading ? 'ui primary button loading' : 'ui primary button';
 
     return (
       <div className="ui two column centered grid">
         <div className="column">
-          <form className="ui form" onSubmit={this.submit} noValidate>
+          <form className={formClass} onSubmit={this.submit} noValidate>
+            <div className="ui error message">
+              <p>{formError}</p>
+            </div>
             <div className="two fields">
               <div className={nameClass}>
                 <label htmlFor="firstName">First name</label>
-                <input required="true" type="text" id="firstName" name="firstName" onChange={this.inputChange} error={this.state.error.email} placeholder="Required"/>
+                <input required="true" type="text" id="firstName" name="firstName" onChange={this.inputChange} placeholder="Required"/>
               </div>
               <div className="field">
                 <label htmlFor="lastName">Last name</label>
@@ -87,7 +102,7 @@ var register = React.createClass({
               <input required="true" type="password" id="passwordConfirm" name="passwordConfirm" onChange={this.inputChange} placeholder="Required"/>
             </div>
             <div className="two fields">
-              <button type="submit" className="ui primary button">Register</button>
+              <button type="submit" className={btnClass}>Register</button>
               <Link to="login" className="ui basic button">I already have an account</Link>
             </div>
           </form>

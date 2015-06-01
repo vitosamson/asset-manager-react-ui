@@ -11,7 +11,7 @@ var topNav = React.createClass({
   mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
   getInitialState: function() {
     return {
-      user: userStore.store.user
+      user: userStore.store.user || {}
     };
   },
   logout: function() {
@@ -41,7 +41,7 @@ var topNav = React.createClass({
               <div className="right menu">
                 <Dropdown className="ui item" init={true}>
                   <i className="icon user"></i>
-                  {user ? user.firstName + ' ' + user.lastName : ''}
+                  {user.firstName} {user.lastName ? user.lastName : ''}
           
                   <div className="menu">
                     <Link to="account" className="item">My Account</Link>

@@ -26,9 +26,14 @@ var App = React.createClass({
 });
 
 var LoggedIn = React.createClass({
-  mixins: [Authenticated],
+  mixins: [Authenticated, Router.Navigation],
   componentDidMount: function() {
-    userApi.me();
+    userApi.me(function(err) {
+      if (err) {
+        userActions.logout();
+        this.transitionTo('login');
+      }
+    }.bind(this));
   },
   render: function() {
     return (

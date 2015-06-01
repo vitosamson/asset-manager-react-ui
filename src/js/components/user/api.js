@@ -53,7 +53,7 @@ function register(user) {
   });
 }
 
-function me(token) {
+function me(cb) {
   $.ajax({
     url: paths.me,
     type: 'GET',
@@ -62,6 +62,8 @@ function me(token) {
     }
   }).success(function(data) {
     userStore.actions.update(data);
+  }).fail(function(err) {
+    cb(err);
   });
 }
 
