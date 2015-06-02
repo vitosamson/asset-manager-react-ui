@@ -13,6 +13,18 @@ function getList() {
   });
 }
 
+function get(id) {
+  return new Promise(function(resolve, reject) {
+    api('organizations')(id).get(function(err, res) {
+      if (err)
+        return reject(err);
+
+      resolve(res.data);
+    });
+  });
+}
+
 module.exports = {
-  getList: getList
+  getList: getList,
+  get: get
 };

@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react'),
+    Link = require('react-router').Link,
     Reflux = require('reflux'),
     orgStore = require('../store').store,
     orgApi = require('../api');
@@ -17,7 +18,7 @@ var OrgList = React.createClass({
       if (org.parent) {
         return (
           <div>
-            <i className="icon child"></i>
+            <i className="level up icon"></i>
             {org.parent.name}
           </div>
         );
@@ -34,9 +35,9 @@ var OrgList = React.createClass({
                   {org.name}
                 </div>
                 <div className="meta">
-                  {org.description}
-
                   {showParent(org)}
+
+                  {org.description}
                 </div>
                 <div className="description">
                 </div>
@@ -45,9 +46,9 @@ var OrgList = React.createClass({
                 <i className="icon server"></i>
                 {org.assets ? org.assets.length : '0'} Assets
 
-                <a className="right floated">
+                <Link to="org" params={{orgId: org._id}} className="right floated">
                   Go to asset list
-                </a>
+                </Link>
               </div>
             </div>
           );

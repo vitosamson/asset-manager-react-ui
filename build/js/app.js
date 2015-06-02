@@ -58,7 +58,8 @@
 	    Register = __webpack_require__(8),
 	    Account = __webpack_require__(9),
 	    Authenticated = __webpack_require__(10).Authenticated,
-	    Orgs = __webpack_require__(11);
+	    Orgs = __webpack_require__(11),
+	    Org = __webpack_require__(12);
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -139,7 +140,7 @@
 	    React.createElement(Router.DefaultRoute, { name: 'dashboard', handler: Dashboard }),
 	    React.createElement(Route, { path: 'account', name: 'account', handler: Account }),
 	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs }),
-	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Orgs })
+	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Org })
 	  )
 	);
 
@@ -166,8 +167,8 @@
 	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(12).Dropdown,
-	    Reflux = __webpack_require__(13),
+	    Dropdown = __webpack_require__(13).Dropdown,
+	    Reflux = __webpack_require__(14),
 	    Navigation = __webpack_require__(2).Navigation,
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5);
@@ -246,7 +247,7 @@
 	});
 
 	module.exports = topNav;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
 /* 4 */
@@ -255,10 +256,10 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(13),
-	    Dropdown = __webpack_require__(12).Dropdown,
+	    Reflux = __webpack_require__(14),
+	    Dropdown = __webpack_require__(13).Dropdown,
 	    Link = __webpack_require__(2).Link,
-	    orgStore = __webpack_require__(15).store;
+	    orgStore = __webpack_require__(16).store;
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -347,7 +348,7 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(13);
+	var Reflux = __webpack_require__(14);
 
 	var userActions = Reflux.createActions(['login', 'logout', 'update']);
 
@@ -390,9 +391,9 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(14),
+	var $ = __webpack_require__(15),
 	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(16).API_BASE;
+	    basePath = __webpack_require__(17).API_BASE;
 
 	basePath = basePath + 'users/';
 	var paths = {
@@ -608,7 +609,7 @@
 	});
 
 	module.exports = login;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
 /* 8 */
@@ -779,7 +780,7 @@
 	});
 
 	module.exports = register;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
 /* 9 */
@@ -788,7 +789,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(13),
+	    Reflux = __webpack_require__(14),
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5),
 	    userApi = __webpack_require__(6);
@@ -954,9 +955,10 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(13),
-	    orgStore = __webpack_require__(15).store,
-	    orgApi = __webpack_require__(17);
+	    Link = __webpack_require__(2).Link,
+	    Reflux = __webpack_require__(14),
+	    orgStore = __webpack_require__(16).store,
+	    orgApi = __webpack_require__(18);
 
 	var OrgList = React.createClass({
 	  displayName: 'OrgList',
@@ -973,7 +975,7 @@
 	        return React.createElement(
 	          'div',
 	          null,
-	          React.createElement('i', { className: 'icon child' }),
+	          React.createElement('i', { className: 'level up icon' }),
 	          org.parent.name
 	        );
 	      }
@@ -997,8 +999,8 @@
 	            React.createElement(
 	              'div',
 	              { className: 'meta' },
-	              org.description,
-	              showParent(org)
+	              showParent(org),
+	              org.description
 	            ),
 	            React.createElement('div', { className: 'description' })
 	          ),
@@ -1009,8 +1011,8 @@
 	            org.assets ? org.assets.length : '0',
 	            ' Assets',
 	            React.createElement(
-	              'a',
-	              { className: 'right floated' },
+	              Link,
+	              { to: 'org', params: { orgId: org._id }, className: 'right floated' },
 	              'Go to asset list'
 	            )
 	          )
@@ -1026,28 +1028,172 @@
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Semantify;
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Link = __webpack_require__(2).Link,
+	    orgStore = __webpack_require__(16).store,
+	    orgApi = __webpack_require__(18);
+
+	var OrgShow = React.createClass({
+	  displayName: 'OrgShow',
+
+	  contextTypes: {
+	    router: React.PropTypes.func
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      org: {}
+	    };
+	  },
+	  componentDidMount: function componentDidMount() {
+	    // invoked once upon initial rendering
+	    this.getOrg();
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    // invoked when receiving new props - i.e. when navigating from a different page
+	    this.getOrg();
+	  },
+	  getOrg: function getOrg() {
+	    var orgId = this.context.router.getCurrentParams().orgId;
+	    orgApi.get(orgId).then((function (org) {
+	      this.setState({
+	        org: org
+	      });
+	    }).bind(this), function (err) {
+	      console.error(err);
+	    });
+	  },
+	  render: function render() {
+	    var org = this.state.org,
+	        assets = org.assets ? org.assets.sort() : [];
+
+	    function showParent() {
+	      if (org.parent) {
+	        return React.createElement(
+	          Link,
+	          { to: 'org', params: { orgId: org.parent._id } },
+	          React.createElement(
+	            'div',
+	            { className: 'sub header' },
+	            React.createElement('i', { className: 'level up icon' }),
+	            org.parent.name
+	          )
+	        );
+	      }
+	    }
+
+	    var assetTable = assets.map(function (asset) {
+	      return React.createElement(
+	        'tr',
+	        null,
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.name
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.description
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.modified
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.flagged
+	        )
+	      );
+	    });
+
+	    var noAssets = React.createElement(
+	      'tr',
+	      null,
+	      React.createElement(
+	        'td',
+	        null,
+	        'No assets'
+	      )
+	    );
+
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(
+	        'h1',
+	        { className: 'ui header' },
+	        React.createElement(
+	          'div',
+	          { className: 'content' },
+	          org.name,
+	          showParent(),
+	          React.createElement(
+	            'div',
+	            { className: 'sub header' },
+	            org.description
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'table',
+	        { className: 'ui table' },
+	        React.createElement(
+	          'thead',
+	          null,
+	          React.createElement(
+	            'tr',
+	            null,
+	            React.createElement(
+	              'th',
+	              { colspan: '4' },
+	              'Assets'
+	            )
+	          )
+	        ),
+	        assets.length > 0 ? assetTable : noAssets
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'ui labeled icon button' },
+	        React.createElement('i', { className: 'add square icon' }),
+	        'Add new asset'
+	      )
+	    );
+	  }
+	});
+
+	module.exports = OrgShow;
 
 /***/ },
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Reflux;
+	module.exports = Semantify;
 
 /***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = $;
+	module.exports = Reflux;
 
 /***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = $;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var Reflux = __webpack_require__(13),
-	    orgApi = __webpack_require__(17);
+	var Reflux = __webpack_require__(14),
+	    orgApi = __webpack_require__(18);
 
 	var orgActions = Reflux.createActions(['create', 'update', 'destroy']);
 
@@ -1067,7 +1213,7 @@
 	};
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1077,12 +1223,12 @@
 	};
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(19);
+	var api = __webpack_require__(20);
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -1094,15 +1240,26 @@
 	  });
 	}
 
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api('organizations')(id).get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
 	module.exports = {
-	  getList: getList
+	  getList: getList,
+	  get: get
 	};
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(21).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(22).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -1178,16 +1335,16 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(18).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate, __webpack_require__(19).clearImmediate))
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fermata = __webpack_require__(20),
-	    config = __webpack_require__(16),
+	var fermata = __webpack_require__(21),
+	    config = __webpack_require__(17),
 	    userStore = __webpack_require__(5).store;
 
 	// sets up an API template - base url, headers, json parsing
@@ -1216,13 +1373,13 @@
 	module.exports = fermata.base();
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = fermata;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser
