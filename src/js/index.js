@@ -11,7 +11,8 @@ var React = require('react'),
     Login = require('./components/user/views/login'),
     Register = require('./components/user/views/register'),
     Account = require('./components/user/views/account'),
-    Authenticated = require('./components/user/mixins').Authenticated;
+    Authenticated = require('./components/user/mixins').Authenticated,
+    Orgs = require('./components/organizations/views/list');
 
 var App = React.createClass({
   mixins: [Router.Navigation],
@@ -74,6 +75,7 @@ var routes = (
     </Route>
     <Route path='/app' name='app' handler={LoggedIn}>
       <Route path='account' name='account' handler={Account}/>
+      <Route path='orgs' name='orgs' handler={Orgs}/>
     </Route>
   </Route>
 );

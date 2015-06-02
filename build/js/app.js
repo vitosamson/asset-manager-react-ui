@@ -57,7 +57,8 @@
 	    Login = __webpack_require__(7),
 	    Register = __webpack_require__(8),
 	    Account = __webpack_require__(9),
-	    Authenticated = __webpack_require__(10).Authenticated;
+	    Authenticated = __webpack_require__(10).Authenticated,
+	    Orgs = __webpack_require__(11);
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -127,7 +128,8 @@
 	  React.createElement(
 	    Route,
 	    { path: '/app', name: 'app', handler: LoggedIn },
-	    React.createElement(Route, { path: 'account', name: 'account', handler: Account })
+	    React.createElement(Route, { path: 'account', name: 'account', handler: Account }),
+	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs })
 	  )
 	);
 
@@ -154,8 +156,8 @@
 	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(11).Dropdown,
-	    Reflux = __webpack_require__(12),
+	    Dropdown = __webpack_require__(12).Dropdown,
+	    Reflux = __webpack_require__(13),
 	    Navigation = __webpack_require__(2).Navigation,
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5);
@@ -234,7 +236,7 @@
 	});
 
 	module.exports = topNav;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
 
 /***/ },
 /* 4 */
@@ -243,12 +245,20 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(11).Dropdown,
-	    Link = __webpack_require__(2).Link;
+	    Reflux = __webpack_require__(13),
+	    Dropdown = __webpack_require__(12).Dropdown,
+	    Link = __webpack_require__(2).Link,
+	    orgStore = __webpack_require__(15).store;
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
 
+	  mixins: [Reflux.connect(orgStore, 'orgs')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      orgs: orgStore.orgs || []
+	    };
+	  },
 	  render: function render() {
 	    return React.createElement(
 	      'div',
@@ -280,21 +290,13 @@
 	          React.createElement(
 	            'div',
 	            { className: 'menu' },
-	            React.createElement(
-	              'a',
-	              { className: 'item' },
-	              'Foo'
-	            ),
-	            React.createElement(
-	              'a',
-	              { className: 'item' },
-	              'Bar'
-	            ),
-	            React.createElement(
-	              'a',
-	              { className: 'item' },
-	              'Baz'
-	            )
+	            this.state.orgs.map(function (org) {
+	              return React.createElement(
+	                'a',
+	                { className: 'item' },
+	                org.name
+	              );
+	            })
 	          )
 	        ),
 	        React.createElement(
@@ -306,8 +308,8 @@
 	            'div',
 	            { className: 'menu' },
 	            React.createElement(
-	              'a',
-	              { className: 'item' },
+	              Link,
+	              { to: 'orgs', className: 'item' },
 	              'Organizations'
 	            ),
 	            React.createElement(
@@ -335,7 +337,7 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(12);
+	var Reflux = __webpack_require__(13);
 
 	var userActions = Reflux.createActions(['login', 'logout', 'update']);
 
@@ -378,9 +380,9 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(13),
+	var $ = __webpack_require__(14),
 	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(14).API_BASE;
+	    basePath = __webpack_require__(16).API_BASE;
 
 	basePath = basePath + 'users/';
 	var paths = {
@@ -596,7 +598,7 @@
 	});
 
 	module.exports = login;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
 
 /***/ },
 /* 8 */
@@ -767,7 +769,7 @@
 	});
 
 	module.exports = register;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate))
 
 /***/ },
 /* 9 */
@@ -776,7 +778,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(12),
+	    Reflux = __webpack_require__(13),
 	    Link = __webpack_require__(2).Link,
 	    userStore = __webpack_require__(5),
 	    userApi = __webpack_require__(6);
@@ -939,22 +941,123 @@
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Semantify;
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(13),
+	    orgStore = __webpack_require__(15).store,
+	    orgApi = __webpack_require__(17);
+
+	var OrgList = React.createClass({
+	  displayName: 'OrgList',
+
+	  mixins: [Reflux.connect(orgStore, 'orgs')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      orgs: orgStore.orgs || []
+	    };
+	  },
+	  render: function render() {
+	    function showParent(org) {
+	      if (org.parent) {
+	        return React.createElement(
+	          'div',
+	          null,
+	          React.createElement('i', { className: 'icon child' }),
+	          org.parent.name
+	        );
+	      }
+	    }
+
+	    return React.createElement(
+	      'div',
+	      { className: 'ui two doubling cards' },
+	      this.state.orgs.map(function (org, idx) {
+	        return React.createElement(
+	          'div',
+	          { className: 'ui card' },
+	          React.createElement(
+	            'div',
+	            { className: 'content' },
+	            React.createElement(
+	              'div',
+	              { className: 'header' },
+	              org.name
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'meta' },
+	              org.description,
+	              showParent(org)
+	            ),
+	            React.createElement('div', { className: 'description' })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'extra content' },
+	            React.createElement('i', { className: 'icon server' }),
+	            org.assets ? org.assets.length : '0',
+	            ' Assets',
+	            React.createElement(
+	              'a',
+	              { className: 'right floated' },
+	              'Go to asset list'
+	            )
+	          )
+	        );
+	      })
+	    );
+	  }
+	});
+
+	module.exports = OrgList;
 
 /***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Reflux;
+	module.exports = Semantify;
 
 /***/ },
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = $;
+	module.exports = Reflux;
 
 /***/ },
 /* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = $;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(13),
+	    orgApi = __webpack_require__(17);
+
+	var orgActions = Reflux.createActions(['create', 'update', 'destroy']);
+
+	var orgStore = Reflux.createStore({
+	  listenables: orgActions,
+	  init: function init() {
+	    orgApi.getList().then((function (orgs) {
+	      this.orgs = orgs.data;
+	      this.trigger(orgs.data);
+	    }).bind(this));
+	  }
+	});
+
+	module.exports = {
+	  actions: orgActions,
+	  store: orgStore
+	};
+
+/***/ },
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -964,10 +1067,32 @@
 	};
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(16).nextTick;
+	'use strict';
+
+	var api = __webpack_require__(19);
+
+	function getList() {
+	  return new Promise(function (resolve, reject) {
+	    api('organizations').get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res);
+	    });
+	  });
+	}
+
+	module.exports = {
+	  getList: getList
+	};
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(21).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -1043,10 +1168,51 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).setImmediate, __webpack_require__(15).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(18).clearImmediate))
 
 /***/ },
-/* 16 */
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var fermata = __webpack_require__(20),
+	    config = __webpack_require__(16),
+	    userStore = __webpack_require__(5).store;
+
+	// sets up an API template - base url, headers, json parsing
+	function registerPlugin(token) {
+	  fermata.registerPlugin('base', function (transport, name, key) {
+	    this.base = config.API_BASE;
+
+	    return function (req, cb) {
+	      req.headers.Authorization = 'Bearer ' + token;
+	      req.headers['Content-Type'] = 'application/json';
+	      req.data = JSON.stringify(req.data);
+
+	      return transport(req, function (err, res) {
+	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else res.data = JSON.parse(res.data);
+
+	        cb(err, res);
+	      });
+	    };
+	  });
+	}
+
+	registerPlugin(userStore.token);
+
+	userStore.listen(registerPlugin);
+
+	module.exports = fermata.base();
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = fermata;
+
+/***/ },
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser

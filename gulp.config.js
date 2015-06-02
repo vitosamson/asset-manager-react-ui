@@ -20,6 +20,7 @@ var vendorScripts = [
   bowerRoot + 'react-router/build/umd/ReactRouter.js',
   bowerRoot + 'semantic-ui/dist/semantic.js',
   bowerRoot + 'reflux/dist/reflux.js',
+  bowerRoot + 'fermata/fermata.js',
   npmRoot + 'react-semantify/dst/react-semantify.js'
 ];
 
@@ -49,7 +50,8 @@ var externals = {
   'react-router': 'ReactRouter',
   'react-semantify': 'Semantify',
   'reflux': 'Reflux',
-  'jQuery': '$'
+  'jQuery': '$',
+  'fermata': 'fermata'
 };
 
 var webpack = {

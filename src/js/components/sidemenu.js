@@ -1,10 +1,18 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Dropdown = require('react-semantify').Dropdown,
-    Link = require('react-router').Link;
+    Link = require('react-router').Link,
+    orgStore = require('./organizations/store').store;
 
 var sidemenu = React.createClass({
+  mixins: [Reflux.connect(orgStore, 'orgs')],
+  getInitialState: function() {
+    return {
+      orgs: orgStore.orgs || []
+    };
+  },
   render: function() {
     return (
       <div className="four wide column">
@@ -26,9 +34,11 @@ var sidemenu = React.createClass({
             Organizations
         
             <div className="menu">
-              <a className="item">Foo</a>
-              <a className="item">Bar</a>
-              <a className="item">Baz</a>
+              {this.state.orgs.map(function(org) {
+                return (
+                  <a className="item">{org.name}</a>
+                );
+              })}
             </div>
           </div>
         
@@ -37,7 +47,7 @@ var sidemenu = React.createClass({
             Admin
         
             <div className="menu">
-              <a className="item">Organizations</a>
+              <Link to="orgs" className="item">Organizations</Link>
               <a className="item">Templates</a>
               <a className="item">Users</a>
             </div>
