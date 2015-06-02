@@ -72,6 +72,14 @@
 	  }
 	});
 
+	var Dashboard = React.createClass({
+	  displayName: 'Dashboard',
+
+	  render: function render() {
+	    return React.createElement('div', null);
+	  }
+	});
+
 	var LoggedIn = React.createClass({
 	  displayName: 'LoggedIn',
 
@@ -128,8 +136,10 @@
 	  React.createElement(
 	    Route,
 	    { path: '/app', name: 'app', handler: LoggedIn },
+	    React.createElement(Router.DefaultRoute, { name: 'dashboard', handler: Dashboard }),
 	    React.createElement(Route, { path: 'account', name: 'account', handler: Account }),
-	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs })
+	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs }),
+	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Orgs })
 	  )
 	);
 
@@ -278,7 +288,7 @@
 	        ),
 	        React.createElement(
 	          Link,
-	          { to: 'app', className: 'item' },
+	          { to: 'dashboard', className: 'item' },
 	          React.createElement('i', { className: 'home icon' }),
 	          'Dashboard'
 	        ),
@@ -292,8 +302,8 @@
 	            { className: 'menu' },
 	            this.state.orgs.map(function (org) {
 	              return React.createElement(
-	                'a',
-	                { className: 'item' },
+	                Link,
+	                { to: 'org', key: org._id, params: { orgId: org._id }, className: 'item' },
 	                org.name
 	              );
 	            })

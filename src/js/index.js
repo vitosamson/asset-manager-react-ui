@@ -26,6 +26,14 @@ var App = React.createClass({
   }
 });
 
+var Dashboard = React.createClass({
+  render: function() {
+    return (
+      <div></div>
+    );
+  }
+});
+
 var LoggedIn = React.createClass({
   mixins: [Authenticated, Router.Navigation],
   componentDidMount: function() {
@@ -74,8 +82,10 @@ var routes = (
       <Route path='register' name='register' handler={Register}/>
     </Route>
     <Route path='/app' name='app' handler={LoggedIn}>
+      <Router.DefaultRoute name='dashboard' handler={Dashboard}/>
       <Route path='account' name='account' handler={Account}/>
       <Route path='orgs' name='orgs' handler={Orgs}/>
+      <Route path='org/:orgId' name='org' handler={Orgs}/>
     </Route>
   </Route>
 );
