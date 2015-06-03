@@ -1,25 +1,14 @@
 'use strict';
 
 var Reflux = require('reflux'),
-    orgApi = require('./api');
-
-var orgActions = Reflux.createActions([
-  'create',
-  'update',
-  'destroy'
-]);
+    actions = require('./actions');
 
 var orgStore = Reflux.createStore({
-  listenables: orgActions,
-  init: function() {
-    orgApi.getList().then(function(orgs) {
-      this.orgs = orgs.data;
-      this.trigger(orgs.data);
-    }.bind(this));
+  listenables: actions,
+  onListComplete: function(orgs) {
+    this.orgs = orgs;
+    this.trigger(orgs);
   }
 });
 
-module.exports = {
-  actions: orgActions,
-  store: orgStore
-};
+module.exports = orgStore;

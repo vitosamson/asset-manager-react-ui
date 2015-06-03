@@ -1,11 +1,15 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Link = require('react-router').Link,
-    orgStore = require('../store').store,
-    orgApi = require('../api');
+    orgStore = require('../store'),
+    orgActions = require('../actions');
 
 var OrgShow = React.createClass({
+  mixins: [
+    Reflux.listenTo(orgActions.get.complete, 'onOrgUpdate')
+  ],
   contextTypes: {
     router: React.PropTypes.func
   },
@@ -14,8 +18,7 @@ var OrgShow = React.createClass({
       org: {}
     };
   },
-  componentDidMount: function() {
-    // invoked once upon initial rendering
+  componentWillMount: function() {
     this.getOrg();
   },
   componentWillReceiveProps: function() {
@@ -24,12 +27,11 @@ var OrgShow = React.createClass({
   },
   getOrg: function() {
     var orgId = this.context.router.getCurrentParams().orgId;
-    orgApi.get(orgId).then(function(org) {
-      this.setState({
-        org: org
-      });
-    }.bind(this), function(err) {
-      console.error(err);
+    orgActions.get(orgId);
+  },
+  onOrgUpdate: function(org) {
+    this.setState({
+      org: org
     });
   },
   render: function() {
@@ -75,7 +77,7 @@ var OrgShow = React.createClass({
         <table className="ui table">
           <thead>
             <tr>
-              <th colspan="4">Assets</th>
+              <th colSpan="4">Assets</th>
             </tr>
           </thead>
           { assets.length > 0 ? assetTable : noAssets }

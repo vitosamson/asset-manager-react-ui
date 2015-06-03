@@ -4,14 +4,25 @@ var React = require('react'),
     Reflux = require('reflux'),
     Dropdown = require('react-semantify').Dropdown,
     Link = require('react-router').Link,
-    orgStore = require('./organizations/store').store;
+    orgStore = require('./organizations/store'),
+    orgActions = require('./organizations/actions');
 
 var sidemenu = React.createClass({
-  mixins: [Reflux.connect(orgStore, 'orgs')],
+  mixins: [
+    Reflux.listenTo(orgStore, 'onOrgsUpdate')
+  ],
   getInitialState: function() {
     return {
       orgs: orgStore.orgs || []
     };
+  },
+  componentWillMount: function() {
+    orgActions.list();
+  },
+  onOrgsUpdate: function(orgs) {
+    this.setState({
+      orgs: orgs
+    });
   },
   render: function() {
     return (

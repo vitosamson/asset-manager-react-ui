@@ -3,15 +3,25 @@
 var React = require('react'),
     Link = require('react-router').Link,
     Reflux = require('reflux'),
-    orgStore = require('../store').store,
-    orgApi = require('../api');
+    orgStore = require('../store'),
+    orgActions = require('../actions');
 
 var OrgList = React.createClass({
-  mixins: [Reflux.connect(orgStore, 'orgs')],
+  mixins: [
+    Reflux.listenTo(orgStore, 'onOrgsUpdated')
+  ],
   getInitialState: function() {
     return {
       orgs: orgStore.orgs || []
     };
+  },
+  componentWillMount: function() {
+    orgActions.list();
+  },
+  onOrgsUpdated: function(orgs) {
+    this.setState({
+      orgs: orgs
+    });
   },
   render: function() {
     function showParent(org) {
@@ -29,7 +39,7 @@ var OrgList = React.createClass({
       <div className="ui two doubling cards">
         {this.state.orgs.map(function(org, idx) {
           return (
-            <div className="ui card">
+            <div className="ui card" key={org._id}>
               <div className="content">
                 <div className="header">
                   {org.name}

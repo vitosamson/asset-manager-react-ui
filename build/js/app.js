@@ -259,16 +259,25 @@
 	    Reflux = __webpack_require__(14),
 	    Dropdown = __webpack_require__(13).Dropdown,
 	    Link = __webpack_require__(2).Link,
-	    orgStore = __webpack_require__(16).store;
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
 
-	  mixins: [Reflux.connect(orgStore, 'orgs')],
+	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdate')],
 	  getInitialState: function getInitialState() {
 	    return {
 	      orgs: orgStore.orgs || []
 	    };
+	  },
+	  componentWillMount: function componentWillMount() {
+	    orgActions.list();
+	  },
+	  onOrgsUpdate: function onOrgsUpdate(orgs) {
+	    this.setState({
+	      orgs: orgs
+	    });
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -393,7 +402,7 @@
 
 	var $ = __webpack_require__(15),
 	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(17).API_BASE;
+	    basePath = __webpack_require__(18).API_BASE;
 
 	basePath = basePath + 'users/';
 	var paths = {
@@ -957,17 +966,25 @@
 	var React = __webpack_require__(1),
 	    Link = __webpack_require__(2).Link,
 	    Reflux = __webpack_require__(14),
-	    orgStore = __webpack_require__(16).store,
-	    orgApi = __webpack_require__(18);
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17);
 
 	var OrgList = React.createClass({
 	  displayName: 'OrgList',
 
-	  mixins: [Reflux.connect(orgStore, 'orgs')],
+	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdated')],
 	  getInitialState: function getInitialState() {
 	    return {
 	      orgs: orgStore.orgs || []
 	    };
+	  },
+	  componentWillMount: function componentWillMount() {
+	    orgActions.list();
+	  },
+	  onOrgsUpdated: function onOrgsUpdated(orgs) {
+	    this.setState({
+	      orgs: orgs
+	    });
 	  },
 	  render: function render() {
 	    function showParent(org) {
@@ -987,7 +1004,7 @@
 	      this.state.orgs.map(function (org, idx) {
 	        return React.createElement(
 	          'div',
-	          { className: 'ui card' },
+	          { className: 'ui card', key: org._id },
 	          React.createElement(
 	            'div',
 	            { className: 'content' },
@@ -1031,13 +1048,15 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(14),
 	    Link = __webpack_require__(2).Link,
-	    orgStore = __webpack_require__(16).store,
-	    orgApi = __webpack_require__(18);
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17);
 
 	var OrgShow = React.createClass({
 	  displayName: 'OrgShow',
 
+	  mixins: [Reflux.listenTo(orgActions.get.complete, 'onOrgUpdate')],
 	  contextTypes: {
 	    router: React.PropTypes.func
 	  },
@@ -1046,8 +1065,7 @@
 	      org: {}
 	    };
 	  },
-	  componentDidMount: function componentDidMount() {
-	    // invoked once upon initial rendering
+	  componentWillMount: function componentWillMount() {
 	    this.getOrg();
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps() {
@@ -1056,12 +1074,11 @@
 	  },
 	  getOrg: function getOrg() {
 	    var orgId = this.context.router.getCurrentParams().orgId;
-	    orgApi.get(orgId).then((function (org) {
-	      this.setState({
-	        org: org
-	      });
-	    }).bind(this), function (err) {
-	      console.error(err);
+	    orgActions.get(orgId);
+	  },
+	  onOrgUpdate: function onOrgUpdate(org) {
+	    this.setState({
+	      org: org
 	    });
 	  },
 	  render: function render() {
@@ -1149,7 +1166,7 @@
 	            null,
 	            React.createElement(
 	              'th',
-	              { colspan: '4' },
+	              { colSpan: '4' },
 	              'Assets'
 	            )
 	          )
@@ -1193,24 +1210,17 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(14),
-	    orgApi = __webpack_require__(18);
-
-	var orgActions = Reflux.createActions(['create', 'update', 'destroy']);
+	    actions = __webpack_require__(17);
 
 	var orgStore = Reflux.createStore({
-	  listenables: orgActions,
-	  init: function init() {
-	    orgApi.getList().then((function (orgs) {
-	      this.orgs = orgs.data;
-	      this.trigger(orgs.data);
-	    }).bind(this));
+	  listenables: actions,
+	  onListComplete: function onListComplete(orgs) {
+	    this.orgs = orgs;
+	    this.trigger(orgs);
 	  }
 	});
 
-	module.exports = {
-	  actions: orgActions,
-	  store: orgStore
-	};
+	module.exports = orgStore;
 
 /***/ },
 /* 17 */
@@ -1218,9 +1228,35 @@
 
 	'use strict';
 
-	module.exports = {
-	  API_BASE: 'http://localhost:3000/v1/'
+	var Reflux = __webpack_require__(14),
+	    orgApi = __webpack_require__(20);
+
+	var actions = Reflux.createActions({
+	  list: {
+	    children: ['complete', 'error']
+	  },
+	  get: {
+	    children: ['complete', 'error']
+	  }
+	});
+
+	actions.list.preEmit = function () {
+	  orgApi.getList().then(function (res) {
+	    actions.list.complete(res.data);
+	  }, function (err) {
+	    actions.list.error(err);
+	  });
 	};
+
+	actions.get.preEmit = function (orgId) {
+	  orgApi.get(orgId).then(function (org) {
+	    actions.get.complete(org);
+	  }, function (err) {
+	    actions.get.error(err);
+	  });
+	};
+
+	module.exports = actions;
 
 /***/ },
 /* 18 */
@@ -1228,31 +1264,8 @@
 
 	'use strict';
 
-	var api = __webpack_require__(20);
-
-	function getList() {
-	  return new Promise(function (resolve, reject) {
-	    api('organizations').get(function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve(res);
-	    });
-	  });
-	}
-
-	function get(id) {
-	  return new Promise(function (resolve, reject) {
-	    api('organizations')(id).get(function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve(res.data);
-	    });
-	  });
-	}
-
 	module.exports = {
-	  getList: getList,
-	  get: get
+	  API_BASE: 'http://localhost:3000/v1/'
 	};
 
 /***/ },
@@ -1343,8 +1356,41 @@
 
 	'use strict';
 
-	var fermata = __webpack_require__(21),
-	    config = __webpack_require__(17),
+	var api = __webpack_require__(21);
+
+	function getList() {
+	  return new Promise(function (resolve, reject) {
+	    api('organizations').get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res);
+	    });
+	  });
+	}
+
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api('organizations')(id).get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	module.exports = {
+	  getList: getList,
+	  get: get
+	};
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var fermata = __webpack_require__(23),
+	    config = __webpack_require__(18),
 	    userStore = __webpack_require__(5).store;
 
 	// sets up an API template - base url, headers, json parsing
@@ -1371,12 +1417,6 @@
 	userStore.listen(registerPlugin);
 
 	module.exports = fermata.base();
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = fermata;
 
 /***/ },
 /* 22 */
@@ -1473,6 +1513,12 @@
 	};
 	process.umask = function() { return 0; };
 
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = fermata;
 
 /***/ }
 /******/ ]);
