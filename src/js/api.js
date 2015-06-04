@@ -1,8 +1,7 @@
 'use strict';
 
 var fermata = require('fermata'),
-    config = require('./config'),
-    userStore = require('./components/user/store').store;
+    config = require('./config');
 
 // sets up an API template - base url, headers, json parsing
 function registerPlugin(token) {
@@ -19,8 +18,13 @@ function registerPlugin(token) {
           err = res;
         else if (res === null)
           err = {status: 500};
-        else
-          res.data = JSON.parse(res.data);
+        else {
+          try {
+            res.data = JSON.parse(res.data);
+          } catch(e) {
+            // no data to parse
+          }
+        }
 
         cb(err, res);
       });
@@ -28,8 +32,9 @@ function registerPlugin(token) {
   });
 }
 
-registerPlugin(userStore.token);
+registerPlugin(localStorage.getItem('token'));
 
-userStore.listen(registerPlugin);
-
-module.exports = fermata.base();
+module.exports = {
+  base: fermata.base,
+  register: registerPlugin
+};

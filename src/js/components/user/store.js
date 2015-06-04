@@ -1,46 +1,47 @@
 'use strict';
 
-var Reflux = require('reflux');
+var Reflux = require('reflux'),
+    actions = require('./actions'),
+    baseApi = require('../../api');
 
-var userActions = Reflux.createActions([
-  'login',
-  'logout',
-  'update'
-]);
-
-var userStore = Reflux.createStore({
+var store = Reflux.createStore({
+  listenables: actions,
   init: function() {
     this.load();
-    this.listenToMany(userActions);
   },
-  onLogin: function(token, user) {
+  load: function() {
+    this.token = localStorage.getItem('token');
+    this.trigger(this.token);
+  },
+  onLoginComplete: function(token, user) {
     this.token = token;
     this.user = user;
     this.save();
-    this.trigger(this.token, this.user);
+  },
+  onRegisterComplete: function(token, user) {
+    this.token = token;
+    this.user = user;
+    this.save();
+  },
+  onMeComplete: function(user) {
+    this.user = user.data;
+    this.save();
+  },
+  onMeError: function(err) {
+    console.error(err);
+  },
+  onUpdateComplete: function(user) {
+    this.user = user.data;
+    this.save();
   },
   onLogout: function() {
     this.token = null;
     this.save();
-    this.trigger(this.token, this.user);
-  },
-  onUpdate: function(user) {
-    if (user)
-      this.user = user;
-    this.trigger(this.token, this.user);
   },
   save: function() {
-    if (this.token)
-      localStorage.setItem('token', this.token);
-    else
-      localStorage.removeItem('token');
-  },
-  load: function() {
-    this.token = localStorage.getItem('token');
+    localStorage.setItem('token', this.token);
+    this.trigger(this.token, this.user);
   }
 });
 
-module.exports = {
-  store: userStore,
-  actions: userActions
-};
+module.exports = store;

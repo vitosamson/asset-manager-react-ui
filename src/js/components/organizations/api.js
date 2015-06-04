@@ -1,10 +1,10 @@
 'use strict';
 
-var api = require('../../api');
+var api = require('../../api').base;
 
 function getList() {
   return new Promise(function(resolve, reject) {
-    api('organizations').get(function(err, res) {
+    api()('organizations').get(function(err, res) {
       if (err)
         return reject(err);
 
@@ -15,7 +15,7 @@ function getList() {
 
 function get(id) {
   return new Promise(function(resolve, reject) {
-    api('organizations')(id).get(function(err, res) {
+    api()('organizations')(id).get(function(err, res) {
       if (err)
         return reject(err);
 

@@ -1,19 +1,41 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Link = require('react-router').Link,
     Navigation = require('react-router').Navigation,
-    userStore = require('../store'),
-    userApi = require('../api');
+    userActions = require('../actions'),
+    baseApi = require('../../../api');
 
 var login = React.createClass({
-  mixins: [Navigation],
+  mixins: [
+    Navigation,
+    Reflux.listenTo(userActions.login.complete, 'onLoginSuccess'),
+    Reflux.listenTo(userActions.login.error, 'onLoginError')
+  ],
   getInitialState: function() {
     return {
       error: {},
       user: {},
       loading: false
     };
+  },
+  onLoginSuccess: function(token) {
+    baseApi.register(token);
+    this.transitionTo('app');
+  },
+  onLoginError: function(err) {
+    var error = {};
+
+    if (err.status == 401)
+      error.form = 'Invalid email or password';
+    else
+      error.form = 'Something went wrong, please try again';
+
+    this.setState({
+      loading: false,
+      error: error
+    });
   },
   submit: function(e) {
     e.preventDefault();
@@ -31,22 +53,10 @@ var login = React.createClass({
 
     if (this.state.user.email && this.state.user.password) {
       this.setState({
-        error: {}
-      }, function() {
-        this.setState({loading: true});
-        userApi.login(this.state.user).then(function(data) {
-          userStore.actions.login(data.token, data.user);
-          setImmediate(function() {
-            this.transitionTo('app');
-          }.bind(this));
-        }.bind(this), function(err) {
-          if (err.status == 401)
-            error.form = 'Invalid email or password';
-          else
-            error.form = 'Something went wrong, please try again';
-          this.setState({error: error, loading: false});
-        }.bind(this));
-      }.bind(this));
+        error: {},
+        loading: true
+      });
+      userActions.login(this.state.user);
     }
   },
   inputChange: function(e) {

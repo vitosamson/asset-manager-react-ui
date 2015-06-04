@@ -1,81 +1,56 @@
 'use strict';
 
-var $ = require('jQuery'),
-    userStore = require('./store'),
-    basePath = require('../../config').API_BASE;
-
-basePath = basePath + 'users/';
-var paths = {
-  validate: basePath + 'validate',
-  login: basePath + 'login',
-  register: basePath + 'signup',
-  me: basePath + 'me'
-};
+var api = require('../../api').base;
 
 /**
  * Validates current auth token
  */
 function validate(cb) {
-  $.ajax({
-    url: paths.validate,
-    type: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + userStore.store.token
-    }
-  })
-  .success(function(data) {
-    userStore.actions.login(data.token);
-    cb(null);
-  }).fail(function(err) {
-    cb(err);
+  return new Promise(function(resolve, reject) {
+    api()('users')('validate').get(function(err) {
+      if (err)
+        return reject(err);
+    });
   });
 }
 
 function login(user) {
-  return $.ajax({
-    url: paths.login,
-    type: 'POST',
-    data: JSON.stringify(user),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+  return new Promise(function(resolve, reject) {
+    api()('users')('login').post(user, function(err, data) {
+      if (err)
+        return reject(err);
+      resolve(data);
+    });
   });
 }
 
 function register(user) {
-  return $.ajax({
-    url: paths.register,
-    type: 'POST',
-    data: JSON.stringify(user),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+  return new Promise(function(resolve, reject) {
+    api()('users')('signup').post(user, function(err, data) {
+      if (err)
+        return reject(err);
+      resolve(data);
+    });
   });
 }
 
-function me(cb) {
-  $.ajax({
-    url: paths.me,
-    type: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + userStore.store.token
-    }
-  }).success(function(data) {
-    userStore.actions.update(data);
-  }).fail(function(err) {
-    cb(err);
+function me() {
+  return new Promise(function(resolve, reject) {
+    api()('users')('me').get(function(err, data) {
+      if (err)
+        return reject(err);
+      resolve(data);
+    });
   });
 }
 
 function update(user) {
-  return $.ajax({
-    url: paths.me,
-    type: 'PUT',
-    headers: {
-      'Authorization': 'Bearer ' + userStore.store.token,
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(user)
+  return new Promise(function(resolve, reject) {
+    api()('users')('me').put(user, function(err, data) {
+      if (err)
+        return reject(err);
+      resolve(data);
+    });
   });
 }
 

@@ -2,24 +2,39 @@
 
 var React = require('react'),
     Reflux = require('reflux'),
-    Link = require('react-router').Link,
     userStore = require('../store'),
-    userApi = require('../api');
+    userActions = require('../actions'),
+    classNames = require('classnames');
 
 var Account = React.createClass({
-  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+  mixins: [
+    Reflux.listenTo(userStore, 'onUpdate'),
+    Reflux.listenTo(userActions.update.error, 'onError')
+  ],
   getInitialState: function() {
     return {
-      user: userStore.store.user || {},
+      user: userStore.user || {},
       error: {},
       loading: false,
       success: false
     };
   },
-  onUserUpdate: function(token, user) {
+  onUpdate: function(token, user) {
+    var success = user._id == this.state.user._id;
+
     this.setState({
-      user: user
+      user: user,
+      success: success,
+      loading: false
     });
+
+    if (success)
+      setTimeout(function() {
+        this.setState({success: false});
+      }.bind(this), 2000);
+  },
+  onError: function(err) {
+    console.error(err);
   },
   inputChange: function(e) {
     var input = e.target,
@@ -48,26 +63,25 @@ var Account = React.createClass({
     this.setState({error: error});
 
     if (user.firstName && user.email && (!user.password || user.password == user.passwordConfirm)) {
-      this.setState({loading: true});
-      userApi.update(user)
-      .success(function(updatedUser) {
-        userStore.actions.update(updatedUser);
-        this.setState({success: true, loading: false});
-
-        setTimeout(function() {
-          this.setState({success: false});
-        }.bind(this), 2000);
-      }.bind(this)).fail(function(err) {
-        console.error(err);
+      this.setState({
+        loading: true
       });
+      userActions.update(user);
     }
   },
   render: function() {
     var user = this.state.user,
         error = this.state.error;
 
-    var btnClass = this.state.success ? 'ui green button' : this.state.loading ? 'ui primary button loading' : 'ui primary button',
-        btnText = this.state.success ? 'Account updated' : 'Update account';
+    var btnText = this.state.success ? 'Account updated' : 'Update account';
+
+    var btnClass = classNames({
+      ui: true,
+      button: true,
+      primary: !this.state.loading && !this.state.success,
+      loading: this.state.loading,
+      green: this.state.success
+    });
 
     return (
       <form className="ui form" onSubmit={this.onSubmit} noValidate>

@@ -1,19 +1,37 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Link = require('react-router').Link,
     Navigation = require('react-router').Navigation,
-    userStore = require('../store'),
-    userApi = require('../api');
+    userActions = require('../actions'),
+    baseApi = require('../../../api');
 
 var register = React.createClass({
-  mixins: [Navigation],
+  mixins: [
+    Navigation,
+    Reflux.listenTo(userActions.register.complete, 'onRegisterSuccess'),
+    Reflux.listenTo(userActions.register.error, 'onRegisterError')
+  ],
   getInitialState: function() {
     return {
       error: {},
       user: {},
       loading: false
     };
+  },
+  onRegisterSuccess: function(token) {
+    baseApi.register(token);
+    this.transitionTo('app');
+  },
+  onRegisterError: function(err) {
+    var error = this.state.error;
+
+    if (err.status == 400)
+      error.form = 'That email is already in use';
+    else
+      error.form = 'Something went wrong, please try again';
+    this.setState({error: error, loading: false});
   },
   submit: function(e) {
     e.preventDefault();
@@ -35,20 +53,10 @@ var register = React.createClass({
     this.setState({error: error});
 
     if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
-      this.setState({loading: true});
-      userApi.register(user)
-      .success(function(data) {
-        userStore.actions.login(data.token);
-        setImmediate(function() {
-          this.transitionTo('app');
-        }.bind(this));
-      }.bind(this)).fail(function(err) {
-        if (err.status == 400)
-          error.form = 'That email is already in use';
-        else
-          error.form = 'Something went wrong, please try again';
-        this.setState({error: error, loading: false});
-      }.bind(this));
+      this.setState({
+        loading: true
+      });
+      userActions.register(this.state.user);
     }
   },
   inputChange: function(e) {

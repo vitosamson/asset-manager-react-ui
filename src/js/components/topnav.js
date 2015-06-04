@@ -5,20 +5,24 @@ var React = require('react'),
     Reflux = require('reflux'),
     Navigation = require('react-router').Navigation,
     Link = require('react-router').Link,
-    userStore = require('./user/store');
+    userStore = require('./user/store'),
+    userActions = require('./user/actions');
 
 var topNav = React.createClass({
-  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
+  mixins: [
+    Reflux.listenTo(userStore, 'onUserUpdate'),
+    Navigation
+  ],
   getInitialState: function() {
     return {
-      user: userStore.store.user || {}
+      user: {}
     };
   },
+  componentWillMount: function() {
+    userActions.me();
+  },
   logout: function() {
-    userStore.actions.logout();
-    setImmediate(function() {
-      this.transitionTo('login');
-    }.bind(this));
+    userActions.logout();
   },
   onUserUpdate: function(token, user) {
     this.setState({

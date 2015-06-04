@@ -1,25 +1,24 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Router = require('react-router'),
     Route = Router.Route,
     TopNav = require('./components/topnav'),
     Sidemenu = require('./components/sidemenu'),
-    userStore = require('./components/user/store').store,
-    userActions = require('./components/user/store').actions,
-    userApi = require('./components/user/api'),
+    userStore = require('./components/user/store'),
+    userActions = require('./components/user/actions'),
     Login = require('./components/user/views/login'),
     Register = require('./components/user/views/register'),
     Account = require('./components/user/views/account'),
-    Authenticated = require('./components/user/mixins').Authenticated,
+    UserMixins = require('./components/user/mixins'),
     Orgs = require('./components/organizations/views/list'),
     Org = require('./components/organizations/views/show');
 
 var App = React.createClass({
-  mixins: [Router.Navigation],
-  componentDidMount: function() {
-    userStore.init();
-  },
+  mixins: [
+    Router.Navigation
+  ],
   render: function() {
     return (
       <Router.RouteHandler/>
@@ -36,14 +35,12 @@ var Dashboard = React.createClass({
 });
 
 var LoggedIn = React.createClass({
-  mixins: [Authenticated, Router.Navigation],
-  componentDidMount: function() {
-    userApi.me(function(err) {
-      if (err) {
-        userActions.logout();
-        this.transitionTo('login');
-      }
-    }.bind(this));
+  mixins: [
+    UserMixins.Authenticated,
+    Reflux.listenTo(userActions.logout, 'onLogout')
+  ],
+  onLogout: function(token, user) {
+    this.transitionTo('login');
   },
   render: function() {
     return (
@@ -63,12 +60,9 @@ var LoggedIn = React.createClass({
 });
 
 var LoggedOut = React.createClass({
-  statics: {
-    willTransitionTo: function(transition) {
-      if (userStore.token)
-        transition.redirect('app', {});
-    }
-  },
+  mixins: [
+    UserMixins.Unauthenticated
+  ],
   render: function() {
     return (
       <Router.RouteHandler/>

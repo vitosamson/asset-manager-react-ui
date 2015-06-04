@@ -47,27 +47,24 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Router = __webpack_require__(2),
+	    Reflux = __webpack_require__(2),
+	    Router = __webpack_require__(3),
 	    Route = Router.Route,
-	    TopNav = __webpack_require__(3),
-	    Sidemenu = __webpack_require__(4),
-	    userStore = __webpack_require__(5).store,
-	    userActions = __webpack_require__(5).actions,
-	    userApi = __webpack_require__(6),
-	    Login = __webpack_require__(7),
-	    Register = __webpack_require__(8),
-	    Account = __webpack_require__(9),
-	    Authenticated = __webpack_require__(10).Authenticated,
-	    Orgs = __webpack_require__(11),
-	    Org = __webpack_require__(12);
+	    TopNav = __webpack_require__(4),
+	    Sidemenu = __webpack_require__(5),
+	    userStore = __webpack_require__(6),
+	    userActions = __webpack_require__(7),
+	    Login = __webpack_require__(8),
+	    Register = __webpack_require__(9),
+	    Account = __webpack_require__(10),
+	    UserMixins = __webpack_require__(11),
+	    Orgs = __webpack_require__(12),
+	    Org = __webpack_require__(13);
 
 	var App = React.createClass({
 	  displayName: 'App',
 
 	  mixins: [Router.Navigation],
-	  componentDidMount: function componentDidMount() {
-	    userStore.init();
-	  },
 	  render: function render() {
 	    return React.createElement(Router.RouteHandler, null);
 	  }
@@ -84,14 +81,9 @@
 	var LoggedIn = React.createClass({
 	  displayName: 'LoggedIn',
 
-	  mixins: [Authenticated, Router.Navigation],
-	  componentDidMount: function componentDidMount() {
-	    userApi.me((function (err) {
-	      if (err) {
-	        userActions.logout();
-	        this.transitionTo('login');
-	      }
-	    }).bind(this));
+	  mixins: [UserMixins.Authenticated, Reflux.listenTo(userActions.logout, 'onLogout')],
+	  onLogout: function onLogout(token, user) {
+	    this.transitionTo('login');
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -115,11 +107,7 @@
 	var LoggedOut = React.createClass({
 	  displayName: 'LoggedOut',
 
-	  statics: {
-	    willTransitionTo: function willTransitionTo(transition) {
-	      if (userStore.token) transition.redirect('app', {});
-	    }
-	  },
+	  mixins: [UserMixins.Unauthenticated],
 	  render: function render() {
 	    return React.createElement(Router.RouteHandler, null);
 	  }
@@ -158,35 +146,42 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = ReactRouter;
+	module.exports = Reflux;
 
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
+	module.exports = ReactRouter;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(13).Dropdown,
-	    Reflux = __webpack_require__(14),
-	    Navigation = __webpack_require__(2).Navigation,
-	    Link = __webpack_require__(2).Link,
-	    userStore = __webpack_require__(5);
+	    Dropdown = __webpack_require__(14).Dropdown,
+	    Reflux = __webpack_require__(2),
+	    Navigation = __webpack_require__(3).Navigation,
+	    Link = __webpack_require__(3).Link,
+	    userStore = __webpack_require__(6),
+	    userActions = __webpack_require__(7);
 
 	var topNav = React.createClass({
 	  displayName: 'topNav',
 
-	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate'), Navigation],
+	  mixins: [Reflux.listenTo(userStore, 'onUserUpdate'), Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
-	      user: userStore.store.user || {}
+	      user: {}
 	    };
 	  },
+	  componentWillMount: function componentWillMount() {
+	    userActions.me();
+	  },
 	  logout: function logout() {
-	    userStore.actions.logout();
-	    setImmediate((function () {
-	      this.transitionTo('login');
-	    }).bind(this));
+	    userActions.logout();
 	  },
 	  onUserUpdate: function onUserUpdate(token, user) {
 	    this.setState({
@@ -247,18 +242,17 @@
 	});
 
 	module.exports = topNav;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(14),
-	    Dropdown = __webpack_require__(13).Dropdown,
-	    Link = __webpack_require__(2).Link,
+	    Reflux = __webpack_require__(2),
+	    Dropdown = __webpack_require__(14).Dropdown,
+	    Link = __webpack_require__(3).Link,
 	    orgStore = __webpack_require__(16),
 	    orgActions = __webpack_require__(17);
 
@@ -352,162 +346,162 @@
 	module.exports = sidemenu;
 
 /***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Reflux = __webpack_require__(14);
-
-	var userActions = Reflux.createActions(['login', 'logout', 'update']);
-
-	var userStore = Reflux.createStore({
-	  init: function init() {
-	    this.load();
-	    this.listenToMany(userActions);
-	  },
-	  onLogin: function onLogin(token, user) {
-	    this.token = token;
-	    this.user = user;
-	    this.save();
-	    this.trigger(this.token, this.user);
-	  },
-	  onLogout: function onLogout() {
-	    this.token = null;
-	    this.save();
-	    this.trigger(this.token, this.user);
-	  },
-	  onUpdate: function onUpdate(user) {
-	    if (user) this.user = user;
-	    this.trigger(this.token, this.user);
-	  },
-	  save: function save() {
-	    if (this.token) localStorage.setItem('token', this.token);else localStorage.removeItem('token');
-	  },
-	  load: function load() {
-	    this.token = localStorage.getItem('token');
-	  }
-	});
-
-	module.exports = {
-	  store: userStore,
-	  actions: userActions
-	};
-
-/***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var $ = __webpack_require__(15),
-	    userStore = __webpack_require__(5),
-	    basePath = __webpack_require__(18).API_BASE;
+	var Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(7),
+	    baseApi = __webpack_require__(18);
 
-	basePath = basePath + 'users/';
-	var paths = {
-	  validate: basePath + 'validate',
-	  login: basePath + 'login',
-	  register: basePath + 'signup',
-	  me: basePath + 'me'
-	};
+	var store = Reflux.createStore({
+	  listenables: actions,
+	  init: function init() {
+	    this.load();
+	  },
+	  load: function load() {
+	    this.token = localStorage.getItem('token');
+	    this.trigger(this.token);
+	  },
+	  onLoginComplete: function onLoginComplete(token, user) {
+	    this.token = token;
+	    this.user = user;
+	    this.save();
+	  },
+	  onRegisterComplete: function onRegisterComplete(token, user) {
+	    this.token = token;
+	    this.user = user;
+	    this.save();
+	  },
+	  onMeComplete: function onMeComplete(user) {
+	    this.user = user.data;
+	    this.save();
+	  },
+	  onMeError: function onMeError(err) {
+	    console.error(err);
+	  },
+	  onUpdateComplete: function onUpdateComplete(user) {
+	    this.user = user.data;
+	    this.save();
+	  },
+	  onLogout: function onLogout() {
+	    this.token = null;
+	    this.save();
+	  },
+	  save: function save() {
+	    localStorage.setItem('token', this.token);
+	    this.trigger(this.token, this.user);
+	  }
+	});
 
-	/**
-	 * Validates current auth token
-	 */
-	function validate(cb) {
-	  $.ajax({
-	    url: paths.validate,
-	    type: 'GET',
-	    headers: {
-	      'Authorization': 'Bearer ' + userStore.store.token
-	    }
-	  }).success(function (data) {
-	    userStore.actions.login(data.token);
-	    cb(null);
-	  }).fail(function (err) {
-	    cb(err);
-	  });
-	}
-
-	function login(user) {
-	  return $.ajax({
-	    url: paths.login,
-	    type: 'POST',
-	    data: JSON.stringify(user),
-	    headers: {
-	      'Content-Type': 'application/json'
-	    }
-	  });
-	}
-
-	function register(user) {
-	  return $.ajax({
-	    url: paths.register,
-	    type: 'POST',
-	    data: JSON.stringify(user),
-	    headers: {
-	      'Content-Type': 'application/json'
-	    }
-	  });
-	}
-
-	function me(cb) {
-	  $.ajax({
-	    url: paths.me,
-	    type: 'GET',
-	    headers: {
-	      'Authorization': 'Bearer ' + userStore.store.token
-	    }
-	  }).success(function (data) {
-	    userStore.actions.update(data);
-	  }).fail(function (err) {
-	    cb(err);
-	  });
-	}
-
-	function update(user) {
-	  return $.ajax({
-	    url: paths.me,
-	    type: 'PUT',
-	    headers: {
-	      'Authorization': 'Bearer ' + userStore.store.token,
-	      'Content-Type': 'application/json'
-	    },
-	    data: JSON.stringify(user)
-	  });
-	}
-
-	module.exports = {
-	  validate: validate,
-	  login: login,
-	  register: register,
-	  me: me,
-	  update: update
-	};
+	module.exports = store;
 
 /***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
+	    userApi = __webpack_require__(15);
+
+	var actions = Reflux.createActions({
+	  login: {
+	    children: ['complete', 'error']
+	  },
+	  register: {
+	    children: ['complete', 'error']
+	  },
+	  me: {
+	    children: ['complete', 'error']
+	  },
+	  validate: {
+	    children: ['complete', 'error']
+	  },
+	  update: {
+	    children: ['complete', 'error']
+	  },
+	  logout: {}
+	});
+
+	actions.login.preEmit = function (user) {
+	  userApi.login(user).then(function (res) {
+	    actions.login.complete(res.data.token, res.data.user);
+	  }, function (err) {
+	    actions.login.error(err);
+	  });
+	};
+
+	actions.register.preEmit = function (user) {
+	  userApi.register(user).then(function (res) {
+	    actions.register.complete(res.data.token, res.data.user);
+	  }, function (err) {
+	    actions.register.error(err);
+	  });
+	};
+
+	actions.me.preEmit = function () {
+	  userApi.me().then(function (user) {
+	    actions.me.complete(user);
+	  }, function (err) {
+	    actions.me.error(err);
+	  });
+	};
+
+	actions.update.preEmit = function (user) {
+	  userApi.update(user).then(function (updatedUser) {
+	    actions.update.complete(updatedUser);
+	  }, function (err) {
+	    actions.update.error(err);
+	  });
+	};
+
+	actions.validate.preEmit = function () {
+	  userApi.validate()['catch'](function (err) {
+	    actions.validate.error(err);
+	  });
+	};
+
+	module.exports = actions;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var React = __webpack_require__(1),
-	    Link = __webpack_require__(2).Link,
-	    Navigation = __webpack_require__(2).Navigation,
-	    userStore = __webpack_require__(5),
-	    userApi = __webpack_require__(6);
+	    Reflux = __webpack_require__(2),
+	    Link = __webpack_require__(3).Link,
+	    Navigation = __webpack_require__(3).Navigation,
+	    userActions = __webpack_require__(7),
+	    baseApi = __webpack_require__(18);
 
 	var login = React.createClass({
 	  displayName: 'login',
 
-	  mixins: [Navigation],
+	  mixins: [Navigation, Reflux.listenTo(userActions.login.complete, 'onLoginSuccess'), Reflux.listenTo(userActions.login.error, 'onLoginError')],
 	  getInitialState: function getInitialState() {
 	    return {
 	      error: {},
 	      user: {},
 	      loading: false
 	    };
+	  },
+	  onLoginSuccess: function onLoginSuccess(token) {
+	    baseApi.register(token);
+	    this.transitionTo('app');
+	  },
+	  onLoginError: function onLoginError(err) {
+	    var error = {};
+
+	    if (err.status == 401) error.form = 'Invalid email or password';else error.form = 'Something went wrong, please try again';
+
+	    this.setState({
+	      loading: false,
+	      error: error
+	    });
 	  },
 	  submit: function submit(e) {
 	    e.preventDefault();
@@ -525,19 +519,10 @@
 
 	    if (this.state.user.email && this.state.user.password) {
 	      this.setState({
-	        error: {}
-	      }, (function () {
-	        this.setState({ loading: true });
-	        userApi.login(this.state.user).then((function (data) {
-	          userStore.actions.login(data.token, data.user);
-	          setImmediate((function () {
-	            this.transitionTo('app');
-	          }).bind(this));
-	        }).bind(this), (function (err) {
-	          if (err.status == 401) error.form = 'Invalid email or password';else error.form = 'Something went wrong, please try again';
-	          this.setState({ error: error, loading: false });
-	        }).bind(this));
-	      }).bind(this));
+	        error: {},
+	        loading: true
+	      });
+	      userActions.login(this.state.user);
 	    }
 	  },
 	  inputChange: function inputChange(e) {
@@ -618,30 +603,40 @@
 	});
 
 	module.exports = login;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate) {'use strict';
+	'use strict';
 
 	var React = __webpack_require__(1),
-	    Link = __webpack_require__(2).Link,
-	    Navigation = __webpack_require__(2).Navigation,
-	    userStore = __webpack_require__(5),
-	    userApi = __webpack_require__(6);
+	    Reflux = __webpack_require__(2),
+	    Link = __webpack_require__(3).Link,
+	    Navigation = __webpack_require__(3).Navigation,
+	    userActions = __webpack_require__(7),
+	    baseApi = __webpack_require__(18);
 
 	var register = React.createClass({
 	  displayName: 'register',
 
-	  mixins: [Navigation],
+	  mixins: [Navigation, Reflux.listenTo(userActions.register.complete, 'onRegisterSuccess'), Reflux.listenTo(userActions.register.error, 'onRegisterError')],
 	  getInitialState: function getInitialState() {
 	    return {
 	      error: {},
 	      user: {},
 	      loading: false
 	    };
+	  },
+	  onRegisterSuccess: function onRegisterSuccess(token) {
+	    baseApi.register(token);
+	    this.transitionTo('app');
+	  },
+	  onRegisterError: function onRegisterError(err) {
+	    var error = this.state.error;
+
+	    if (err.status == 400) error.form = 'That email is already in use';else error.form = 'Something went wrong, please try again';
+	    this.setState({ error: error, loading: false });
 	  },
 	  submit: function submit(e) {
 	    e.preventDefault();
@@ -663,16 +658,10 @@
 	    this.setState({ error: error });
 
 	    if (user.email && user.firstName && user.email && user.password && user.password === user.passwordConfirm) {
-	      this.setState({ loading: true });
-	      userApi.register(user).success((function (data) {
-	        userStore.actions.login(data.token);
-	        setImmediate((function () {
-	          this.transitionTo('app');
-	        }).bind(this));
-	      }).bind(this)).fail((function (err) {
-	        if (err.status == 400) error.form = 'That email is already in use';else error.form = 'Something went wrong, please try again';
-	        this.setState({ error: error, loading: false });
-	      }).bind(this));
+	      this.setState({
+	        loading: true
+	      });
+	      userActions.register(this.state.user);
 	    }
 	  },
 	  inputChange: function inputChange(e) {
@@ -789,36 +778,46 @@
 	});
 
 	module.exports = register;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate))
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(14),
-	    Link = __webpack_require__(2).Link,
-	    userStore = __webpack_require__(5),
-	    userApi = __webpack_require__(6);
+	    Reflux = __webpack_require__(2),
+	    userStore = __webpack_require__(6),
+	    userActions = __webpack_require__(7),
+	    classNames = __webpack_require__(19);
 
 	var Account = React.createClass({
 	  displayName: 'Account',
 
-	  mixins: [Reflux.listenTo(userStore.store, 'onUserUpdate')],
+	  mixins: [Reflux.listenTo(userStore, 'onUpdate'), Reflux.listenTo(userActions.update.error, 'onError')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      user: userStore.store.user || {},
+	      user: userStore.user || {},
 	      error: {},
 	      loading: false,
 	      success: false
 	    };
 	  },
-	  onUserUpdate: function onUserUpdate(token, user) {
+	  onUpdate: function onUpdate(token, user) {
+	    var success = user._id == this.state.user._id;
+
 	    this.setState({
-	      user: user
+	      user: user,
+	      success: success,
+	      loading: false
 	    });
+
+	    if (success) setTimeout((function () {
+	      this.setState({ success: false });
+	    }).bind(this), 2000);
+	  },
+	  onError: function onError(err) {
+	    console.error(err);
 	  },
 	  inputChange: function inputChange(e) {
 	    var input = e.target,
@@ -844,25 +843,25 @@
 	    this.setState({ error: error });
 
 	    if (user.firstName && user.email && (!user.password || user.password == user.passwordConfirm)) {
-	      this.setState({ loading: true });
-	      userApi.update(user).success((function (updatedUser) {
-	        userStore.actions.update(updatedUser);
-	        this.setState({ success: true, loading: false });
-
-	        setTimeout((function () {
-	          this.setState({ success: false });
-	        }).bind(this), 2000);
-	      }).bind(this)).fail(function (err) {
-	        console.error(err);
+	      this.setState({
+	        loading: true
 	      });
+	      userActions.update(user);
 	    }
 	  },
 	  render: function render() {
 	    var user = this.state.user,
 	        error = this.state.error;
 
-	    var btnClass = this.state.success ? 'ui green button' : this.state.loading ? 'ui primary button loading' : 'ui primary button',
-	        btnText = this.state.success ? 'Account updated' : 'Update account';
+	    var btnText = this.state.success ? 'Account updated' : 'Update account';
+
+	    var btnClass = classNames({
+	      ui: true,
+	      button: true,
+	      primary: !this.state.loading && !this.state.success,
+	      loading: this.state.loading,
+	      green: this.state.success
+	    });
 
 	    return React.createElement(
 	      'form',
@@ -937,35 +936,51 @@
 	module.exports = Account;
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var userStore = __webpack_require__(5).store,
-	    userApi = __webpack_require__(6);
-
-	var Authenticated = {
-	  statics: {
-	    willTransitionTo: function willTransitionTo(transition) {
-	      if (!userStore.token) transition.redirect('login', {});
-	    }
-	  }
-	};
-
-	module.exports = {
-	  Authenticated: Authenticated
-	};
-
-/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
+	var userStore = __webpack_require__(6),
+	    Navigation = __webpack_require__(3).Navigation,
+	    Reflux = __webpack_require__(2),
+	    userActions = __webpack_require__(7);
+
+	var Authenticated = {
+	  mixins: [Navigation, Reflux.listenTo(userActions.validate.error, 'onValidateError')],
+	  statics: {
+	    willTransitionTo: function willTransitionTo(transition) {
+	      if (userStore.token === null || userStore.token === undefined) transition.redirect('login', {});
+	      userActions.validate();
+	    }
+	  },
+	  onValidateError: function onValidateError(err) {
+	    if (err.status == 401) this.transitionTo('login');
+	  }
+	};
+
+	var Unauthenticated = {
+	  mixins: [Navigation],
+	  statics: {
+	    willTransitionTo: function willTransitionTo(transition) {
+	      if (userStore.token !== null && userStore.token !== undefined) transition.redirect('app', {});
+	    }
+	  } };
+
+	module.exports = {
+	  Authenticated: Authenticated,
+	  Unauthenticated: Unauthenticated
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1),
-	    Link = __webpack_require__(2).Link,
-	    Reflux = __webpack_require__(14),
+	    Link = __webpack_require__(3).Link,
+	    Reflux = __webpack_require__(2),
 	    orgStore = __webpack_require__(16),
 	    orgActions = __webpack_require__(17);
 
@@ -1042,14 +1057,14 @@
 	module.exports = OrgList;
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Reflux = __webpack_require__(14),
-	    Link = __webpack_require__(2).Link,
+	    Reflux = __webpack_require__(2),
+	    Link = __webpack_require__(3).Link,
 	    orgStore = __webpack_require__(16),
 	    orgActions = __webpack_require__(17);
 
@@ -1186,22 +1201,73 @@
 	module.exports = OrgShow;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Semantify;
 
 /***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Reflux;
-
-/***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = $;
+	'use strict';
+
+	var api = __webpack_require__(18).base;
+
+	/**
+	 * Validates current auth token
+	 */
+	function validate(cb) {
+	  return new Promise(function (resolve, reject) {
+	    api()('users')('validate').get(function (err) {
+	      if (err) return reject(err);
+	    });
+	  });
+	}
+
+	function login(user) {
+	  return new Promise(function (resolve, reject) {
+	    api()('users')('login').post(user, function (err, data) {
+	      if (err) return reject(err);
+	      resolve(data);
+	    });
+	  });
+	}
+
+	function register(user) {
+	  return new Promise(function (resolve, reject) {
+	    api()('users')('signup').post(user, function (err, data) {
+	      if (err) return reject(err);
+	      resolve(data);
+	    });
+	  });
+	}
+
+	function me() {
+	  return new Promise(function (resolve, reject) {
+	    api()('users')('me').get(function (err, data) {
+	      if (err) return reject(err);
+	      resolve(data);
+	    });
+	  });
+	}
+
+	function update(user) {
+	  return new Promise(function (resolve, reject) {
+	    api()('users')('me').put(user, function (err, data) {
+	      if (err) return reject(err);
+	      resolve(data);
+	    });
+	  });
+	}
+
+	module.exports = {
+	  validate: validate,
+	  login: login,
+	  register: register,
+	  me: me,
+	  update: update
+	};
 
 /***/ },
 /* 16 */
@@ -1209,7 +1275,7 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(14),
+	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(17);
 
 	var orgStore = Reflux.createStore({
@@ -1228,8 +1294,8 @@
 
 	'use strict';
 
-	var Reflux = __webpack_require__(14),
-	    orgApi = __webpack_require__(20);
+	var Reflux = __webpack_require__(2),
+	    orgApi = __webpack_require__(21);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -1264,103 +1330,113 @@
 
 	'use strict';
 
+	var fermata = __webpack_require__(20),
+	    config = __webpack_require__(22);
+
+	// sets up an API template - base url, headers, json parsing
+	function registerPlugin(token) {
+	  fermata.registerPlugin('base', function (transport, name, key) {
+	    this.base = config.API_BASE;
+
+	    return function (req, cb) {
+	      req.headers.Authorization = 'Bearer ' + token;
+	      req.headers['Content-Type'] = 'application/json';
+	      req.data = JSON.stringify(req.data);
+
+	      return transport(req, function (err, res) {
+	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
+	          try {
+	            res.data = JSON.parse(res.data);
+	          } catch (e) {}
+	        }
+
+	        cb(err, res);
+	      });
+	    };
+	  });
+	}
+
+	registerPlugin(localStorage.getItem('token'));
+
 	module.exports = {
-	  API_BASE: 'http://localhost:3000/v1/'
+	  base: fermata.base,
+	  register: registerPlugin
 	};
+
+	// no data to parse
 
 /***/ },
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(22).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
 
-	// DOM APIs, for completeness
+	(function () {
+		'use strict';
 
-	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout =
-	exports.clearInterval = function(timeout) { timeout.close(); };
+		function classNames () {
 
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
-	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
-	};
+			var classes = '';
 
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function(item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
-	};
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
 
-	exports.unenroll = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
-	};
+				var argType = typeof arg;
 
-	exports._unrefActive = exports.active = function(item) {
-	  clearTimeout(item._idleTimeoutId);
+				if ('string' === argType || 'number' === argType) {
+					classes += ' ' + arg;
 
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout)
-	        item._onTimeout();
-	    }, msecs);
-	  }
-	};
+				} else if (Array.isArray(arg)) {
+					classes += ' ' + classNames.apply(null, arg);
 
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+				} else if ('object' === argType) {
+					for (var key in arg) {
+						if (arg.hasOwnProperty(key) && arg[key]) {
+							classes += ' ' + key;
+						}
+					}
+				}
+			}
 
-	  immediateIds[id] = true;
+			return classes.substr(1);
+		}
 
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
-	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
-	    }
-	  });
+		if (true) {
+			// AMD. Register as an anonymous module.
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else {
+			window.classNames = classNames;
+		}
 
-	  return id;
-	};
+	}());
 
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-	  delete immediateIds[id];
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19).setImmediate, __webpack_require__(19).clearImmediate))
 
 /***/ },
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = fermata;
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var api = __webpack_require__(21);
+	var api = __webpack_require__(18).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
-	    api('organizations').get(function (err, res) {
+	    api()('organizations').get(function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve(res);
@@ -1370,7 +1446,7 @@
 
 	function get(id) {
 	  return new Promise(function (resolve, reject) {
-	    api('organizations')(id).get(function (err, res) {
+	    api()('organizations')(id).get(function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve(res.data);
@@ -1384,141 +1460,14 @@
 	};
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fermata = __webpack_require__(23),
-	    config = __webpack_require__(18),
-	    userStore = __webpack_require__(5).store;
-
-	// sets up an API template - base url, headers, json parsing
-	function registerPlugin(token) {
-	  fermata.registerPlugin('base', function (transport, name, key) {
-	    this.base = config.API_BASE;
-
-	    return function (req, cb) {
-	      req.headers.Authorization = 'Bearer ' + token;
-	      req.headers['Content-Type'] = 'application/json';
-	      req.data = JSON.stringify(req.data);
-
-	      return transport(req, function (err, res) {
-	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else res.data = JSON.parse(res.data);
-
-	        cb(err, res);
-	      });
-	    };
-	  });
-	}
-
-	registerPlugin(userStore.token);
-
-	userStore.listen(registerPlugin);
-
-	module.exports = fermata.base();
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-
-	function cleanUpNextTick() {
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = setTimeout(cleanUpNextTick);
-	    draining = true;
-
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            currentQueue[queueIndex].run();
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    clearTimeout(timeout);
-	}
-
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        setTimeout(drainQueue, 0);
-	    }
+	module.exports = {
+	  API_BASE: 'http://localhost:3000/v1'
 	};
-
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = fermata;
 
 /***/ }
 /******/ ]);

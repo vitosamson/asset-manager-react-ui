@@ -23,6 +23,7 @@
     "webpack": "^1.9.10"
   },
   "dependencies": {
+    "classnames": "^2.1.2",
     "react-semantify": "^0.3.1"
   }
 }
