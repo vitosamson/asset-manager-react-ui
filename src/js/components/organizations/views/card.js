@@ -51,6 +51,22 @@ var OrgCard = React.createClass({
       org: org
     });
   },
+  editOrg: function() {
+    this.setState({
+      editing: true
+    });
+  },
+  cancelEdit: function() {
+    this.setState({
+      editing: false
+    });
+  },
+  deleteOrg: function() {
+    if (!window.confirm('Are you sure you want to delete this organization and all its assets?'))
+      return;
+
+    orgActions.del(this.state.org);
+  },
   saveOrg: function(e) {
     e.preventDefault();
 
@@ -62,10 +78,13 @@ var OrgCard = React.createClass({
       this.setState({
         error: error
       });
+      return;
     }
-    else {
+
+    if (!org._id)
       orgActions.create(this.state.org);
-    }
+    else
+      orgActions.update(this.state.org);
   },
   cancelNewOrg: function(e) {
     orgActions.create.cancel();
@@ -105,12 +124,30 @@ var OrgCard = React.createClass({
           </div>
         </div>
         <div className="extra content">
-          <i className="icon server"></i>
-          {org.assets ? org.assets.length : '0'} Assets
+          <Dropdown className="inline right icon" init={true} style={{marginRight: '8px'}}>
+            <i className="setting icon"></i>
+            <div className="menu">
+              <div className="item" onClick={this.editOrg}>
+                <i className="edit icon"></i>
+                Edit
+              </div>
+              <div className="item" onClick={this.deleteOrg}>
+                <i className="trash icon"></i>
+                Delete
+              </div>
+            </div>
+          </Dropdown>
 
-          <Link to="org" params={{orgId: org._id}} className="right floated">
-            Go to asset list
-          </Link>
+          <div className="right floated">
+            <i className="icon server"></i>
+            {org.assets ? org.assets.length : '0'} Assets
+
+            <span style={{margin: '0 4px'}}>|</span>
+
+            <Link to="org" params={{orgId: org._id}} className="">
+              Go to asset list
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -153,7 +190,7 @@ var OrgCard = React.createClass({
               </Dropdown>
             </div>
             <button className="ui button primary small" type="submit">Save organization</button>
-            <button className="ui button basic small" type="button" onClick={this.cancelNewOrg}>Cancel</button>
+            <button className="ui button basic small" type="button" onClick={org._id ? this.cancelEdit : this.cancelNewOrg}>Cancel</button>
           </form>
         </div>
       </div>

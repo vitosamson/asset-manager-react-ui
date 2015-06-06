@@ -35,8 +35,32 @@ function create(org) {
   });
 }
 
+function update(org) {
+  return new Promise(function(resolve, reject) {
+    api()('organizations')(org._id).put(org, function(err, res) {
+      if (err)
+        return reject(err);
+
+      resolve(res.data);
+    });
+  });
+}
+
+function del(org) {
+  return new Promise(function(resolve, reject) {
+    api()('organizations')(org._id).delete(function(err, res) {
+      if (err)
+        return reject(err);
+
+      resolve();
+    });
+  });
+}
+
 module.exports = {
   getList: getList,
   get: get,
-  create: create
+  create: create,
+  update: update,
+  del: del
 };

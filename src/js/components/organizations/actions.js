@@ -12,6 +12,12 @@ var actions = Reflux.createActions({
   },
   create: {
     children: ['start', 'cancel', 'complete', 'error']
+  },
+  update: {
+    children: ['complete', 'error']
+  },
+  del: {
+    children: ['complete', 'error']
   }
 });
 
@@ -39,6 +45,22 @@ actions.create.preEmit = function(org) {
     actions.create.complete(org);
   }, function(err) {
     actions.create.error(err);
+  });
+};
+
+actions.update.preEmit = function(org) {
+  orgApi.update(org).then(function(org) {
+    actions.update.complete(org);
+  }, function(err) {
+    actions.update.error(err);
+  });
+};
+
+actions.del.preEmit = function(org) {
+  orgApi.del(org).then(function() {
+    actions.del.complete(org);
+  }, function(err) {
+    actions.del.error(err);
   });
 };
 

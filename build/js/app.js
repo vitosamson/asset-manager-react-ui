@@ -1207,6 +1207,20 @@
 	  onCreateComplete: function onCreateComplete(org) {
 	    this.orgs.unshift(org);
 	    this.trigger(this.orgs);
+	  },
+	  onUpdateComplete: function onUpdateComplete(org) {
+	    this.orgs = this.orgs.map(function (o) {
+	      if (o._id === org._id) return org;
+
+	      return o;
+	    });
+	    this.trigger(this.orgs);
+	  },
+	  onDelComplete: function onDelComplete(org) {
+	    this.orgs = this.orgs.filter(function (o) {
+	      return o._id !== org._id;
+	    });
+	    this.trigger(this.orgs);
 	  }
 	});
 
@@ -1230,6 +1244,12 @@
 	  },
 	  create: {
 	    children: ['start', 'cancel', 'complete', 'error']
+	  },
+	  update: {
+	    children: ['complete', 'error']
+	  },
+	  del: {
+	    children: ['complete', 'error']
 	  }
 	});
 
@@ -1256,6 +1276,22 @@
 	    actions.create.complete(org);
 	  }, function (err) {
 	    actions.create.error(err);
+	  });
+	};
+
+	actions.update.preEmit = function (org) {
+	  orgApi.update(org).then(function (org) {
+	    actions.update.complete(org);
+	  }, function (err) {
+	    actions.update.error(err);
+	  });
+	};
+
+	actions.del.preEmit = function (org) {
+	  orgApi.del(org).then(function () {
+	    actions.del.complete(org);
+	  }, function (err) {
+	    actions.del.error(err);
 	  });
 	};
 
@@ -1472,6 +1508,21 @@
 	      org: org
 	    });
 	  },
+	  editOrg: function editOrg() {
+	    this.setState({
+	      editing: true
+	    });
+	  },
+	  cancelEdit: function cancelEdit() {
+	    this.setState({
+	      editing: false
+	    });
+	  },
+	  deleteOrg: function deleteOrg() {
+	    if (!window.confirm('Are you sure you want to delete this organization and all its assets?')) return;
+
+	    orgActions.del(this.state.org);
+	  },
 	  saveOrg: function saveOrg(e) {
 	    e.preventDefault();
 
@@ -1483,9 +1534,10 @@
 	      this.setState({
 	        error: error
 	      });
-	    } else {
-	      orgActions.create(this.state.org);
+	      return;
 	    }
+
+	    if (!org._id) orgActions.create(this.state.org);else orgActions.update(this.state.org);
 	  },
 	  cancelNewOrg: function cancelNewOrg(e) {
 	    orgActions.create.cancel();
@@ -1529,13 +1581,43 @@
 	      React.createElement(
 	        'div',
 	        { className: 'extra content' },
-	        React.createElement('i', { className: 'icon server' }),
-	        org.assets ? org.assets.length : '0',
-	        ' Assets',
 	        React.createElement(
-	          Link,
-	          { to: 'org', params: { orgId: org._id }, className: 'right floated' },
-	          'Go to asset list'
+	          Dropdown,
+	          { className: 'inline right icon', init: true, style: { marginRight: '8px' } },
+	          React.createElement('i', { className: 'setting icon' }),
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            React.createElement(
+	              'div',
+	              { className: 'item', onClick: this.editOrg },
+	              React.createElement('i', { className: 'edit icon' }),
+	              'Edit'
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'item', onClick: this.deleteOrg },
+	              React.createElement('i', { className: 'trash icon' }),
+	              'Delete'
+	            )
+	          )
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'right floated' },
+	          React.createElement('i', { className: 'icon server' }),
+	          org.assets ? org.assets.length : '0',
+	          ' Assets',
+	          React.createElement(
+	            'span',
+	            { style: { margin: '0 4px' } },
+	            '|'
+	          ),
+	          React.createElement(
+	            Link,
+	            { to: 'org', params: { orgId: org._id }, className: '' },
+	            'Go to asset list'
+	          )
 	        )
 	      )
 	    );
@@ -1604,7 +1686,7 @@
 	          ),
 	          React.createElement(
 	            'button',
-	            { className: 'ui button basic small', type: 'button', onClick: this.cancelNewOrg },
+	            { className: 'ui button basic small', type: 'button', onClick: org._id ? this.cancelEdit : this.cancelNewOrg },
 	            'Cancel'
 	          )
 	        )
@@ -13956,10 +14038,32 @@
 	  });
 	}
 
+	function update(org) {
+	  return new Promise(function (resolve, reject) {
+	    api()('organizations')(org._id).put(org, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function del(org) {
+	  return new Promise(function (resolve, reject) {
+	    api()('organizations')(org._id)['delete'](function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve();
+	    });
+	  });
+	}
+
 	module.exports = {
 	  getList: getList,
 	  get: get,
-	  create: create
+	  create: create,
+	  update: update,
+	  del: del
 	};
 
 /***/ },
