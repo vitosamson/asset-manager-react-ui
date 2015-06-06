@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "classnames": "^2.1.2",
+    "lodash": "^3.9.3",
     "react-semantify": "^0.3.1"
   }
 }

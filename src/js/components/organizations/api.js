@@ -24,7 +24,19 @@ function get(id) {
   });
 }
 
+function create(org) {
+  return new Promise(function(resolve, reject) {
+    api()('organizations').post(org, function(err, res) {
+      if (err)
+        return reject(err);
+
+      resolve(res.data);
+    });
+  });
+}
+
 module.exports = {
   getList: getList,
-  get: get
+  get: get,
+  create: create
 };

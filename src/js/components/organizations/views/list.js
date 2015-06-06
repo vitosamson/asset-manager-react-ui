@@ -1,18 +1,21 @@
 'use strict';
 
 var React = require('react'),
-    Link = require('react-router').Link,
     Reflux = require('reflux'),
+    _ = require('lodash'),
     orgStore = require('../store'),
-    orgActions = require('../actions');
+    orgActions = require('../actions'),
+    OrgCard = require('./card');
 
 var OrgList = React.createClass({
   mixins: [
-    Reflux.listenTo(orgStore, 'onOrgsUpdated')
+    Reflux.listenTo(orgStore, 'onOrgsUpdated'),
+    Reflux.listenTo(orgActions.create.start, 'createNewOrg'),
+    Reflux.listenTo(orgActions.create.cancel, 'cancelNewOrg')
   ],
   getInitialState: function() {
     return {
-      orgs: orgStore.orgs || []
+      orgs: []
     };
   },
   componentWillMount: function() {
@@ -20,49 +23,35 @@ var OrgList = React.createClass({
   },
   onOrgsUpdated: function(orgs) {
     this.setState({
+      orgs: _.extend([], orgs)
+    });
+  },
+  createNewOrg: function() {
+    var orgs = this.state.orgs;
+    orgs.unshift({});
+    this.setState({
       orgs: orgs
     });
   },
-  render: function() {
-    function showParent(org) {
-      if (org.parent) {
-        return (
-          <div>
-            <i className="level up icon"></i>
-            {org.parent.name}
-          </div>
-        );
-      }
+  cancelNewOrg: function() {
+    var orgs = this.state.orgs;
+    if (orgs.length && orgs[0]._id === undefined) {
+      orgs.shift();
+      this.setState({
+        orgs: orgs
+      });
     }
+  },
+  render: function() {
+    var orgs = this.state.orgs;
 
     return (
       <div className="ui two doubling cards">
-        {this.state.orgs.map(function(org, idx) {
+        {orgs.length ? orgs.map(function(org, idx) {
           return (
-            <div className="ui card" key={org._id}>
-              <div className="content">
-                <div className="header">
-                  {org.name}
-                </div>
-                <div className="meta">
-                  {showParent(org)}
-
-                  {org.description}
-                </div>
-                <div className="description">
-                </div>
-              </div>
-              <div className="extra content">
-                <i className="icon server"></i>
-                {org.assets ? org.assets.length : '0'} Assets
-
-                <Link to="org" params={{orgId: org._id}} className="right floated">
-                  Go to asset list
-                </Link>
-              </div>
-            </div>
+            <OrgCard org={org} key={idx} new={org._id === undefined}/>
           );
-        })}
+        }) : ''}
       </div>
     );
   }

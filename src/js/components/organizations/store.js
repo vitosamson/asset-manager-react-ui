@@ -8,6 +8,10 @@ var orgStore = Reflux.createStore({
   onListComplete: function(orgs) {
     this.orgs = orgs;
     this.trigger(orgs);
+  },
+  onCreateComplete: function(org) {
+    this.orgs.unshift(org);
+    this.trigger(this.orgs);
   }
 });
 

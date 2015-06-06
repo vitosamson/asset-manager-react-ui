@@ -2,10 +2,12 @@
 
 var React = require('react'),
     Reflux = require('reflux'),
+    State = require('react-router').State,
     Dropdown = require('react-semantify').Dropdown,
     Link = require('react-router').Link,
     orgStore = require('./organizations/store'),
-    orgActions = require('./organizations/actions');
+    orgActions = require('./organizations/actions'),
+    OrgListMenu = require('./organizations/views/list/listMenu');
 
 var sidemenu = React.createClass({
   mixins: [
@@ -27,9 +29,11 @@ var sidemenu = React.createClass({
   render: function() {
     return (
       <div className="four wide column">
+        <OrgListMenu/>
+
         <div className="ui vertical fluid menu">
           <div className="item">
-            <div className="ui icon input">
+            <div className="ui icon input fluid">
               <input type="search" placeholder="Search"/>
               <i className="search icon"></i>
             </div>

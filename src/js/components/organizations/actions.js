@@ -9,6 +9,9 @@ var actions = Reflux.createActions({
   },
   get: {
     children: ['complete', 'error']
+  },
+  create: {
+    children: ['start', 'cancel', 'complete', 'error']
   }
 });
 
@@ -25,6 +28,17 @@ actions.get.preEmit = function(orgId) {
     actions.get.complete(org);
   }, function(err) {
     actions.get.error(err);
+  });
+};
+
+actions.create.preEmit = function(org) {
+  if (!org)
+    return;
+
+  orgApi.create(org).then(function(org) {
+    actions.create.complete(org);
+  }, function(err) {
+    actions.create.error(err);
   });
 };
 
