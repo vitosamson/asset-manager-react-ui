@@ -261,7 +261,10 @@
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
 
-	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdate')],
+	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdate'), State],
+	  contextTypes: {
+	    router: React.PropTypes.func
+	  },
 	  getInitialState: function getInitialState() {
 	    return {
 	      orgs: orgStore.orgs || []
@@ -279,7 +282,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'four wide column' },
-	      React.createElement(OrgListMenu, null),
+	      this.isActive('orgs') ? React.createElement(OrgListMenu, null) : null,
 	      React.createElement(
 	        'div',
 	        { className: 'ui vertical fluid menu' },

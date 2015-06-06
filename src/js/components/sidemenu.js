@@ -11,8 +11,12 @@ var React = require('react'),
 
 var sidemenu = React.createClass({
   mixins: [
-    Reflux.listenTo(orgStore, 'onOrgsUpdate')
+    Reflux.listenTo(orgStore, 'onOrgsUpdate'),
+    State
   ],
+  contextTypes: {
+    router: React.PropTypes.func
+  },
   getInitialState: function() {
     return {
       orgs: orgStore.orgs || []
@@ -29,7 +33,7 @@ var sidemenu = React.createClass({
   render: function() {
     return (
       <div className="four wide column">
-        <OrgListMenu/>
+        {this.isActive('orgs') ? <OrgListMenu/> : null}
 
         <div className="ui vertical fluid menu">
           <div className="item">
