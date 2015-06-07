@@ -13,7 +13,8 @@ var React = require('react'),
     Account = require('./components/user/views/account'),
     UserMixins = require('./components/user/mixins'),
     Orgs = require('./components/organizations/views/list'),
-    Org = require('./components/organizations/views/show');
+    Org = require('./components/organizations/views/show'),
+    Templates = require('./components/templates/views/list');
 
 var App = React.createClass({
   mixins: [
@@ -79,8 +80,11 @@ var routes = (
     <Route path='/app' name='app' handler={LoggedIn}>
       <Router.DefaultRoute name='dashboard' handler={Dashboard}/>
       <Route path='account' name='account' handler={Account}/>
+
       <Route path='orgs' name='orgs' handler={Orgs}/>
       <Route path='org/:orgId' name='org' handler={Org}/>
+
+      <Route path='templates' name='templates' handler={Templates}/>
     </Route>
   </Route>
 );

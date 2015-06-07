@@ -59,7 +59,8 @@
 	    Account = __webpack_require__(10),
 	    UserMixins = __webpack_require__(11),
 	    Orgs = __webpack_require__(12),
-	    Org = __webpack_require__(13);
+	    Org = __webpack_require__(13),
+	    Templates = __webpack_require__(14);
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -128,7 +129,8 @@
 	    React.createElement(Router.DefaultRoute, { name: 'dashboard', handler: Dashboard }),
 	    React.createElement(Route, { path: 'account', name: 'account', handler: Account }),
 	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs }),
-	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Org })
+	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Org }),
+	    React.createElement(Route, { path: 'templates', name: 'templates', handler: Templates })
 	  )
 	);
 
@@ -161,7 +163,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(14).Dropdown,
+	    Dropdown = __webpack_require__(15).Dropdown,
 	    Reflux = __webpack_require__(2),
 	    Navigation = __webpack_require__(3).Navigation,
 	    Link = __webpack_require__(3).Link,
@@ -252,11 +254,12 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    State = __webpack_require__(3).State,
-	    Dropdown = __webpack_require__(14).Dropdown,
+	    Dropdown = __webpack_require__(15).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    orgStore = __webpack_require__(15),
-	    orgActions = __webpack_require__(16),
-	    OrgListMenu = __webpack_require__(17);
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17),
+	    OrgListMenu = __webpack_require__(18),
+	    TemplateListMenu = __webpack_require__(19);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -283,6 +286,7 @@
 	      'div',
 	      { className: 'four wide column' },
 	      this.isActive('orgs') ? React.createElement(OrgListMenu, null) : null,
+	      this.isActive('templates') ? React.createElement(TemplateListMenu, null) : null,
 	      React.createElement(
 	        'div',
 	        { className: 'ui vertical fluid menu' },
@@ -333,8 +337,8 @@
 	              'Organizations'
 	            ),
 	            React.createElement(
-	              'a',
-	              { className: 'item' },
+	              Link,
+	              { to: 'templates', className: 'item' },
 	              'Templates'
 	            ),
 	            React.createElement(
@@ -359,7 +363,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(18);
+	    baseApi = __webpack_require__(20);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -410,7 +414,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(19);
+	    userApi = __webpack_require__(21);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -482,7 +486,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(18);
+	    baseApi = __webpack_require__(20);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -621,7 +625,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(18);
+	    baseApi = __webpack_require__(20);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -795,7 +799,7 @@
 	    Reflux = __webpack_require__(2),
 	    userStore = __webpack_require__(6),
 	    userActions = __webpack_require__(7),
-	    classNames = __webpack_require__(21);
+	    classNames = __webpack_require__(27);
 
 	var Account = React.createClass({
 	  displayName: 'Account',
@@ -986,10 +990,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(22),
-	    orgStore = __webpack_require__(15),
-	    orgActions = __webpack_require__(16),
-	    OrgCard = __webpack_require__(20);
+	    _ = __webpack_require__(26),
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17),
+	    OrgCard = __webpack_require__(22);
 
 	var OrgList = React.createClass({
 	  displayName: 'OrgList',
@@ -1048,8 +1052,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    orgStore = __webpack_require__(15),
-	    orgActions = __webpack_require__(16);
+	    orgStore = __webpack_require__(16),
+	    orgActions = __webpack_require__(17);
 
 	var OrgShow = React.createClass({
 	  displayName: 'OrgShow',
@@ -1187,16 +1191,79 @@
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Semantify;
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
+	    _ = __webpack_require__(26),
+	    templateActions = __webpack_require__(23),
+	    templateStore = __webpack_require__(24),
+	    Card = __webpack_require__(25);
+
+	var TemplateList = React.createClass({
+	  displayName: 'TemplateList',
+
+	  mixins: [Reflux.listenTo(templateStore, 'onTemplatesUpdate'), Reflux.listenTo(templateActions.create.start, 'createNewTemplate'), Reflux.listenTo(templateActions.create.cancel, 'cancelNewTemplate')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      templates: []
+	    };
+	  },
+	  onTemplatesUpdate: function onTemplatesUpdate(templates) {
+	    this.setState({
+	      templates: templates
+	    });
+	  },
+	  componentWillMount: function componentWillMount() {
+	    templateActions.list();
+	  },
+	  createNewTemplate: function createNewTemplate() {
+	    var templates = _.extend([], this.state.templates);
+	    templates.unshift({
+	      fields: [{}]
+	    });
+	    this.setState({
+	      templates: templates
+	    });
+	  },
+	  cancelNewTemplate: function cancelNewTemplate() {
+	    var templates = this.state.templates;
+	    if (templates.length && templates[0]._id === undefined) {
+	      templates.shift();
+	      this.setState({
+	        templates: templates
+	      });
+	    }
+	  },
+	  render: function render() {
+	    var templates = this.state.templates;
+
+	    return React.createElement(
+	      'div',
+	      { className: 'ui one cards' },
+	      templates.length ? templates.map(function (template, idx) {
+	        return React.createElement(Card, { template: template, key: idx, 'new': template._id === undefined });
+	      }) : ''
+	    );
+	  }
+	});
+
+	module.exports = TemplateList;
 
 /***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = Semantify;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(16);
+	    actions = __webpack_require__(17);
 
 	var orgStore = Reflux.createStore({
 	  listenables: actions,
@@ -1227,13 +1294,13 @@
 	module.exports = orgStore;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    orgApi = __webpack_require__(24);
+	    orgApi = __webpack_require__(29);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -1298,14 +1365,14 @@
 	module.exports = actions;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    orgActions = __webpack_require__(16);
+	    orgActions = __webpack_require__(17);
 
 	var ListMenu = React.createClass({
 	  displayName: 'ListMenu',
@@ -1348,13 +1415,63 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fermata = __webpack_require__(23),
-	    config = __webpack_require__(25);
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
+	    templateActions = __webpack_require__(23);
+
+	var ListMenu = React.createClass({
+	  displayName: 'ListMenu',
+
+	  mixins: [Reflux.listenTo(templateActions.create.cancel, 'enableNewBtn'), Reflux.listenTo(templateActions.create.complete, 'enableNewBtn')],
+	  getInitialState: function getInitialState() {
+	    return {
+	      disableNewBtn: false
+	    };
+	  },
+	  createNewTemplate: function createNewTemplate() {
+	    if (this.state.disableNewBtn) return;
+
+	    templateActions.create.start();
+	    this.setState({
+	      disableNewBtn: true
+	    });
+	  },
+	  enableNewBtn: function enableNewBtn() {
+	    this.setState({
+	      disableNewBtn: false
+	    });
+	  },
+	  render: function render() {
+	    var newBtnClass = this.state.disableNewBtn ? 'item disabled' : 'item';
+
+	    return React.createElement(
+	      'div',
+	      { className: 'ui vertical fluid menu' },
+	      React.createElement(
+	        'a',
+	        { onClick: this.createNewTemplate, className: newBtnClass },
+	        React.createElement('i', { className: 'icon plus square' }),
+	        'Add a template'
+	      )
+	    );
+	  }
+	});
+
+	module.exports = ListMenu;
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var fermata = __webpack_require__(28),
+	    config = __webpack_require__(30);
 
 	// sets up an API template - base url, headers, json parsing
 	function registerPlugin(token) {
@@ -1389,12 +1506,12 @@
 	// no data to parse
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(18).base;
+	var api = __webpack_require__(20).base;
 
 	/**
 	 * Validates current auth token
@@ -1452,7 +1569,7 @@
 	};
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1460,10 +1577,10 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    Dropdown = __webpack_require__(14).Dropdown,
-	    orgActions = __webpack_require__(16),
-	    orgStore = __webpack_require__(15),
-	    classNames = __webpack_require__(21);
+	    Dropdown = __webpack_require__(15).Dropdown,
+	    orgActions = __webpack_require__(17),
+	    orgStore = __webpack_require__(16),
+	    classNames = __webpack_require__(27);
 
 	var OrgCard = React.createClass({
 	  displayName: 'OrgCard',
@@ -1698,62 +1815,584 @@
 	module.exports = OrgCard;
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
-	  Licensed under the MIT License (MIT), see
-	  http://jedwatson.github.io/classnames
-	*/
+	'use strict';
 
-	(function () {
-		'use strict';
+	var Reflux = __webpack_require__(2),
+	    templateApi = __webpack_require__(31);
 
-		function classNames () {
+	var actions = Reflux.createActions({
+	  list: {
+	    children: ['complete', 'error']
+	  },
+	  get: {
+	    children: ['complete', 'error']
+	  },
+	  create: {
+	    children: ['start', 'cancel', 'complete', 'error']
+	  },
+	  update: {
+	    children: ['complete', 'error']
+	  },
+	  del: {
+	    children: ['complete', 'error']
+	  }
+	});
 
-			var classes = '';
+	actions.list.preEmit = function () {
+	  templateApi.getList().then(function (res) {
+	    actions.list.complete(res.data);
+	  }, function (err) {
+	    actions.list.error(err);
+	  });
+	};
 
-			for (var i = 0; i < arguments.length; i++) {
-				var arg = arguments[i];
-				if (!arg) continue;
+	actions.get.preEmit = function (templateId) {
+	  templateApi.get(templateId).then(function (template) {
+	    actions.get.complete(template);
+	  }, function (err) {
+	    actions.get.error(err);
+	  });
+	};
 
-				var argType = typeof arg;
+	actions.create.preEmit = function (template) {
+	  if (!template) return;
 
-				if ('string' === argType || 'number' === argType) {
-					classes += ' ' + arg;
+	  templateApi.create(template).then(function (template) {
+	    actions.create.complete(template);
+	  }, function (err) {
+	    actions.create.error(err);
+	  });
+	};
 
-				} else if (Array.isArray(arg)) {
-					classes += ' ' + classNames.apply(null, arg);
+	actions.update.preEmit = function (template) {
+	  templateApi.update(template).then(function (template) {
+	    actions.update.complete(template);
+	  }, function (err) {
+	    actions.update.error(err);
+	  });
+	};
 
-				} else if ('object' === argType) {
-					for (var key in arg) {
-						if (arg.hasOwnProperty(key) && arg[key]) {
-							classes += ' ' + key;
-						}
-					}
-				}
-			}
+	actions.del.preEmit = function (template) {
+	  templateApi.del(template).then(function () {
+	    actions.del.complete(template);
+	  }, function (err) {
+	    actions.del.error(err);
+	  });
+	};
 
-			return classes.substr(1);
-		}
-
-		if (true) {
-			// AMD. Register as an anonymous module.
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return classNames;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else if (typeof module !== 'undefined' && module.exports) {
-			module.exports = classNames;
-		} else {
-			window.classNames = classNames;
-		}
-
-	}());
-
+	module.exports = actions;
 
 /***/ },
-/* 22 */
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(23);
+
+	var templateStore = Reflux.createStore({
+	  listenables: actions,
+	  onListComplete: function onListComplete(templates) {
+	    this.templates = templates;
+	    this.trigger(templates);
+	  },
+	  onCreateComplete: function onCreateComplete(template) {
+	    this.templates.unshift(template);
+	    this.trigger(this.templates);
+	  },
+	  onUpdateComplete: function onUpdateComplete(template) {
+	    this.templates = this.templates.map(function (t) {
+	      if (t._id === template._id) return template;
+
+	      return t;
+	    });
+	    this.trigger(this.templates);
+	  },
+	  onDelComplete: function onDelComplete(template) {
+	    this.templates = this.templates.filter(function (t) {
+	      return t._id !== template._id;
+	    });
+	    this.trigger(this.templates);
+	  }
+	});
+
+	module.exports = templateStore;
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Dropdown = __webpack_require__(15).Dropdown,
+	    Checkbox = __webpack_require__(15).Checkbox,
+	    templateStore = __webpack_require__(24),
+	    templateActions = __webpack_require__(23),
+	    classNames = __webpack_require__(32);
+
+	var templateCard = React.createClass({
+	  displayName: 'templateCard',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      template: this.props.template,
+	      editing: this.props['new'],
+	      showDetails: false,
+	      error: {}
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    this.setState({
+	      template: nextProps.template,
+	      editing: nextProps['new']
+	    });
+	  },
+	  toggleDetails: function toggleDetails(e) {
+	    e.preventDefault();
+	    this.setState({
+	      showDetails: !this.state.showDetails
+	    });
+	  },
+	  onChange: function onChange(e) {
+	    var target = e.target,
+	        name = target.getAttribute('name'),
+	        template = this.state.template,
+	        error = this.state.error;
+
+	    template[name] = target.value;
+	    error[name] = false;
+	    this.setState({
+	      template: template,
+	      error: error
+	    });
+	  },
+	  addField: function addField() {
+	    var template = this.state.template;
+
+	    if (!template.fields) template.fields = [{}];else template.fields.push({});
+
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  onFieldNameChange: function onFieldNameChange(idx, e) {
+	    var template = this.state.template,
+	        target = e.target;
+
+	    if (!template.fields) template.fields = [{}];
+
+	    template.fields[idx].name = target.value;
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  onFieldTypeChange: function onFieldTypeChange(idx, val) {
+	    var template = this.state.template;
+
+	    if (!template.fields) template.fields = [{}];
+
+	    template.fields[idx].fieldType = val;
+
+	    if (val === 'select') template.fields[idx].choices = [null];
+
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  fieldAllowMultiple: function fieldAllowMultiple(idx) {
+	    var template = this.state.template;
+	    template.fields[idx].multiple = !template.fields[idx].multiple;
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  removeField: function removeField(idx) {
+	    var template = this.state.template;
+	    template.fields.splice(idx, 1);
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  addChoice: function addChoice(fieldIdx) {
+	    var template = this.state.template;
+	    template.fields[fieldIdx].choices.push(null);
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  onChoiceChange: function onChoiceChange(idx, fieldIdx, e) {
+	    var template = this.state.template;
+	    template.fields[fieldIdx].choices[idx] = e.target.value;
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  removeChoice: function removeChoice(idx, fieldIdx) {
+	    var template = this.state.template;
+	    template.fields[fieldIdx].choices.splice(idx, 1);
+	    this.setState({
+	      template: template
+	    });
+	  },
+	  cancelNewTemplate: function cancelNewTemplate() {
+	    templateActions.create.cancel();
+	  },
+	  saveTemplate: function saveTemplate(e) {
+	    e.preventDefault();
+
+	    var template = this.state.template,
+	        error = this.state.error;
+
+	    if (!template.name) {
+	      error.name = true;
+
+	      this.setState({
+	        error: error
+	      });
+	      return;
+	    }
+
+	    if (!template._id) templateActions.create(template);else templateActions.update(template);
+	  },
+	  render: function render() {
+	    if (!this.state.editing) return this.renderNotEditing();else return this.renderEditing();
+	  },
+	  renderDetails: function renderDetails() {
+	    if (!this.state.showDetails) return;
+
+	    var template = this.state.template;
+
+	    return React.createElement(
+	      'table',
+	      { className: 'ui table' },
+	      React.createElement(
+	        'thead',
+	        null,
+	        React.createElement(
+	          'tr',
+	          null,
+	          React.createElement(
+	            'th',
+	            null,
+	            'Field name'
+	          ),
+	          React.createElement(
+	            'th',
+	            null,
+	            'Type'
+	          ),
+	          React.createElement(
+	            'th',
+	            null,
+	            'Choices'
+	          ),
+	          React.createElement(
+	            'th',
+	            null,
+	            'Allow multiple'
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'tbody',
+	        null,
+	        template.fields.map(function (field, idx) {
+	          return React.createElement(
+	            'tr',
+	            { key: idx },
+	            React.createElement(
+	              'td',
+	              null,
+	              field.name
+	            ),
+	            React.createElement(
+	              'td',
+	              null,
+	              field.fieldType
+	            ),
+	            React.createElement(
+	              'td',
+	              null,
+	              field.choices ? field.choices.map(function (choice, idx) {
+	                return React.createElement(
+	                  'div',
+	                  { key: idx },
+	                  choice
+	                );
+	              }) : ''
+	            ),
+	            React.createElement(
+	              'td',
+	              null,
+	              field.choices && field.multiple ? React.createElement('i', { className: 'check icon' }) : ''
+	            )
+	          );
+	        })
+	      )
+	    );
+	  },
+	  renderNotEditing: function renderNotEditing() {
+	    var template = this.state.template;
+
+	    var details;
+	    if (this.state.showDetails) {
+	      details = 'foo';
+	    } else {
+	      details = '';
+	    }
+
+	    return React.createElement(
+	      'div',
+	      { className: 'ui card' },
+	      React.createElement(
+	        'div',
+	        { className: 'content' },
+	        React.createElement(
+	          'div',
+	          { className: 'header' },
+	          template.name
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'meta' },
+	          template.description
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'description' },
+	          this.renderDetails()
+	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'extra content' },
+	        React.createElement(
+	          Dropdown,
+	          { className: 'inline right icon', init: true, style: { marginRight: '8px' } },
+	          React.createElement('i', { className: 'setting icon' }),
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            React.createElement(
+	              'div',
+	              { className: 'item', onClick: this.editOrg },
+	              React.createElement('i', { className: 'edit icon' }),
+	              'Edit'
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'item', onClick: this.deleteOrg },
+	              React.createElement('i', { className: 'trash icon' }),
+	              'Delete'
+	            )
+	          )
+	        ),
+	        React.createElement(
+	          'a',
+	          { href: '#', className: 'right floated', onClick: this.toggleDetails },
+	          this.state.showDetails ? 'Hide details' : 'Show details'
+	        )
+	      )
+	    );
+	  },
+	  renderChoices: function renderChoices(field, fieldIdx) {
+	    var _this = this;
+
+	    if (field.fieldType && field.fieldType.toLowerCase() === 'select') {
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'div',
+	          { className: 'fields' },
+	          React.createElement('div', { className: 'one wide field' }),
+	          React.createElement(
+	            'div',
+	            { className: 'fourteen wide inline field' },
+	            React.createElement(
+	              Checkbox,
+	              { init: { onChange: this.fieldAllowMultiple.bind(this, fieldIdx) } },
+	              React.createElement('input', { type: 'checkbox', checked: field.multiple }),
+	              React.createElement(
+	                'label',
+	                null,
+	                'Allow multiple selections'
+	              )
+	            )
+	          ),
+	          React.createElement('div', { className: 'one wide field' })
+	        ),
+	        field.choices.map(function (choice, idx) {
+	          return React.createElement(
+	            'div',
+	            { className: 'fields', key: idx },
+	            React.createElement('div', { className: 'one wide field' }),
+	            React.createElement(
+	              'div',
+	              { className: 'ten wide field ui small input' },
+	              React.createElement('input', { type: 'text', placeholder: 'Choice', value: choice, onChange: _this.onChoiceChange.bind(_this, idx, fieldIdx) })
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'two wide field', style: { marginTop: '7px' } },
+	              React.createElement('i', { className: 'remove icon link', onClick: _this.removeChoice.bind(_this, idx, fieldIdx) })
+	            )
+	          );
+	        }),
+	        React.createElement(
+	          'div',
+	          { className: 'fields', style: { marginBottom: 10 } },
+	          React.createElement('div', { className: 'one wide field' }),
+	          React.createElement(
+	            'div',
+	            { className: 'eight wide field' },
+	            React.createElement(
+	              'button',
+	              { className: 'ui labeled icon button basic tiny', type: 'button', onClick: this.addChoice.bind(this, fieldIdx) },
+	              React.createElement('i', { className: 'plus icon' }),
+	              'Add choice'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  },
+	  renderEditing: function renderEditing() {
+	    var _this2 = this;
+
+	    var template = this.state.template,
+	        fields = template.fields,
+	        self = this;
+
+	    var nameClass = classNames({
+	      field: true,
+	      ui: true,
+	      small: true,
+	      input: true,
+	      error: this.state.error.name
+	    });
+
+	    return React.createElement(
+	      'div',
+	      { className: 'ui card' },
+	      React.createElement(
+	        'div',
+	        { className: 'content' },
+	        React.createElement(
+	          'form',
+	          { onSubmit: this.saveTemplate, className: 'ui form', noValidate: true },
+	          React.createElement(
+	            'div',
+	            { className: nameClass },
+	            React.createElement('input', { type: 'text', placeholder: 'Name', value: template.name, required: true, onChange: this.onChange, name: 'name' })
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'field ui small input' },
+	            React.createElement('input', { type: 'text', placeholder: 'Description', value: template.description, onChange: this.onChange, name: 'description' })
+	          ),
+	          React.createElement(
+	            'h5',
+	            { className: 'ui top attached header', style: { marginTop: 0 } },
+	            'Fields'
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'ui attached segment', style: { marginBottom: 10 } },
+	            fields.map(function (field, idx) {
+	              return React.createElement(
+	                'div',
+	                { key: idx },
+	                React.createElement(
+	                  'div',
+	                  { className: 'fields' },
+	                  React.createElement(
+	                    'div',
+	                    { className: 'ten wide field ui small input' },
+	                    React.createElement('input', { type: 'text', placeholder: 'Field name', onChange: _this2.onFieldNameChange.bind(_this2, idx) })
+	                  ),
+	                  React.createElement(
+	                    'div',
+	                    { className: 'five wide field ui small input' },
+	                    React.createElement(
+	                      Dropdown,
+	                      { init: { onChange: _this2.onFieldTypeChange.bind(_this2, idx) }, className: 'selection fluid' },
+	                      React.createElement('i', { className: 'dropdown icon' }),
+	                      React.createElement(
+	                        'div',
+	                        { className: 'default text' },
+	                        field.fieldType || 'Type'
+	                      ),
+	                      React.createElement(
+	                        'div',
+	                        { className: 'menu' },
+	                        React.createElement(
+	                          'div',
+	                          { className: 'item' },
+	                          'Text'
+	                        ),
+	                        React.createElement(
+	                          'div',
+	                          { className: 'item' },
+	                          'Select'
+	                        ),
+	                        React.createElement(
+	                          'div',
+	                          { className: 'item' },
+	                          'Checkbox'
+	                        )
+	                      )
+	                    )
+	                  ),
+	                  React.createElement(
+	                    'div',
+	                    { className: 'one wide field', style: { marginTop: '7px' } },
+	                    React.createElement('i', { className: 'remove icon link', onClick: _this2.removeField.bind(_this2, idx) })
+	                  )
+	                ),
+	                _this2.renderChoices(field, idx)
+	              );
+	            }),
+	            React.createElement(
+	              'div',
+	              { className: 'field' },
+	              React.createElement(
+	                'div',
+	                { className: 'eight wide field' },
+	                React.createElement(
+	                  'button',
+	                  { className: 'ui labeled icon button basic tiny', type: 'button', onClick: this.addField },
+	                  React.createElement('i', { className: 'plus icon' }),
+	                  'Add field'
+	                )
+	              )
+	            )
+	          ),
+	          React.createElement(
+	            'button',
+	            { className: 'ui button primary small', type: 'submit' },
+	            'Save template'
+	          ),
+	          React.createElement(
+	            'button',
+	            { className: 'ui button basic small', type: 'button', onClick: template._id ? this.cancelEdit : this.cancelNewTemplate },
+	            'Cancel'
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = templateCard;
+
+/***/ },
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -13992,21 +14631,76 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)(module), (function() { return this; }())))
 
 /***/ },
-/* 23 */
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+
+	(function () {
+		'use strict';
+
+		function classNames () {
+
+			var classes = '';
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if ('string' === argType || 'number' === argType) {
+					classes += ' ' + arg;
+
+				} else if (Array.isArray(arg)) {
+					classes += ' ' + classNames.apply(null, arg);
+
+				} else if ('object' === argType) {
+					for (var key in arg) {
+						if (arg.hasOwnProperty(key) && arg[key]) {
+							classes += ' ' + key;
+						}
+					}
+				}
+			}
+
+			return classes.substr(1);
+		}
+
+		if (true) {
+			// AMD. Register as an anonymous module.
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else {
+			window.classNames = classNames;
+		}
+
+	}());
+
+
+/***/ },
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = fermata;
 
 /***/ },
-/* 24 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(18).base;
+	var api = __webpack_require__(20).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -14067,7 +14761,7 @@
 	};
 
 /***/ },
-/* 25 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14077,7 +14771,128 @@
 	};
 
 /***/ },
-/* 26 */
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var api = __webpack_require__(20).base;
+
+	function getList() {
+	  return new Promise(function (resolve, reject) {
+	    api()('templates').get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res);
+	    });
+	  });
+	}
+
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api()('templates')(id).get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function create(template) {
+	  return new Promise(function (resolve, reject) {
+	    api()('templates').post(template, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function update(template) {
+	  return new Promise(function (resolve, reject) {
+	    api()('templates')(template._id).put(template, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function del(template) {
+	  return new Promise(function (resolve, reject) {
+	    api()('templates')(template._id)['delete'](function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve();
+	    });
+	  });
+	}
+
+	module.exports = {
+	  getList: getList,
+	  get: get,
+	  create: create,
+	  update: update,
+	  del: del
+	};
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+
+	(function () {
+		'use strict';
+
+		function classNames () {
+
+			var classes = '';
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if ('string' === argType || 'number' === argType) {
+					classes += ' ' + arg;
+
+				} else if (Array.isArray(arg)) {
+					classes += ' ' + classNames.apply(null, arg);
+
+				} else if ('object' === argType) {
+					for (var key in arg) {
+						if (arg.hasOwnProperty(key) && arg[key]) {
+							classes += ' ' + key;
+						}
+					}
+				}
+			}
+
+			return classes.substr(1);
+		}
+
+		if (true) {
+			// AMD. Register as an anonymous module.
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else {
+			window.classNames = classNames;
+		}
+
+	}());
+
+
+/***/ },
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {

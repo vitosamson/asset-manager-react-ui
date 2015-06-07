@@ -7,7 +7,8 @@ var React = require('react'),
     Link = require('react-router').Link,
     orgStore = require('./organizations/store'),
     orgActions = require('./organizations/actions'),
-    OrgListMenu = require('./organizations/views/list/listMenu');
+    OrgListMenu = require('./organizations/views/list/listMenu'),
+    TemplateListMenu = require('./templates/views/listMenu');
 
 var sidemenu = React.createClass({
   mixins: [
@@ -34,6 +35,7 @@ var sidemenu = React.createClass({
     return (
       <div className="four wide column">
         {this.isActive('orgs') ? <OrgListMenu/> : null}
+        {this.isActive('templates') ? <TemplateListMenu/> : null}
 
         <div className="ui vertical fluid menu">
           <div className="item">
@@ -67,7 +69,7 @@ var sidemenu = React.createClass({
         
             <div className="menu">
               <Link to="orgs" className="item">Organizations</Link>
-              <a className="item">Templates</a>
+              <Link to="templates" className="item">Templates</Link>
               <a className="item">Users</a>
             </div>
           </Dropdown>
