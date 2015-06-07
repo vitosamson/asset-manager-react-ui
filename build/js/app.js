@@ -799,7 +799,7 @@
 	    Reflux = __webpack_require__(2),
 	    userStore = __webpack_require__(6),
 	    userActions = __webpack_require__(7),
-	    classNames = __webpack_require__(27);
+	    classNames = __webpack_require__(26);
 
 	var Account = React.createClass({
 	  displayName: 'Account',
@@ -990,7 +990,7 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(26),
+	    _ = __webpack_require__(27),
 	    orgStore = __webpack_require__(16),
 	    orgActions = __webpack_require__(17),
 	    OrgCard = __webpack_require__(22);
@@ -1195,7 +1195,7 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(26),
+	    _ = __webpack_require__(27),
 	    templateActions = __webpack_require__(23),
 	    templateStore = __webpack_require__(24),
 	    Card = __webpack_require__(25);
@@ -1580,7 +1580,7 @@
 	    Dropdown = __webpack_require__(15).Dropdown,
 	    orgActions = __webpack_require__(17),
 	    orgStore = __webpack_require__(16),
-	    classNames = __webpack_require__(27);
+	    classNames = __webpack_require__(26);
 
 	var OrgCard = React.createClass({
 	  displayName: 'OrgCard',
@@ -1929,6 +1929,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
 	    Dropdown = __webpack_require__(15).Dropdown,
 	    Checkbox = __webpack_require__(15).Checkbox,
 	    templateStore = __webpack_require__(24),
@@ -1938,6 +1939,7 @@
 	var templateCard = React.createClass({
 	  displayName: 'templateCard',
 
+	  mixins: [Reflux.listenTo(templateActions.get.complete, 'getOriginalTemplate')],
 	  getInitialState: function getInitialState() {
 	    return {
 	      template: this.props.template,
@@ -1952,10 +1954,24 @@
 	      editing: nextProps['new']
 	    });
 	  },
+	  getOriginalTemplate: function getOriginalTemplate(template) {
+	    if (template._id === this.state.template._id) this.setState({
+	      template: template
+	    });
+	  },
 	  toggleDetails: function toggleDetails(e) {
 	    e.preventDefault();
 	    this.setState({
 	      showDetails: !this.state.showDetails
+	    });
+	  },
+	  toggleEdit: function toggleEdit() {
+	    var editing = this.state.editing;
+
+	    if (editing) templateActions.get(this.state.template._id);
+
+	    this.setState({
+	      editing: !this.state.editing
 	    });
 	  },
 	  onChange: function onChange(e) {
@@ -1992,6 +2008,8 @@
 	    });
 	  },
 	  onFieldTypeChange: function onFieldTypeChange(idx, val) {
+	    if (!val) return;
+
 	    var template = this.state.template;
 
 	    if (!template.fields) template.fields = [{}];
@@ -2059,6 +2077,11 @@
 
 	    if (!template._id) templateActions.create(template);else templateActions.update(template);
 	  },
+	  deleteTemplate: function deleteTemplate() {
+	    if (!window.confirm('Are you sure you want to delete this template?')) return;
+
+	    templateActions.del(this.state.template);
+	  },
 	  render: function render() {
 	    if (!this.state.editing) return this.renderNotEditing();else return this.renderEditing();
 	  },
@@ -2118,18 +2141,18 @@
 	            React.createElement(
 	              'td',
 	              null,
-	              field.choices ? field.choices.map(function (choice, idx) {
+	              field.fieldType === 'select' && field.choices.length ? field.choices.map(function (choice, idx) {
 	                return React.createElement(
 	                  'div',
 	                  { key: idx },
 	                  choice
 	                );
-	              }) : ''
+	              }) : '-'
 	            ),
 	            React.createElement(
 	              'td',
 	              null,
-	              field.choices && field.multiple ? React.createElement('i', { className: 'check icon' }) : ''
+	              field.fieldType === 'select' && field.choices.length && field.multiple ? React.createElement('i', { className: 'check icon' }) : '-'
 	            )
 	          );
 	        })
@@ -2173,20 +2196,20 @@
 	        { className: 'extra content' },
 	        React.createElement(
 	          Dropdown,
-	          { className: 'inline right icon', init: true, style: { marginRight: '8px' } },
+	          { className: 'inline right icon', init: { action: 'hide' }, style: { marginRight: '8px' } },
 	          React.createElement('i', { className: 'setting icon' }),
 	          React.createElement(
 	            'div',
 	            { className: 'menu' },
 	            React.createElement(
 	              'div',
-	              { className: 'item', onClick: this.editOrg },
+	              { className: 'item', onClick: this.toggleEdit },
 	              React.createElement('i', { className: 'edit icon' }),
 	              'Edit'
 	            ),
 	            React.createElement(
 	              'div',
-	              { className: 'item', onClick: this.deleteOrg },
+	              { className: 'item', onClick: this.deleteTemplate },
 	              React.createElement('i', { className: 'trash icon' }),
 	              'Delete'
 	            )
@@ -2314,7 +2337,7 @@
 	                  React.createElement(
 	                    'div',
 	                    { className: 'ten wide field ui small input' },
-	                    React.createElement('input', { type: 'text', placeholder: 'Field name', onChange: _this2.onFieldNameChange.bind(_this2, idx) })
+	                    React.createElement('input', { type: 'text', placeholder: 'Field name', value: field.name, onChange: _this2.onFieldNameChange.bind(_this2, idx) })
 	                  ),
 	                  React.createElement(
 	                    'div',
@@ -2326,7 +2349,7 @@
 	                      React.createElement(
 	                        'div',
 	                        { className: 'default text' },
-	                        field.fieldType || 'Type'
+	                        field.fieldType
 	                      ),
 	                      React.createElement(
 	                        'div',
@@ -2380,7 +2403,7 @@
 	          ),
 	          React.createElement(
 	            'button',
-	            { className: 'ui button basic small', type: 'button', onClick: template._id ? this.cancelEdit : this.cancelNewTemplate },
+	            { className: 'ui button basic small', type: 'button', onClick: template._id ? this.toggleEdit : this.cancelNewTemplate },
 	            'Cancel'
 	          )
 	        )
@@ -2393,6 +2416,61 @@
 
 /***/ },
 /* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+
+	(function () {
+		'use strict';
+
+		function classNames () {
+
+			var classes = '';
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if ('string' === argType || 'number' === argType) {
+					classes += ' ' + arg;
+
+				} else if (Array.isArray(arg)) {
+					classes += ' ' + classNames.apply(null, arg);
+
+				} else if ('object' === argType) {
+					for (var key in arg) {
+						if (arg.hasOwnProperty(key) && arg[key]) {
+							classes += ' ' + key;
+						}
+					}
+				}
+			}
+
+			return classes.substr(1);
+		}
+
+		if (true) {
+			// AMD. Register as an anonymous module.
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else {
+			window.classNames = classNames;
+		}
+
+	}());
+
+
+/***/ },
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -14632,61 +14710,6 @@
 	}.call(this));
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)(module), (function() { return this; }())))
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
-	  Licensed under the MIT License (MIT), see
-	  http://jedwatson.github.io/classnames
-	*/
-
-	(function () {
-		'use strict';
-
-		function classNames () {
-
-			var classes = '';
-
-			for (var i = 0; i < arguments.length; i++) {
-				var arg = arguments[i];
-				if (!arg) continue;
-
-				var argType = typeof arg;
-
-				if ('string' === argType || 'number' === argType) {
-					classes += ' ' + arg;
-
-				} else if (Array.isArray(arg)) {
-					classes += ' ' + classNames.apply(null, arg);
-
-				} else if ('object' === argType) {
-					for (var key in arg) {
-						if (arg.hasOwnProperty(key) && arg[key]) {
-							classes += ' ' + key;
-						}
-					}
-				}
-			}
-
-			return classes.substr(1);
-		}
-
-		if (true) {
-			// AMD. Register as an anonymous module.
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return classNames;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else if (typeof module !== 'undefined' && module.exports) {
-			module.exports = classNames;
-		} else {
-			window.classNames = classNames;
-		}
-
-	}());
-
 
 /***/ },
 /* 28 */

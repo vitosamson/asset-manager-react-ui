@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react'),
+    Reflux = require('reflux'),
     Dropdown = require('react-semantify').Dropdown,
     Checkbox = require('react-semantify').Checkbox,
     templateStore = require('../store'),
@@ -8,6 +9,9 @@ var React = require('react'),
     classNames = require('classNames');
 
 var templateCard = React.createClass({
+  mixins: [
+    Reflux.listenTo(templateActions.get.complete, 'getOriginalTemplate')
+  ],
   getInitialState: function() {
     return {
       template: this.props.template,
@@ -22,10 +26,26 @@ var templateCard = React.createClass({
       editing: nextProps.new
     });
   },
+  getOriginalTemplate: function(template) {
+    if (template._id === this.state.template._id)
+      this.setState({
+        template: template
+      });
+  },
   toggleDetails: function(e) {
     e.preventDefault();
     this.setState({
       showDetails: !this.state.showDetails
+    });
+  },
+  toggleEdit: function() {
+    var editing = this.state.editing;
+
+    if (editing)
+      templateActions.get(this.state.template._id);
+
+    this.setState({
+      editing: !this.state.editing
     });
   },
   onChange: function(e) {
@@ -66,6 +86,9 @@ var templateCard = React.createClass({
     });
   },
   onFieldTypeChange: function(idx, val) {
+    if (!val)
+      return;
+
     var template = this.state.template;
 
     if (!template.fields)
@@ -138,6 +161,12 @@ var templateCard = React.createClass({
     else
       templateActions.update(template);
   },
+  deleteTemplate: function() {
+    if (!window.confirm('Are you sure you want to delete this template?'))
+      return;
+
+    templateActions.del(this.state.template);
+  },
   render: function() {
     if (!this.state.editing)
       return this.renderNotEditing();
@@ -166,12 +195,12 @@ var templateCard = React.createClass({
               <td>{field.name}</td>
               <td>{field.fieldType}</td>
               <td>
-                {field.choices ? field.choices.map((choice, idx) =>
+                {field.fieldType === 'select' && field.choices.length ? field.choices.map((choice, idx) =>
                   <div key={idx}>{choice}</div>
-                ) : ''}
+                ) : '-'}
               </td>
               <td>
-                {field.choices && field.multiple ? <i className="check icon"></i> : ''}
+                {field.fieldType === 'select' && field.choices.length && field.multiple ? <i className="check icon"></i> : '-'}
               </td>
             </tr>
           )}
@@ -203,14 +232,14 @@ var templateCard = React.createClass({
           </div>
         </div>
         <div className="extra content">
-          <Dropdown className="inline right icon" init={true} style={{marginRight: '8px'}}>
+          <Dropdown className="inline right icon" init={{action: 'hide'}} style={{marginRight: '8px'}}>
             <i className="setting icon"></i>
             <div className="menu">
-              <div className="item" onClick={this.editOrg}>
+              <div className="item" onClick={this.toggleEdit}>
                 <i className="edit icon"></i>
                 Edit
               </div>
-              <div className="item" onClick={this.deleteOrg}>
+              <div className="item" onClick={this.deleteTemplate}>
                 <i className="trash icon"></i>
                 Delete
               </div>
@@ -293,12 +322,12 @@ var templateCard = React.createClass({
                 <div key={idx}>
                   <div className="fields">
                     <div className="ten wide field ui small input">
-                      <input type="text" placeholder="Field name" onChange={this.onFieldNameChange.bind(this, idx)}/>
+                      <input type="text" placeholder="Field name" value={field.name} onChange={this.onFieldNameChange.bind(this, idx)}/>
                     </div>
                     <div className="five wide field ui small input">
                       <Dropdown init={{onChange: this.onFieldTypeChange.bind(this, idx)}} className="selection fluid">
                         <i className="dropdown icon"></i>
-                        <div className="default text">{field.fieldType || 'Type'}</div>
+                        <div className="default text">{field.fieldType}</div>
                         <div className="menu">
                           <div className="item">Text</div>
                           <div className="item">Select</div>
@@ -327,7 +356,7 @@ var templateCard = React.createClass({
             </div>
 
             <button className="ui button primary small" type="submit">Save template</button>
-            <button className="ui button basic small" type="button" onClick={template._id ? this.cancelEdit : this.cancelNewTemplate}>Cancel</button>
+            <button className="ui button basic small" type="button" onClick={template._id ? this.toggleEdit : this.cancelNewTemplate}>Cancel</button>
           </form>
         </div>
       </div>
