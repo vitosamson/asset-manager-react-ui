@@ -82,11 +82,6 @@ var OrgShow = React.createClass({
           </thead>
           { assets.length > 0 ? assetTable : noAssets }
         </table>
-
-        <div className="ui labeled icon button">
-          <i className="add square icon"></i>
-          Add new asset
-        </div>
       </div>
     );
   }

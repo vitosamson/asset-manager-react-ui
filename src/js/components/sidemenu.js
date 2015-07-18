@@ -7,7 +7,8 @@ var React = require('react'),
     Link = require('react-router').Link,
     orgStore = require('./organizations/store'),
     orgActions = require('./organizations/actions'),
-    OrgListMenu = require('./organizations/views/list/listMenu'),
+    OrgListMenu = require('./organizations/views/listMenu'),
+    OrgShowMenu = require('./organizations/views/showMenu'),
     TemplateListMenu = require('./templates/views/listMenu');
 
 var sidemenu = React.createClass({
@@ -35,6 +36,7 @@ var sidemenu = React.createClass({
     return (
       <div className="four wide column">
         {this.isActive('orgs') ? <OrgListMenu/> : null}
+        {this.isActive('org') ? <OrgShowMenu/> : null}
         {this.isActive('templates') ? <TemplateListMenu/> : null}
 
         <div className="ui vertical fluid menu">
