@@ -37,7 +37,7 @@ var TemplateList = React.createClass({
   },
   cancelNewTemplate: function() {
     var templates = this.state.templates;
-    if (templates.length && templates[0]._id === undefined) {
+    if (templates.length && templates[0].id === undefined) {
       templates.shift();
       this.setState({
         templates: templates
@@ -51,7 +51,7 @@ var TemplateList = React.createClass({
       <div className="ui one cards">
         {templates.length ? templates.map(function(template, idx) {
           return (
-            <Card template={template} key={idx} new={template._id === undefined}/>
+            <Card template={template} key={idx} new={template.id === undefined}/>
           );
         }) : ''}
       </div>

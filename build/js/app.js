@@ -317,7 +317,7 @@
 	            this.state.orgs.map(function (org) {
 	              return React.createElement(
 	                Link,
-	                { to: 'org', key: org._id, params: { orgId: org._id }, className: 'item' },
+	                { to: 'org', key: org.id, params: { orgId: org.id }, className: 'item' },
 	                org.name
 	              );
 	            })
@@ -363,7 +363,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(20);
+	    baseApi = __webpack_require__(21);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -414,7 +414,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(21);
+	    userApi = __webpack_require__(20);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -486,7 +486,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(20);
+	    baseApi = __webpack_require__(21);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -625,7 +625,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(20);
+	    baseApi = __webpack_require__(21);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -814,7 +814,7 @@
 	    };
 	  },
 	  onUpdate: function onUpdate(token, user) {
-	    var success = user._id == this.state.user._id;
+	    var success = user.id == this.state.user.id;
 
 	    this.setState({
 	      user: user,
@@ -1021,7 +1021,7 @@
 	  },
 	  cancelNewOrg: function cancelNewOrg() {
 	    var orgs = this.state.orgs;
-	    if (orgs.length && orgs[0]._id === undefined) {
+	    if (orgs.length && orgs[0].id === undefined) {
 	      orgs.shift();
 	      this.setState({
 	        orgs: orgs
@@ -1035,7 +1035,7 @@
 	      'div',
 	      { className: 'ui two doubling cards' },
 	      orgs.length ? orgs.map(function (org, idx) {
-	        return React.createElement(OrgCard, { org: org, key: idx, 'new': org._id === undefined });
+	        return React.createElement(OrgCard, { org: org, key: idx, 'new': org.id === undefined });
 	      }) : ''
 	    );
 	  }
@@ -1091,7 +1091,7 @@
 	      if (org.parent) {
 	        return React.createElement(
 	          Link,
-	          { to: 'org', params: { orgId: org.parent._id } },
+	          { to: 'org', params: { orgId: org.parent.id } },
 	          React.createElement(
 	            'div',
 	            { className: 'sub header' },
@@ -1228,7 +1228,7 @@
 	  },
 	  cancelNewTemplate: function cancelNewTemplate() {
 	    var templates = this.state.templates;
-	    if (templates.length && templates[0]._id === undefined) {
+	    if (templates.length && templates[0].id === undefined) {
 	      templates.shift();
 	      this.setState({
 	        templates: templates
@@ -1242,7 +1242,7 @@
 	      'div',
 	      { className: 'ui one cards' },
 	      templates.length ? templates.map(function (template, idx) {
-	        return React.createElement(Card, { template: template, key: idx, 'new': template._id === undefined });
+	        return React.createElement(Card, { template: template, key: idx, 'new': template.id === undefined });
 	      }) : ''
 	    );
 	  }
@@ -1277,7 +1277,7 @@
 	  },
 	  onUpdateComplete: function onUpdateComplete(org) {
 	    this.orgs = this.orgs.map(function (o) {
-	      if (o._id === org._id) return org;
+	      if (o.id === org.id) return org;
 
 	      return o;
 	    });
@@ -1285,7 +1285,7 @@
 	  },
 	  onDelComplete: function onDelComplete(org) {
 	    this.orgs = this.orgs.filter(function (o) {
-	      return o._id !== org._id;
+	      return o.id !== org.id;
 	    });
 	    this.trigger(this.orgs);
 	  }
@@ -1470,48 +1470,7 @@
 
 	'use strict';
 
-	var fermata = __webpack_require__(28),
-	    config = __webpack_require__(30);
-
-	// sets up an API template - base url, headers, json parsing
-	function registerPlugin(token) {
-	  fermata.registerPlugin('base', function (transport, name, key) {
-	    this.base = config.API_BASE;
-
-	    return function (req, cb) {
-	      req.headers.Authorization = 'Bearer ' + token;
-	      req.headers['Content-Type'] = 'application/json';
-	      req.data = JSON.stringify(req.data);
-
-	      return transport(req, function (err, res) {
-	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
-	          try {
-	            res.data = JSON.parse(res.data);
-	          } catch (e) {}
-	        }
-
-	        cb(err, res);
-	      });
-	    };
-	  });
-	}
-
-	registerPlugin(localStorage.getItem('token'));
-
-	module.exports = {
-	  base: fermata.base,
-	  register: registerPlugin
-	};
-
-	// no data to parse
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var api = __webpack_require__(20).base;
+	var api = __webpack_require__(21).base;
 
 	/**
 	 * Validates current auth token
@@ -1567,6 +1526,47 @@
 	  me: me,
 	  update: update
 	};
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var fermata = __webpack_require__(28),
+	    config = __webpack_require__(30);
+
+	// sets up an API template - base url, headers, json parsing
+	function registerPlugin(token) {
+	  fermata.registerPlugin('base', function (transport, name, key) {
+	    this.base = config.API_BASE;
+
+	    return function (req, cb) {
+	      req.headers.Authorization = 'Bearer ' + token;
+	      req.headers['Content-Type'] = 'application/json';
+	      req.data = JSON.stringify(req.data);
+
+	      return transport(req, function (err, res) {
+	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
+	          try {
+	            res.data = JSON.parse(res.data);
+	          } catch (e) {}
+	        }
+
+	        cb(err, res);
+	      });
+	    };
+	  });
+	}
+
+	registerPlugin(localStorage.getItem('token'));
+
+	module.exports = {
+	  base: fermata.base,
+	  register: registerPlugin
+	};
+
+	// no data to parse
 
 /***/ },
 /* 22 */
@@ -1654,7 +1654,7 @@
 	      return;
 	    }
 
-	    if (!org._id) orgActions.create(this.state.org);else orgActions.update(this.state.org);
+	    if (!org.id) orgActions.create(this.state.org);else orgActions.update(this.state.org);
 	  },
 	  cancelNewOrg: function cancelNewOrg(e) {
 	    orgActions.create.cancel();
@@ -1732,7 +1732,7 @@
 	          ),
 	          React.createElement(
 	            Link,
-	            { to: 'org', params: { orgId: org._id }, className: '' },
+	            { to: 'org', params: { orgId: org.id }, className: '' },
 	            'Go to asset list'
 	          )
 	        )
@@ -1789,7 +1789,7 @@
 	                orgs.map(function (org, idx) {
 	                  return React.createElement(
 	                    'div',
-	                    { className: 'item', 'data-value': org._id, key: idx },
+	                    { className: 'item', 'data-value': org.id, key: idx },
 	                    org.name
 	                  );
 	                })
@@ -1803,7 +1803,7 @@
 	          ),
 	          React.createElement(
 	            'button',
-	            { className: 'ui button basic small', type: 'button', onClick: org._id ? this.cancelEdit : this.cancelNewOrg },
+	            { className: 'ui button basic small', type: 'button', onClick: org.id ? this.cancelEdit : this.cancelNewOrg },
 	            'Cancel'
 	          )
 	        )
@@ -1906,7 +1906,7 @@
 	  },
 	  onUpdateComplete: function onUpdateComplete(template) {
 	    this.templates = this.templates.map(function (t) {
-	      if (t._id === template._id) return template;
+	      if (t.id === template.id) return template;
 
 	      return t;
 	    });
@@ -1914,7 +1914,7 @@
 	  },
 	  onDelComplete: function onDelComplete(template) {
 	    this.templates = this.templates.filter(function (t) {
-	      return t._id !== template._id;
+	      return t.id !== template.id;
 	    });
 	    this.trigger(this.templates);
 	  }
@@ -1955,7 +1955,7 @@
 	    });
 	  },
 	  getOriginalTemplate: function getOriginalTemplate(template) {
-	    if (template._id === this.state.template._id) this.setState({
+	    if (template.id === this.state.template.id) this.setState({
 	      template: template
 	    });
 	  },
@@ -1968,7 +1968,7 @@
 	  toggleEdit: function toggleEdit() {
 	    var editing = this.state.editing;
 
-	    if (editing) templateActions.get(this.state.template._id);
+	    if (editing) templateActions.get(this.state.template.id);
 
 	    this.setState({
 	      editing: !this.state.editing
@@ -2075,7 +2075,7 @@
 	      return;
 	    }
 
-	    if (!template._id) templateActions.create(template);else templateActions.update(template);
+	    if (!template.id) templateActions.create(template);else templateActions.update(template);
 	  },
 	  deleteTemplate: function deleteTemplate() {
 	    if (!window.confirm('Are you sure you want to delete this template?')) return;
@@ -2403,7 +2403,7 @@
 	          ),
 	          React.createElement(
 	            'button',
-	            { className: 'ui button basic small', type: 'button', onClick: template._id ? this.toggleEdit : this.cancelNewTemplate },
+	            { className: 'ui button basic small', type: 'button', onClick: template.id ? this.toggleEdit : this.cancelNewTemplate },
 	            'Cancel'
 	          )
 	        )
@@ -14723,7 +14723,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(20).base;
+	var api = __webpack_require__(21).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -14757,7 +14757,7 @@
 
 	function update(org) {
 	  return new Promise(function (resolve, reject) {
-	    api()('organizations')(org._id).put(org, function (err, res) {
+	    api()('organizations')(org.id).put(org, function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve(res.data);
@@ -14767,7 +14767,7 @@
 
 	function del(org) {
 	  return new Promise(function (resolve, reject) {
-	    api()('organizations')(org._id)['delete'](function (err, res) {
+	    api()('organizations')(org.id)['delete'](function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve();
@@ -14799,7 +14799,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(20).base;
+	var api = __webpack_require__(21).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -14833,7 +14833,7 @@
 
 	function update(template) {
 	  return new Promise(function (resolve, reject) {
-	    api()('templates')(template._id).put(template, function (err, res) {
+	    api()('templates')(template.id).put(template, function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve(res.data);
@@ -14843,7 +14843,7 @@
 
 	function del(template) {
 	  return new Promise(function (resolve, reject) {
-	    api()('templates')(template._id)['delete'](function (err, res) {
+	    api()('templates')(template.id)['delete'](function (err, res) {
 	      if (err) return reject(err);
 
 	      resolve();

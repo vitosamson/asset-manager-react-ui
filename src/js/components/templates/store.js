@@ -15,7 +15,7 @@ var templateStore = Reflux.createStore({
   },
   onUpdateComplete: function(template) {
     this.templates = this.templates.map(function(t) {
-      if (t._id === template._id)
+      if (t.id === template.id)
         return template;
 
       return t;
@@ -24,7 +24,7 @@ var templateStore = Reflux.createStore({
   },
   onDelComplete: function(template) {
     this.templates = this.templates.filter(function(t) {
-      return t._id !== template._id;
+      return t.id !== template.id;
     });
     this.trigger(this.templates);
   }

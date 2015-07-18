@@ -41,7 +41,7 @@ var OrgShow = React.createClass({
     function showParent() {
       if (org.parent) {
         return (
-          <Link to="org" params={{orgId: org.parent._id}}>
+          <Link to="org" params={{orgId: org.parent.id}}>
             <div className="sub header">
               <i className="level up icon"></i>
               {org.parent.name}

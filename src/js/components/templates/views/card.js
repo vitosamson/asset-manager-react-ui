@@ -27,7 +27,7 @@ var templateCard = React.createClass({
     });
   },
   getOriginalTemplate: function(template) {
-    if (template._id === this.state.template._id)
+    if (template.id === this.state.template.id)
       this.setState({
         template: template
       });
@@ -42,7 +42,7 @@ var templateCard = React.createClass({
     var editing = this.state.editing;
 
     if (editing)
-      templateActions.get(this.state.template._id);
+      templateActions.get(this.state.template.id);
 
     this.setState({
       editing: !this.state.editing
@@ -156,7 +156,7 @@ var templateCard = React.createClass({
       return;
     }
 
-    if (!template._id)
+    if (!template.id)
       templateActions.create(template);
     else
       templateActions.update(template);
@@ -356,7 +356,7 @@ var templateCard = React.createClass({
             </div>
 
             <button className="ui button primary small" type="submit">Save template</button>
-            <button className="ui button basic small" type="button" onClick={template._id ? this.toggleEdit : this.cancelNewTemplate}>Cancel</button>
+            <button className="ui button basic small" type="button" onClick={template.id ? this.toggleEdit : this.cancelNewTemplate}>Cancel</button>
           </form>
         </div>
       </div>

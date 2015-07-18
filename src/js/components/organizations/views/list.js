@@ -35,7 +35,7 @@ var OrgList = React.createClass({
   },
   cancelNewOrg: function() {
     var orgs = this.state.orgs;
-    if (orgs.length && orgs[0]._id === undefined) {
+    if (orgs.length && orgs[0].id === undefined) {
       orgs.shift();
       this.setState({
         orgs: orgs
@@ -49,7 +49,7 @@ var OrgList = React.createClass({
       <div className="ui two doubling cards">
         {orgs.length ? orgs.map(function(org, idx) {
           return (
-            <OrgCard org={org} key={idx} new={org._id === undefined}/>
+            <OrgCard org={org} key={idx} new={org.id === undefined}/>
           );
         }) : ''}
       </div>

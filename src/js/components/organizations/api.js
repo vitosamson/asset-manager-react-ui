@@ -37,7 +37,7 @@ function create(org) {
 
 function update(org) {
   return new Promise(function(resolve, reject) {
-    api()('organizations')(org._id).put(org, function(err, res) {
+    api()('organizations')(org.id).put(org, function(err, res) {
       if (err)
         return reject(err);
 
@@ -48,7 +48,7 @@ function update(org) {
 
 function del(org) {
   return new Promise(function(resolve, reject) {
-    api()('organizations')(org._id).delete(function(err, res) {
+    api()('organizations')(org.id).delete(function(err, res) {
       if (err)
         return reject(err);
 

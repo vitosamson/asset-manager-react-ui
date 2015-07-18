@@ -20,7 +20,7 @@ var Account = React.createClass({
     };
   },
   onUpdate: function(token, user) {
-    var success = user._id == this.state.user._id;
+    var success = user.id == this.state.user.id;
 
     this.setState({
       user: user,

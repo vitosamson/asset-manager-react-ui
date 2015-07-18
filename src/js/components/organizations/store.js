@@ -15,7 +15,7 @@ var orgStore = Reflux.createStore({
   },
   onUpdateComplete: function(org) {
     this.orgs = this.orgs.map(function(o) {
-      if (o._id === org._id)
+      if (o.id === org.id)
         return org;
 
       return o;
@@ -24,7 +24,7 @@ var orgStore = Reflux.createStore({
   },
   onDelComplete: function(org) {
     this.orgs = this.orgs.filter(function(o) {
-      return o._id !== org._id;
+      return o.id !== org.id;
     });
     this.trigger(this.orgs);
   }

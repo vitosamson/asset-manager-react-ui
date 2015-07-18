@@ -57,7 +57,7 @@ var sidemenu = React.createClass({
             <div className="menu">
               {this.state.orgs.map(function(org) {
                 return (
-                  <Link to="org" key={org._id} params={{orgId: org._id}} className="item">{org.name}</Link>
+                  <Link to="org" key={org.id} params={{orgId: org.id}} className="item">{org.name}</Link>
                 );
               })}
             </div>

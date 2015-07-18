@@ -81,7 +81,7 @@ var OrgCard = React.createClass({
       return;
     }
 
-    if (!org._id)
+    if (!org.id)
       orgActions.create(this.state.org);
     else
       orgActions.update(this.state.org);
@@ -144,7 +144,7 @@ var OrgCard = React.createClass({
 
             <span style={{margin: '0 4px'}}>|</span>
 
-            <Link to="org" params={{orgId: org._id}} className="">
+            <Link to="org" params={{orgId: org.id}} className="">
               Go to asset list
             </Link>
           </div>
@@ -183,14 +183,14 @@ var OrgCard = React.createClass({
                 <div className="menu">
                   {orgs.map(function(org, idx) {
                     return (
-                      <div className="item" data-value={org._id} key={idx}>{org.name}</div>
+                      <div className="item" data-value={org.id} key={idx}>{org.name}</div>
                     );
                   })}
                 </div>
               </Dropdown>
             </div>
             <button className="ui button primary small" type="submit">Save organization</button>
-            <button className="ui button basic small" type="button" onClick={org._id ? this.cancelEdit : this.cancelNewOrg}>Cancel</button>
+            <button className="ui button basic small" type="button" onClick={org.id ? this.cancelEdit : this.cancelNewOrg}>Cancel</button>
           </form>
         </div>
       </div>

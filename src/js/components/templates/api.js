@@ -37,7 +37,7 @@ function create(template) {
 
 function update(template) {
   return new Promise(function(resolve, reject) {
-    api()('templates')(template._id).put(template, function(err, res) {
+    api()('templates')(template.id).put(template, function(err, res) {
       if (err)
         return reject(err);
 
@@ -48,7 +48,7 @@ function update(template) {
 
 function del(template) {
   return new Promise(function(resolve, reject) {
-    api()('templates')(template._id).delete(function(err, res) {
+    api()('templates')(template.id).delete(function(err, res) {
       if (err)
         return reject(err);
 
