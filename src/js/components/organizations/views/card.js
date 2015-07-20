@@ -6,7 +6,8 @@ var React = require('react'),
     Dropdown = require('react-semantify').Dropdown,
     orgActions = require('../actions'),
     orgStore = require('../store'),
-    classNames = require('classnames');
+    classNames = require('classnames'),
+    _ = require('lodash');
 
 var OrgCard = React.createClass({
   mixins: [
@@ -17,13 +18,16 @@ var OrgCard = React.createClass({
       org: this.props.org,
       orgs: orgStore.orgs || [],
       editing: this.props.new,
+      editTmp: _.extend({}, this.props.org),
       error: {}
     };
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({
       org: nextProps.org,
-      editing: nextProps.new
+      editing: nextProps.new,
+      editTmp: _.extend({}, nextProps.org),
+      error: {}
     });
   },
   onOrgsUpdate: function(orgs) {
@@ -34,26 +38,28 @@ var OrgCard = React.createClass({
   onChange: function(e) {
     var target = e.target,
         name = target.getAttribute('name'),
-        org = this.state.org,
+        editTmp = this.state.editTmp,
         error = this.state.error;
 
-    org[name] = target.value;
+    editTmp[name] = target.value;
     error[name] = false;
     this.setState({
-      org: org,
+      editTmp: editTmp,
       error: error
     });
   },
   setParent: function(parent) {
-    var org = this.state.org;
-    org.parent = parent;
+    var editTmp = this.state.editTmp;
+    editTmp.parentId = parent;
     this.setState({
-      org: org
+      editTmp: editTmp
     });
   },
   editOrg: function() {
     this.setState({
-      editing: true
+      editing: true,
+      editTmp: _.extend({}, this.state.org),
+      error: {}
     });
   },
   cancelEdit: function() {
@@ -70,10 +76,10 @@ var OrgCard = React.createClass({
   saveOrg: function(e) {
     e.preventDefault();
 
-    var org = this.state.org,
+    var editTmp = this.state.editTmp,
         error = this.state.error;
 
-    if (!org.name) {
+    if (!editTmp.name) {
       error.name = true;
       this.setState({
         error: error
@@ -81,10 +87,10 @@ var OrgCard = React.createClass({
       return;
     }
 
-    if (!org.id)
-      orgActions.create(this.state.org);
+    if (!editTmp.id)
+      orgActions.create(this.state.editTmp);
     else
-      orgActions.update(this.state.org);
+      orgActions.update(this.state.editTmp);
   },
   cancelNewOrg: function(e) {
     orgActions.create.cancel();
@@ -153,9 +159,14 @@ var OrgCard = React.createClass({
     );
   },
   renderEditing: function() {
-    var org = this.state.org,
+    var editTmp = this.state.editTmp,
         orgs = this.state.orgs,
         error = this.state.error;
+
+    // don't allow an org to be its own parent
+    if (editTmp.id !== undefined) {
+      orgs = orgs.filter(o => o.id !== editTmp.id);
+    }
 
     var nameClass = classNames({
       field: true,
@@ -170,10 +181,10 @@ var OrgCard = React.createClass({
         <div className="content">
           <form onSubmit={this.saveOrg} className="ui form" noValidate>
             <div className={nameClass}>
-              <input type="text" placeholder="Name" value={org.name} required onChange={this.onChange} name="name"/>
+              <input type="text" placeholder="Name" value={editTmp.name} required onChange={this.onChange} name="name"/>
             </div>
             <div className="field ui small input">
-              <input type="text" placeholder="Description" value={org.description} onChange={this.onChange} name="description"/>
+              <input type="text" placeholder="Description" value={editTmp.description} onChange={this.onChange} name="description"/>
             </div>
             <div className="field ui small input">
               <Dropdown init={{onChange: this.setParent}} name="parent" className="search selection fluid">
@@ -190,7 +201,7 @@ var OrgCard = React.createClass({
               </Dropdown>
             </div>
             <button className="ui button primary small" type="submit">Save organization</button>
-            <button className="ui button basic small" type="button" onClick={org.id ? this.cancelEdit : this.cancelNewOrg}>Cancel</button>
+            <button className="ui button basic small" type="button" onClick={editTmp.id ? this.cancelEdit : this.cancelNewOrg}>Cancel</button>
           </form>
         </div>
       </div>

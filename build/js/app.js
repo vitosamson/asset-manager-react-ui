@@ -1899,7 +1899,8 @@
 	    Dropdown = __webpack_require__(17).Dropdown,
 	    orgActions = __webpack_require__(26),
 	    orgStore = __webpack_require__(25),
-	    classNames = __webpack_require__(34);
+	    classNames = __webpack_require__(34),
+	    _ = __webpack_require__(35);
 
 	var OrgCard = React.createClass({
 	  displayName: 'OrgCard',
@@ -1910,13 +1911,16 @@
 	      org: this.props.org,
 	      orgs: orgStore.orgs || [],
 	      editing: this.props['new'],
+	      editTmp: _.extend({}, this.props.org),
 	      error: {}
 	    };
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    this.setState({
 	      org: nextProps.org,
-	      editing: nextProps['new']
+	      editing: nextProps['new'],
+	      editTmp: _.extend({}, nextProps.org),
+	      error: {}
 	    });
 	  },
 	  onOrgsUpdate: function onOrgsUpdate(orgs) {
@@ -1927,26 +1931,28 @@
 	  onChange: function onChange(e) {
 	    var target = e.target,
 	        name = target.getAttribute('name'),
-	        org = this.state.org,
+	        editTmp = this.state.editTmp,
 	        error = this.state.error;
 
-	    org[name] = target.value;
+	    editTmp[name] = target.value;
 	    error[name] = false;
 	    this.setState({
-	      org: org,
+	      editTmp: editTmp,
 	      error: error
 	    });
 	  },
 	  setParent: function setParent(parent) {
-	    var org = this.state.org;
-	    org.parent = parent;
+	    var editTmp = this.state.editTmp;
+	    editTmp.parentId = parent;
 	    this.setState({
-	      org: org
+	      editTmp: editTmp
 	    });
 	  },
 	  editOrg: function editOrg() {
 	    this.setState({
-	      editing: true
+	      editing: true,
+	      editTmp: _.extend({}, this.state.org),
+	      error: {}
 	    });
 	  },
 	  cancelEdit: function cancelEdit() {
@@ -1962,10 +1968,10 @@
 	  saveOrg: function saveOrg(e) {
 	    e.preventDefault();
 
-	    var org = this.state.org,
+	    var editTmp = this.state.editTmp,
 	        error = this.state.error;
 
-	    if (!org.name) {
+	    if (!editTmp.name) {
 	      error.name = true;
 	      this.setState({
 	        error: error
@@ -1973,7 +1979,7 @@
 	      return;
 	    }
 
-	    if (!org.id) orgActions.create(this.state.org);else orgActions.update(this.state.org);
+	    if (!editTmp.id) orgActions.create(this.state.editTmp);else orgActions.update(this.state.editTmp);
 	  },
 	  cancelNewOrg: function cancelNewOrg(e) {
 	    orgActions.create.cancel();
@@ -2059,9 +2065,16 @@
 	    );
 	  },
 	  renderEditing: function renderEditing() {
-	    var org = this.state.org,
+	    var editTmp = this.state.editTmp,
 	        orgs = this.state.orgs,
 	        error = this.state.error;
+
+	    // don't allow an org to be its own parent
+	    if (editTmp.id !== undefined) {
+	      orgs = orgs.filter(function (o) {
+	        return o.id !== editTmp.id;
+	      });
+	    }
 
 	    var nameClass = classNames({
 	      field: true,
@@ -2083,12 +2096,12 @@
 	          React.createElement(
 	            'div',
 	            { className: nameClass },
-	            React.createElement('input', { type: 'text', placeholder: 'Name', value: org.name, required: true, onChange: this.onChange, name: 'name' })
+	            React.createElement('input', { type: 'text', placeholder: 'Name', value: editTmp.name, required: true, onChange: this.onChange, name: 'name' })
 	          ),
 	          React.createElement(
 	            'div',
 	            { className: 'field ui small input' },
-	            React.createElement('input', { type: 'text', placeholder: 'Description', value: org.description, onChange: this.onChange, name: 'description' })
+	            React.createElement('input', { type: 'text', placeholder: 'Description', value: editTmp.description, onChange: this.onChange, name: 'description' })
 	          ),
 	          React.createElement(
 	            'div',
@@ -2122,7 +2135,7 @@
 	          ),
 	          React.createElement(
 	            'button',
-	            { className: 'ui button basic small', type: 'button', onClick: org.id ? this.cancelEdit : this.cancelNewOrg },
+	            { className: 'ui button basic small', type: 'button', onClick: editTmp.id ? this.cancelEdit : this.cancelNewOrg },
 	            'Cancel'
 	          )
 	        )
