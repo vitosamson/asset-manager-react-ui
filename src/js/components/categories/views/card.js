@@ -13,7 +13,9 @@ var Card = React.createClass({
   getInitialState: function() {
     return {
       category: this.props.category,
-      editing: this.props.new
+      editing: this.props.new,
+      editTmp: _.extend({}, this.props.category),
+      error: {}
     };
   },
   componentWillReceiveProps: function(nextProps) {
@@ -27,7 +29,8 @@ var Card = React.createClass({
   setEditing: function() {
     this.setState({
       editing: !this.state.editing,
-      editTmp: _.assign({}, this.props.category)
+      editTmp: _.extend({}, this.props.category),
+      error: {}
     });
   },
   cancelNew: function() {

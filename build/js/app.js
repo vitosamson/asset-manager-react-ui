@@ -2725,7 +2725,9 @@
 	  getInitialState: function getInitialState() {
 	    return {
 	      category: this.props.category,
-	      editing: this.props['new']
+	      editing: this.props['new'],
+	      editTmp: _.extend({}, this.props.category),
+	      error: {}
 	    };
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
@@ -2739,7 +2741,8 @@
 	  setEditing: function setEditing() {
 	    this.setState({
 	      editing: !this.state.editing,
-	      editTmp: _.assign({}, this.props.category)
+	      editTmp: _.extend({}, this.props.category),
+	      error: {}
 	    });
 	  },
 	  cancelNew: function cancelNew() {
