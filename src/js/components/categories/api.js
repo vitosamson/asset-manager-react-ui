@@ -24,6 +24,16 @@ function create(cat) {
   });
 }
 
+function get(id) {
+  return new Promise(function(resolve, reject) {
+    api()('categories')(id).get(function(err, res) {
+      if (err) reject(err);
+
+      resolve(res.data);
+    });
+  });
+}
+
 function update(cat) {
   return new Promise(function(resolve, reject) {
     api()('categories')(cat.id).put(cat, function(err, res) {
@@ -47,6 +57,7 @@ function del(cat) {
 module.exports = {
   getList: getList,
   create: create,
+  get: get,
   update: update,
   del: del
 };

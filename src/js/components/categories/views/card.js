@@ -103,7 +103,7 @@ var Card = React.createClass({
 
             <span style={{margin: '0 4px'}}>|</span>
 
-            <Link to="org" params={{orgId: category.id}} className="">
+            <Link to="category" params={{catId: category.id}}>
               Go to asset list
             </Link>
           </div>

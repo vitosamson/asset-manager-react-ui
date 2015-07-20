@@ -31,7 +31,7 @@ var Sidemenu = React.createClass({
 
         <div className="menu">
           {this.state.categories.map(cat =>
-            <Link to="org" key={cat.id} params={{orgId: cat.id}} className="item">{cat.name}</Link>
+            <Link to="category" key={cat.id} params={{catId: cat.id}} className="item">{cat.name}</Link>
           )}
         </div>
       </div>

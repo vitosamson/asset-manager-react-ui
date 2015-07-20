@@ -10,6 +10,9 @@ var actions = Reflux.createActions({
   create: {
     children: ['start', 'complete', 'cancel', 'error']
   },
+  get: {
+    children: ['complete', 'error']
+  },
   update: {
     children: ['complete', 'error']
   },
@@ -34,6 +37,14 @@ actions.create.preEmit = function(category) {
     actions.create.complete(cat);
   }, function(err) {
     actions.create.error(err);
+  });
+};
+
+actions.get.preEmit = function(id) {
+  categoriesApi.get(id).then(function(cat) {
+    actions.get.complete(cat);
+  }, function(err) {
+    actions.get.error(err);
   });
 };
 

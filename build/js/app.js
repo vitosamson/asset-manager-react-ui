@@ -61,7 +61,8 @@
 	    Orgs = __webpack_require__(12),
 	    Org = __webpack_require__(13),
 	    Templates = __webpack_require__(14),
-	    Categories = __webpack_require__(15);
+	    Categories = __webpack_require__(15),
+	    Category = __webpack_require__(16);
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -132,7 +133,8 @@
 	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs }),
 	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Org }),
 	    React.createElement(Route, { path: 'templates', name: 'templates', handler: Templates }),
-	    React.createElement(Route, { path: 'categories', name: 'categories', handler: Categories })
+	    React.createElement(Route, { path: 'categories', name: 'categories', handler: Categories }),
+	    React.createElement(Route, { path: 'categories/:catId', name: 'category', handler: Category })
 	  )
 	);
 
@@ -165,7 +167,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(16).Dropdown,
+	    Dropdown = __webpack_require__(17).Dropdown,
 	    Reflux = __webpack_require__(2),
 	    Navigation = __webpack_require__(3).Navigation,
 	    Link = __webpack_require__(3).Link,
@@ -255,13 +257,13 @@
 
 	var React = __webpack_require__(1),
 	    State = __webpack_require__(3).State,
-	    Dropdown = __webpack_require__(16).Dropdown,
+	    Dropdown = __webpack_require__(17).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(17),
-	    OrgListMenu = __webpack_require__(18),
-	    TemplateListMenu = __webpack_require__(19),
-	    CategoryMenu = __webpack_require__(20),
-	    CategoryListMenu = __webpack_require__(21);
+	    OrgMenu = __webpack_require__(18),
+	    OrgListMenu = __webpack_require__(19),
+	    TemplateListMenu = __webpack_require__(20),
+	    CategoryMenu = __webpack_require__(21),
+	    CategoryListMenu = __webpack_require__(22);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -343,7 +345,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(22);
+	    baseApi = __webpack_require__(23);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -394,7 +396,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(23);
+	    userApi = __webpack_require__(24);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -466,7 +468,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(22);
+	    baseApi = __webpack_require__(23);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -605,7 +607,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(22);
+	    baseApi = __webpack_require__(23);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -779,7 +781,7 @@
 	    Reflux = __webpack_require__(2),
 	    userStore = __webpack_require__(6),
 	    userActions = __webpack_require__(7),
-	    classNames = __webpack_require__(33);
+	    classNames = __webpack_require__(34);
 
 	var Account = React.createClass({
 	  displayName: 'Account',
@@ -970,10 +972,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(34),
-	    orgStore = __webpack_require__(24),
-	    orgActions = __webpack_require__(25),
-	    OrgCard = __webpack_require__(26);
+	    _ = __webpack_require__(35),
+	    orgStore = __webpack_require__(25),
+	    orgActions = __webpack_require__(26),
+	    OrgCard = __webpack_require__(27);
 
 	var OrgList = React.createClass({
 	  displayName: 'OrgList',
@@ -1032,8 +1034,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    orgStore = __webpack_require__(24),
-	    orgActions = __webpack_require__(25);
+	    orgStore = __webpack_require__(25),
+	    orgActions = __webpack_require__(26);
 
 	var OrgShow = React.createClass({
 	  displayName: 'OrgShow',
@@ -1175,10 +1177,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(34),
-	    templateActions = __webpack_require__(27),
-	    templateStore = __webpack_require__(28),
-	    Card = __webpack_require__(29);
+	    _ = __webpack_require__(35),
+	    templateActions = __webpack_require__(28),
+	    templateStore = __webpack_require__(29),
+	    Card = __webpack_require__(30);
 
 	var TemplateList = React.createClass({
 	  displayName: 'TemplateList',
@@ -1238,10 +1240,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(34),
-	    catStore = __webpack_require__(30),
-	    catActions = __webpack_require__(31),
-	    Card = __webpack_require__(32);
+	    _ = __webpack_require__(35),
+	    catStore = __webpack_require__(31),
+	    catActions = __webpack_require__(32),
+	    Card = __webpack_require__(33);
 
 	var List = React.createClass({
 	  displayName: 'List',
@@ -1295,10 +1297,132 @@
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Semantify;
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(32),
+	    store = __webpack_require__(31);
+
+	var Show = React.createClass({
+	  displayName: 'Show',
+
+	  mixins: [Reflux.listenTo(actions.get.complete, 'onCatUpdate')],
+	  contextTypes: {
+	    router: React.PropTypes.func
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      category: {
+	        assets: []
+	      }
+	    };
+	  },
+	  componentWillMount: function componentWillMount() {
+	    this.getCategory();
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    this.getCategory();
+	  },
+	  getCategory: function getCategory() {
+	    var catId = this.context.router.getCurrentParams().catId;
+	    actions.get(catId);
+	  },
+	  onCatUpdate: function onCatUpdate(cat) {
+	    this.setState({
+	      category: cat
+	    });
+	  },
+	  render: function render() {
+	    var category = this.state.category,
+	        assets = category.assets.sort();
+
+	    var assetTable = assets.map(function (asset) {
+	      return React.createElement(
+	        'tr',
+	        null,
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.name
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.description
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.modified
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          asset.flagged
+	        )
+	      );
+	    });
+
+	    var noAssets = React.createElement(
+	      'tr',
+	      null,
+	      React.createElement(
+	        'td',
+	        null,
+	        'No assets'
+	      )
+	    );
+
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(
+	        'h1',
+	        { className: 'ui header' },
+	        React.createElement(
+	          'div',
+	          { className: 'content' },
+	          category.name,
+	          React.createElement(
+	            'div',
+	            { className: 'sub header' },
+	            category.description
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'table',
+	        { className: 'ui table' },
+	        React.createElement(
+	          'thead',
+	          null,
+	          React.createElement(
+	            'tr',
+	            null,
+	            React.createElement(
+	              'th',
+	              { colSpan: '4' },
+	              'Assets'
+	            )
+	          )
+	        ),
+	        assets.length > 0 ? assetTable : noAssets
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Show;
 
 /***/ },
 /* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Semantify;
+
+/***/ },
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1306,8 +1430,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(25),
-	    store = __webpack_require__(24);
+	    actions = __webpack_require__(26),
+	    store = __webpack_require__(25);
 
 	var Sidemenu = React.createClass({
 	  displayName: 'Sidemenu',
@@ -1350,14 +1474,14 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    orgActions = __webpack_require__(25);
+	    orgActions = __webpack_require__(26);
 
 	var ListMenu = React.createClass({
 	  displayName: 'ListMenu',
@@ -1400,14 +1524,14 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    templateActions = __webpack_require__(27);
+	    templateActions = __webpack_require__(28);
 
 	var ListMenu = React.createClass({
 	  displayName: 'ListMenu',
@@ -1450,7 +1574,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1458,8 +1582,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(31),
-	    store = __webpack_require__(30);
+	    actions = __webpack_require__(32),
+	    store = __webpack_require__(31);
 
 	var Sidemenu = React.createClass({
 	  displayName: 'Sidemenu',
@@ -1490,7 +1614,7 @@
 	        this.state.categories.map(function (cat) {
 	          return React.createElement(
 	            Link,
-	            { to: 'org', key: cat.id, params: { orgId: cat.id }, className: 'item' },
+	            { to: 'category', key: cat.id, params: { catId: cat.id }, className: 'item' },
 	            cat.name
 	          );
 	        })
@@ -1502,14 +1626,14 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    catActions = __webpack_require__(31);
+	    catActions = __webpack_require__(32);
 
 	var Menu = React.createClass({
 	  displayName: 'Menu',
@@ -1552,13 +1676,13 @@
 	module.exports = Menu;
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fermata = __webpack_require__(35),
-	    config = __webpack_require__(36);
+	var fermata = __webpack_require__(36),
+	    config = __webpack_require__(37);
 
 	// sets up an API template - base url, headers, json parsing
 	function registerPlugin(token) {
@@ -1593,12 +1717,12 @@
 	// no data to parse
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(22).base;
+	var api = __webpack_require__(23).base;
 
 	/**
 	 * Validates current auth token
@@ -1656,13 +1780,13 @@
 	};
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(25);
+	    actions = __webpack_require__(26);
 
 	var orgStore = Reflux.createStore({
 	  listenables: actions,
@@ -1693,13 +1817,13 @@
 	module.exports = orgStore;
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    orgApi = __webpack_require__(37);
+	    orgApi = __webpack_require__(38);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -1764,7 +1888,7 @@
 	module.exports = actions;
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1772,10 +1896,10 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    Dropdown = __webpack_require__(16).Dropdown,
-	    orgActions = __webpack_require__(25),
-	    orgStore = __webpack_require__(24),
-	    classNames = __webpack_require__(33);
+	    Dropdown = __webpack_require__(17).Dropdown,
+	    orgActions = __webpack_require__(26),
+	    orgStore = __webpack_require__(25),
+	    classNames = __webpack_require__(34);
 
 	var OrgCard = React.createClass({
 	  displayName: 'OrgCard',
@@ -2010,13 +2134,13 @@
 	module.exports = OrgCard;
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    templateApi = __webpack_require__(38);
+	    templateApi = __webpack_require__(39);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -2081,13 +2205,13 @@
 	module.exports = actions;
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(27);
+	    actions = __webpack_require__(28);
 
 	var templateStore = Reflux.createStore({
 	  listenables: actions,
@@ -2118,18 +2242,18 @@
 	module.exports = templateStore;
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    Dropdown = __webpack_require__(16).Dropdown,
-	    Checkbox = __webpack_require__(16).Checkbox,
-	    templateStore = __webpack_require__(28),
-	    templateActions = __webpack_require__(27),
-	    classNames = __webpack_require__(40);
+	    Dropdown = __webpack_require__(17).Dropdown,
+	    Checkbox = __webpack_require__(17).Checkbox,
+	    templateStore = __webpack_require__(29),
+	    templateActions = __webpack_require__(28),
+	    classNames = __webpack_require__(41);
 
 	var templateCard = React.createClass({
 	  displayName: 'templateCard',
@@ -2610,13 +2734,13 @@
 	module.exports = templateCard;
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(31);
+	    actions = __webpack_require__(32);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -2645,13 +2769,13 @@
 	module.exports = store;
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    categoriesApi = __webpack_require__(39);
+	    categoriesApi = __webpack_require__(40);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -2659,6 +2783,9 @@
 	  },
 	  create: {
 	    children: ['start', 'complete', 'cancel', 'error']
+	  },
+	  get: {
+	    children: ['complete', 'error']
 	  },
 	  update: {
 	    children: ['complete', 'error']
@@ -2686,6 +2813,14 @@
 	  });
 	};
 
+	actions.get.preEmit = function (id) {
+	  categoriesApi.get(id).then(function (cat) {
+	    actions.get.complete(cat);
+	  }, function (err) {
+	    actions.get.error(err);
+	  });
+	};
+
 	actions.update.preEmit = function (category) {
 	  categoriesApi.update(category).then(function (cat) {
 	    actions.update.complete(cat);
@@ -2705,19 +2840,19 @@
 	module.exports = actions;
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    Dropdown = __webpack_require__(16).Dropdown,
+	    Dropdown = __webpack_require__(17).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    catStore = __webpack_require__(30),
-	    catActions = __webpack_require__(31),
-	    _ = __webpack_require__(34),
-	    classNames = __webpack_require__(33);
+	    catStore = __webpack_require__(31),
+	    catActions = __webpack_require__(32),
+	    _ = __webpack_require__(35),
+	    classNames = __webpack_require__(34);
 
 	var Card = React.createClass({
 	  displayName: 'Card',
@@ -2838,7 +2973,7 @@
 	          ),
 	          React.createElement(
 	            Link,
-	            { to: 'org', params: { orgId: category.id }, className: '' },
+	            { to: 'category', params: { catId: category.id } },
 	            'Go to asset list'
 	          )
 	        )
@@ -2891,7 +3026,7 @@
 	module.exports = Card;
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -2946,7 +3081,7 @@
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -15185,16 +15320,16 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(41)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42)(module), (function() { return this; }())))
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = fermata;
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15204,12 +15339,12 @@
 	};
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(22).base;
+	var api = __webpack_require__(23).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15270,12 +15405,12 @@
 	};
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(22).base;
+	var api = __webpack_require__(23).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15336,12 +15471,12 @@
 	};
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(22).base;
+	var api = __webpack_require__(23).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15357,6 +15492,16 @@
 	  return new Promise(function (resolve, reject) {
 	    api()('categories').post(cat, function (err, res) {
 	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories')(id).get(function (err, res) {
+	      if (err) reject(err);
 
 	      resolve(res.data);
 	    });
@@ -15386,12 +15531,13 @@
 	module.exports = {
 	  getList: getList,
 	  create: create,
+	  get: get,
 	  update: update,
 	  del: del
 	};
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -15446,7 +15592,7 @@
 
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {

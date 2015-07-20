@@ -15,7 +15,8 @@ var React = require('react'),
     Orgs = require('./components/organizations/views/list'),
     Org = require('./components/organizations/views/show'),
     Templates = require('./components/templates/views/list'),
-    Categories = require('./components/categories/views/list');
+    Categories = require('./components/categories/views/list'),
+    Category = require('./components/categories/views/show');
 
 var App = React.createClass({
   mixins: [
@@ -88,6 +89,7 @@ var routes = (
       <Route path='templates' name='templates' handler={Templates}/>
 
       <Route path='categories' name='categories' handler={Categories}/>
+      <Route path='categories/:catId' name='category' handler={Category}/>
     </Route>
   </Route>
 );
