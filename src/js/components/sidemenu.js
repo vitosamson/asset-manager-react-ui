@@ -1,46 +1,21 @@
 'use strict';
 
 var React = require('react'),
-    Reflux = require('reflux'),
     State = require('react-router').State,
     Dropdown = require('react-semantify').Dropdown,
     Link = require('react-router').Link,
-    orgStore = require('./organizations/store'),
-    orgActions = require('./organizations/actions'),
+    OrgMenu = require('./organizations/views/sidemenu'),
     OrgListMenu = require('./organizations/views/list/listMenu'),
     TemplateListMenu = require('./templates/views/listMenu'),
-    categoryStore = require('./categories/store'),
-    categoryActions = require('./categories/actions'),
+    CategoryMenu = require('./categories/views/sidemenu'),
     CategoryListMenu = require('./categories/views/listMenu');
 
 var sidemenu = React.createClass({
   mixins: [
-    Reflux.listenTo(orgStore, 'onOrgsUpdate'),
-    Reflux.listenTo(categoryStore, 'onCategoriesUpdate'),
     State
   ],
   contextTypes: {
     router: React.PropTypes.func
-  },
-  getInitialState: function() {
-    return {
-      orgs: orgStore.orgs || [],
-      categories: []
-    };
-  },
-  componentWillMount: function() {
-    orgActions.list();
-    categoryActions.list();
-  },
-  onOrgsUpdate: function(orgs) {
-    this.setState({
-      orgs: orgs
-    });
-  },
-  onCategoriesUpdate: function(cats) {
-    this.setState({
-      categories: cats
-    });
   },
   render: function() {
     return (
@@ -62,29 +37,9 @@ var sidemenu = React.createClass({
             Dashboard
           </Link>
         
-          <div className="item">
-            <i className="folder icon"></i>
-            Organizations
-        
-            <div className="menu">
-              {this.state.orgs.map(function(org) {
-                return (
-                  <Link to="org" key={org.id} params={{orgId: org.id}} className="item">{org.name}</Link>
-                );
-              })}
-            </div>
-          </div>
+          <OrgMenu />
 
-          <div className="item">
-            <i className="columns icon"></i>
-            Categories
-
-            <div className="menu">
-              {this.state.categories.map(cat =>
-                <Link to="org" key={cat.id} params={{orgId: cat.id}} className="item">{cat.name}</Link>
-              )}
-            </div>
-          </div>
+          <CategoryMenu />
         
           <Dropdown className="ui dropdown item" init={true}>
             <i className="icon dropdown"></i>
