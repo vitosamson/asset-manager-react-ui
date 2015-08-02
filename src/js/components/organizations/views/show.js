@@ -36,7 +36,14 @@ var OrgShow = React.createClass({
   },
   render: function() {
     var org = this.state.org,
-        assets = org.assets ? org.assets.sort() : [];
+        assets = org.assets ? org.assets.sort(function(a, b) {
+          if (a.name > b.name)
+            return 1;
+          else if (a.name < b.name)
+            return -1;
+          else
+            return 0;
+        }) : [];
 
     function showParent() {
       if (org.parent) {

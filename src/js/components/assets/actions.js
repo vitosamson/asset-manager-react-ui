@@ -15,7 +15,8 @@ var actions = Reflux.createActions({
   },
   del: {
     children: ['complete', 'error']
-  }
+  },
+  setActiveAsset: {}
 });
 
 actions.get.preEmit = function(id) {

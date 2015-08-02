@@ -9,7 +9,8 @@ var React = require('react'),
     OrgShowMenu = require('./organizations/views/showMenu'),
     TemplateListMenu = require('./templates/views/listMenu'),
     CategoryMenu = require('./categories/views/sidemenu'),
-    CategoryListMenu = require('./categories/views/listMenu');
+    CategoryListMenu = require('./categories/views/listMenu'),
+    AssetShowMenu = require('./assets/views/showMenu');
 
 var sidemenu = React.createClass({
   mixins: [
@@ -25,6 +26,7 @@ var sidemenu = React.createClass({
         {this.isActive('org') ? <OrgShowMenu/> : null}
         {this.isActive('templates') ? <TemplateListMenu/> : null}
         {this.isActive('categories') ? <CategoryListMenu/> : null}
+        {this.isActive('asset') ? <AssetShowMenu/> : null}
 
         <div className="ui vertical fluid menu">
           <div className="item">

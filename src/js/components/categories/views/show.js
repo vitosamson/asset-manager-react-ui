@@ -2,6 +2,7 @@
 
 var React = require('react'),
     Reflux = require('reflux'),
+    Link = require('react-router').Link,
     actions = require('../actions'),
     store = require('../store');
 
@@ -36,11 +37,20 @@ var Show = React.createClass({
   },
   render: function() {
     var category = this.state.category,
-        assets = category.assets.sort();
+        assets = category.assets.sort(function(a, b) {
+          if (a.name > b.name)
+            return 1;
+          else if (a.name < b.name)
+            return -1;
+          else
+            return 0;
+        });
 
     var assetTable = assets.map(asset =>
         <tr>
-          <td>{ asset.name }</td>
+          <td>
+            <Link to="asset" params={{ assetId: asset.id }}>{ asset.name }</Link>
+          </td>
           <td>{ asset.description }</td>
           <td>{ asset.modified }</td>
           <td>{ asset.flagged }</td>
