@@ -5,7 +5,8 @@ var React = require('react'),
     Dropdown = require('react-semantify').Dropdown,
     Link = require('react-router').Link,
     OrgMenu = require('./organizations/views/sidemenu'),
-    OrgListMenu = require('./organizations/views/list/listMenu'),
+    OrgListMenu = require('./organizations/views/listMenu'),
+    OrgShowMenu = require('./organizations/views/showMenu'),
     TemplateListMenu = require('./templates/views/listMenu'),
     CategoryMenu = require('./categories/views/sidemenu'),
     CategoryListMenu = require('./categories/views/listMenu');
@@ -21,6 +22,7 @@ var sidemenu = React.createClass({
     return (
       <div className="four wide column">
         {this.isActive('orgs') ? <OrgListMenu/> : null}
+        {this.isActive('org') ? <OrgShowMenu/> : null}
         {this.isActive('templates') ? <TemplateListMenu/> : null}
         {this.isActive('categories') ? <CategoryListMenu/> : null}
 

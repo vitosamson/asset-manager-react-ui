@@ -53,8 +53,10 @@ var OrgShow = React.createClass({
 
     var assetTable = assets.map(function(asset) {
       return (
-        <tr>
-          <td>{ asset.name }</td>
+        <tr key={asset.id}>
+          <td>
+            <Link to="asset" params={{assetId: asset.id }}>{ asset.name }</Link>
+          </td>
           <td>{ asset.description }</td>
           <td>{ asset.modified }</td>
           <td>{ asset.flagged }</td>
@@ -82,11 +84,6 @@ var OrgShow = React.createClass({
           </thead>
           { assets.length > 0 ? assetTable : noAssets }
         </table>
-
-        <div className="ui labeled icon button">
-          <i className="add square icon"></i>
-          Add new asset
-        </div>
       </div>
     );
   }

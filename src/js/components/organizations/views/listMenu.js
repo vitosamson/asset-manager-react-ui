@@ -2,7 +2,7 @@
 
 var React = require('react'),
     Reflux = require('reflux'),
-    orgActions = require('../../actions');
+    orgActions = require('../actions');
 
 var ListMenu = React.createClass({
   mixins: [

@@ -16,7 +16,9 @@ var React = require('react'),
     Org = require('./components/organizations/views/show'),
     Templates = require('./components/templates/views/list'),
     Categories = require('./components/categories/views/list'),
-    Category = require('./components/categories/views/show');
+    Category = require('./components/categories/views/show'),
+    NewAsset = require('./components/assets/views/new'),
+    ShowAsset = require('./components/assets/views/show');
 
 var App = React.createClass({
   mixins: [
@@ -85,6 +87,9 @@ var routes = (
 
       <Route path='orgs' name='orgs' handler={Orgs}/>
       <Route path='org/:orgId' name='org' handler={Org}/>
+
+      <Route path='assets/new' name='newAsset' handler={NewAsset}/>
+      <Route path='assets/:assetId' name='asset' handler={ShowAsset}/>
 
       <Route path='templates' name='templates' handler={Templates}/>
 

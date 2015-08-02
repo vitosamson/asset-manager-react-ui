@@ -62,7 +62,9 @@
 	    Org = __webpack_require__(13),
 	    Templates = __webpack_require__(14),
 	    Categories = __webpack_require__(15),
-	    Category = __webpack_require__(16);
+	    Category = __webpack_require__(16),
+	    NewAsset = __webpack_require__(17),
+	    ShowAsset = __webpack_require__(18);
 
 	var App = React.createClass({
 	  displayName: 'App',
@@ -132,6 +134,8 @@
 	    React.createElement(Route, { path: 'account', name: 'account', handler: Account }),
 	    React.createElement(Route, { path: 'orgs', name: 'orgs', handler: Orgs }),
 	    React.createElement(Route, { path: 'org/:orgId', name: 'org', handler: Org }),
+	    React.createElement(Route, { path: 'assets/new', name: 'newAsset', handler: NewAsset }),
+	    React.createElement(Route, { path: 'assets/:assetId', name: 'asset', handler: ShowAsset }),
 	    React.createElement(Route, { path: 'templates', name: 'templates', handler: Templates }),
 	    React.createElement(Route, { path: 'categories', name: 'categories', handler: Categories }),
 	    React.createElement(Route, { path: 'categories/:catId', name: 'category', handler: Category })
@@ -167,7 +171,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    Dropdown = __webpack_require__(17).Dropdown,
+	    Dropdown = __webpack_require__(19).Dropdown,
 	    Reflux = __webpack_require__(2),
 	    Navigation = __webpack_require__(3).Navigation,
 	    Link = __webpack_require__(3).Link,
@@ -257,13 +261,14 @@
 
 	var React = __webpack_require__(1),
 	    State = __webpack_require__(3).State,
-	    Dropdown = __webpack_require__(17).Dropdown,
+	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(18),
-	    OrgListMenu = __webpack_require__(19),
-	    TemplateListMenu = __webpack_require__(20),
-	    CategoryMenu = __webpack_require__(21),
-	    CategoryListMenu = __webpack_require__(22);
+	    OrgMenu = __webpack_require__(21),
+	    OrgListMenu = __webpack_require__(22),
+	    OrgShowMenu = __webpack_require__(23),
+	    TemplateListMenu = __webpack_require__(24),
+	    CategoryMenu = __webpack_require__(25),
+	    CategoryListMenu = __webpack_require__(26);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -277,6 +282,7 @@
 	      'div',
 	      { className: 'four wide column' },
 	      this.isActive('orgs') ? React.createElement(OrgListMenu, null) : null,
+	      this.isActive('org') ? React.createElement(OrgShowMenu, null) : null,
 	      this.isActive('templates') ? React.createElement(TemplateListMenu, null) : null,
 	      this.isActive('categories') ? React.createElement(CategoryListMenu, null) : null,
 	      React.createElement(
@@ -345,7 +351,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(23);
+	    baseApi = __webpack_require__(27);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -396,7 +402,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(24);
+	    userApi = __webpack_require__(28);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -468,7 +474,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(23);
+	    baseApi = __webpack_require__(27);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -607,7 +613,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(23);
+	    baseApi = __webpack_require__(27);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -781,7 +787,7 @@
 	    Reflux = __webpack_require__(2),
 	    userStore = __webpack_require__(6),
 	    userActions = __webpack_require__(7),
-	    classNames = __webpack_require__(34);
+	    classNames = __webpack_require__(39);
 
 	var Account = React.createClass({
 	  displayName: 'Account',
@@ -972,10 +978,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(35),
-	    orgStore = __webpack_require__(25),
-	    orgActions = __webpack_require__(26),
-	    OrgCard = __webpack_require__(27);
+	    _ = __webpack_require__(40),
+	    orgStore = __webpack_require__(29),
+	    orgActions = __webpack_require__(30),
+	    OrgCard = __webpack_require__(31);
 
 	var OrgList = React.createClass({
 	  displayName: 'OrgList',
@@ -1034,8 +1040,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    orgStore = __webpack_require__(25),
-	    orgActions = __webpack_require__(26);
+	    orgStore = __webpack_require__(29),
+	    orgActions = __webpack_require__(30);
 
 	var OrgShow = React.createClass({
 	  displayName: 'OrgShow',
@@ -1087,11 +1093,15 @@
 	    var assetTable = assets.map(function (asset) {
 	      return React.createElement(
 	        'tr',
-	        null,
+	        { key: asset.id },
 	        React.createElement(
 	          'td',
 	          null,
-	          asset.name
+	          React.createElement(
+	            Link,
+	            { to: 'asset', params: { assetId: asset.id } },
+	            asset.name
+	          )
 	        ),
 	        React.createElement(
 	          'td',
@@ -1156,12 +1166,6 @@
 	          )
 	        ),
 	        assets.length > 0 ? assetTable : noAssets
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'ui labeled icon button' },
-	        React.createElement('i', { className: 'add square icon' }),
-	        'Add new asset'
 	      )
 	    );
 	  }
@@ -1177,10 +1181,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(35),
-	    templateActions = __webpack_require__(28),
-	    templateStore = __webpack_require__(29),
-	    Card = __webpack_require__(30);
+	    _ = __webpack_require__(40),
+	    templateActions = __webpack_require__(32),
+	    templateStore = __webpack_require__(35),
+	    Card = __webpack_require__(36);
 
 	var TemplateList = React.createClass({
 	  displayName: 'TemplateList',
@@ -1240,10 +1244,10 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    _ = __webpack_require__(35),
-	    catStore = __webpack_require__(31),
-	    catActions = __webpack_require__(32),
-	    Card = __webpack_require__(33);
+	    _ = __webpack_require__(40),
+	    catStore = __webpack_require__(37),
+	    catActions = __webpack_require__(33),
+	    Card = __webpack_require__(38);
 
 	var List = React.createClass({
 	  displayName: 'List',
@@ -1301,8 +1305,8 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(32),
-	    store = __webpack_require__(31);
+	    actions = __webpack_require__(33),
+	    store = __webpack_require__(37);
 
 	var Show = React.createClass({
 	  displayName: 'Show',
@@ -1419,7 +1423,477 @@
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Semantify;
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
+	    Navigation = __webpack_require__(3).Navigation,
+	    _ = __webpack_require__(40),
+	    $ = __webpack_require__(20),
+	    classNames = __webpack_require__(39),
+	    Dropdown = __webpack_require__(19).Dropdown,
+	    Checkbox = __webpack_require__(19).Checkbox,
+	    assetActions = __webpack_require__(34),
+	    orgActions = __webpack_require__(30),
+	    templateActions = __webpack_require__(32),
+	    categoryActions = __webpack_require__(33);
+
+	var NewAsset = React.createClass({
+	  displayName: 'NewAsset',
+
+	  mixins: [Reflux.listenTo(orgActions.list.complete, 'onOrgsList'), Reflux.listenTo(templateActions.list.complete, 'onTemplatesList'), Reflux.listenTo(categoryActions.list.complete, 'onCategoriesList'), Reflux.listenTo(assetActions.create.complete, 'onAssetCreated'), Navigation],
+	  getInitialState: function getInitialState() {
+	    return {
+	      orgs: [],
+	      templates: [],
+	      categories: [],
+	      asset: {
+	        fields: {},
+	        organization: {}
+	      },
+	      error: {}
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    this.getOrgs();
+	    this.getTemplates();
+	    this.getCategories();
+	  },
+	  componentDidMount: function componentDidMount() {
+	    this.getOrgs();
+	    this.getTemplates();
+	    this.getCategories();
+	  },
+	  getOrgs: function getOrgs() {
+	    orgActions.list();
+	  },
+	  getTemplates: function getTemplates() {
+	    templateActions.list();
+	  },
+	  getCategories: function getCategories() {
+	    categoryActions.list();
+	  },
+	  onOrgsList: function onOrgsList(orgs) {
+	    this.setState({
+	      orgs: orgs
+	    });
+
+	    if (this.props.query.org) this.onOrgSelect(this.props.query.org);
+	  },
+	  onTemplatesList: function onTemplatesList(templates) {
+	    this.setState({
+	      templates: templates
+	    });
+	  },
+	  onCategoriesList: function onCategoriesList(categories) {
+	    this.setState({
+	      categories: categories
+	    });
+	  },
+	  onOrgSelect: function onOrgSelect(val) {
+	    var asset = this.state.asset,
+	        org = _.find(this.state.orgs, function (o) {
+	      return o.id == val;
+	    });
+
+	    asset.organization = org;
+	    asset.organizationId = org.id;
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  onCategorySelect: function onCategorySelect(catId) {
+	    var asset = this.state.asset;
+	    asset.categoryId = catId;
+
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  onTemplateSelect: function onTemplateSelect(val) {
+	    var asset = this.state.asset,
+	        template = _.find(this.state.templates, function (tmpl) {
+	      return tmpl.id === val;
+	    });
+
+	    asset.fields = {};
+	    template.fields.map(function (field) {
+	      asset.fields[field.name] = field;
+	    });
+
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  onMetaFieldChange: function onMetaFieldChange(e) {
+	    var target = e.target,
+	        name = target.getAttribute('name'),
+	        asset = this.state.asset,
+	        error = this.state.error;
+
+	    asset[name] = target.value;
+	    error[name] = false;
+	    this.setState({
+	      asset: asset,
+	      error: error
+	    });
+	  },
+	  onDataFieldChange: function onDataFieldChange(name, e) {
+	    var asset = this.state.asset,
+	        val;
+
+	    if ('string' === typeof e) // dropdown
+	      val = e;else if ('object' === typeof e) // text input
+	      val = $(e.target).val();else // checkbox
+	      val = !asset.fields[name].value;
+
+	    asset.fields[name].value = val;
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  addField: function addField(field) {
+	    var asset = this.state.asset;
+
+	    asset.fields[field.name] = field;
+
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  saveAsset: function saveAsset(e) {
+	    e.preventDefault();
+
+	    var error = this.state.error;
+
+	    if (!this.state.asset.organizationId) {
+	      error.org = true;
+	      this.setState({
+	        error: error
+	      });
+	      return;
+	    }
+
+	    if (!this.state.asset.name) {
+	      error.name = true;
+	      this.setState({
+	        error: error
+	      });
+	      return;
+	    }
+
+	    assetActions.create(this.state.asset);
+	  },
+	  onAssetCreated: function onAssetCreated(asset) {
+	    this.transitionTo('asset', { assetId: asset.id });
+	  },
+	  renderField: function renderField(field, idx) {
+	    var renderedField;
+
+	    switch (field.fieldType) {
+	      case 'text':
+	        renderedField = React.createElement('input', { type: 'text', className: 'ui input', name: field.name, onChange: this.onDataFieldChange.bind(this, field.name) });
+	        break;
+	      case 'select':
+	        if (field.multiple) {
+	          renderedField = React.createElement(
+	            'select',
+	            { name: field.name, multiple: true, onChange: this.onDataFieldChange.bind(this, field.name) },
+	            field.choices ? field.choices.map(function (choice, idx) {
+	              return React.createElement(
+	                'option',
+	                { value: choice, key: idx },
+	                choice
+	              );
+	            }) : null
+	          );
+	        } else {
+	          renderedField = React.createElement(
+	            Dropdown,
+	            { className: 'selection', init: { onChange: this.onDataFieldChange.bind(this, field.name) } },
+	            React.createElement('div', { className: 'default text' }),
+	            React.createElement('i', { className: 'dropdown icon' }),
+	            React.createElement(
+	              'div',
+	              { className: 'menu' },
+	              field.choices ? field.choices.map(function (choice, idx) {
+	                return React.createElement(
+	                  'div',
+	                  { className: 'item', 'data-value': choice, key: idx },
+	                  choice
+	                );
+	              }) : null
+	            )
+	          );
+	        }
+	        break;
+	      case 'checkbox':
+	        renderedField = React.createElement(
+	          Checkbox,
+	          { init: { onChange: this.onDataFieldChange.bind(this, field.name) } },
+	          React.createElement('input', { type: 'checkbox', name: field.name }),
+	          React.createElement(
+	            'label',
+	            null,
+	            field.name
+	          )
+	        );
+	        break;
+	    }
+
+	    return React.createElement(
+	      'div',
+	      { className: 'field', key: idx },
+	      React.createElement(
+	        'label',
+	        null,
+	        field.name
+	      ),
+	      renderedField
+	    );
+	  },
+	  render: function render() {
+	    var fields = this.state.asset.fields;
+
+	    var orgFieldClass = classNames({
+	      field: true,
+	      error: this.state.error.org
+	    });
+
+	    var nameFieldClass = classNames({
+	      field: true,
+	      error: this.state.error.name
+	    });
+
+	    return React.createElement(
+	      'form',
+	      { className: 'ui form', onSubmit: this.saveAsset },
+	      React.createElement(
+	        'h2',
+	        null,
+	        'New asset'
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: orgFieldClass },
+	        React.createElement(
+	          'label',
+	          null,
+	          'Organization'
+	        ),
+	        React.createElement(
+	          Dropdown,
+	          { className: 'selection', init: { onChange: this.onOrgSelect } },
+	          React.createElement(
+	            'div',
+	            { className: 'default text' },
+	            this.state.asset.organization.name
+	          ),
+	          React.createElement('i', { className: 'dropdown icon' }),
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            this.state.orgs.map(function (org, idx) {
+	              return React.createElement(
+	                'div',
+	                { className: 'item', 'data-value': org.id, key: idx },
+	                org.name
+	              );
+	            })
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: nameFieldClass },
+	        React.createElement(
+	          'label',
+	          null,
+	          'Name'
+	        ),
+	        React.createElement('input', { className: 'ui input', name: 'name', onChange: this.onMetaFieldChange })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'field' },
+	        React.createElement(
+	          'label',
+	          null,
+	          'Description'
+	        ),
+	        React.createElement('input', { className: 'ui input', name: 'description', onChange: this.onMetaFieldChange })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'field' },
+	        React.createElement(
+	          'label',
+	          null,
+	          'Category'
+	        ),
+	        React.createElement(
+	          Dropdown,
+	          { className: 'selection', init: { onChange: this.onCategorySelect } },
+	          React.createElement('div', { className: 'default text' }),
+	          React.createElement('i', { className: 'dropdown icon' }),
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            this.state.categories.map(function (cat, idx) {
+	              return React.createElement(
+	                'div',
+	                { className: 'item', 'data-value': cat.id, key: idx },
+	                cat.name
+	              );
+	            })
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'field' },
+	        React.createElement(
+	          'label',
+	          null,
+	          'Template'
+	        ),
+	        React.createElement(
+	          Dropdown,
+	          { className: 'selection', init: { onChange: this.onTemplateSelect } },
+	          React.createElement('div', { className: 'default text' }),
+	          React.createElement('i', { className: 'dropdown icon' }),
+	          React.createElement(
+	            'div',
+	            { className: 'menu' },
+	            this.state.templates.map(function (tmpl, idx) {
+	              return React.createElement(
+	                'div',
+	                { className: 'item', 'data-value': tmpl.id, key: idx },
+	                tmpl.name
+	              );
+	            })
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        'h5',
+	        { className: 'ui top attached header', style: { marginTop: 0 } },
+	        'Fields'
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'ui form attached segment', style: { marginBottom: '1em' } },
+	        fields ? _.map(fields, this.renderField) : null,
+	        React.createElement(NewField, { newFieldName: this.newFieldName, addField: this.addField })
+	      ),
+	      React.createElement(
+	        'button',
+	        { className: 'ui button primary', type: 'submit' },
+	        'Save asset'
+	      ),
+	      React.createElement(
+	        'button',
+	        { className: 'ui button basic', type: 'submit' },
+	        'Cancel'
+	      )
+	    );
+	  }
+	});
+
+	var NewField = React.createClass({
+	  displayName: 'NewField',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      field: {
+	        name: ''
+	      },
+	      error: {
+	        name: false
+	      }
+	    };
+	  },
+	  setFieldName: function setFieldName(e) {
+	    var field = this.state.field;
+	    field.name = e.target.value;
+	    this.setState({
+	      field: field
+	    });
+	  },
+	  setFieldType: function setFieldType(text, type) {
+	    if (this.state.field.name === '') {
+	      this.setState({
+	        error: {
+	          name: true
+	        }
+	      });
+	      return;
+	    }
+
+	    var field = this.state.field,
+	        el = this.getDOMNode();
+
+	    field.fieldType = type;
+
+	    this.props.addField(field);
+	    this.setState({
+	      field: {
+	        name: ''
+	      }
+	    });
+	    $(el).dropdown('hide');
+	  },
+	  dontSubmitOnEnter: function dontSubmitOnEnter(e) {
+	    if (e.keyCode == 13) e.preventDefault();
+	  },
+	  render: function render() {
+	    var newFieldNameClass = classNames({
+	      ui: true,
+	      fluid: true,
+	      small: true,
+	      input: true,
+	      error: this.state.error.name
+	    });
+
+	    return React.createElement(
+	      Dropdown,
+	      { className: 'floating labeled icon button basic tiny', init: { action: this.setFieldType } },
+	      React.createElement('i', { className: 'plus icon' }),
+	      React.createElement(
+	        'span',
+	        { className: 'text' },
+	        'Add additional field'
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'menu' },
+	        React.createElement(
+	          'div',
+	          { className: newFieldNameClass, style: { width: 'auto' } },
+	          React.createElement('input', { type: 'text', placeholder: 'Field name', onChange: this.setFieldName, value: this.state.field.name, onKeyDown: this.dontSubmitOnEnter })
+	        ),
+	        React.createElement('div', { className: 'divider' }),
+	        React.createElement(
+	          'div',
+	          { className: 'header' },
+	          'Field type'
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'item', 'data-value': 'text' },
+	          'Text'
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'item', 'data-value': 'checkbox' },
+	          'Checkbox'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = NewAsset;
 
 /***/ },
 /* 18 */
@@ -1429,9 +1903,70 @@
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
+	    assetActions = __webpack_require__(34);
+
+	var Asset = React.createClass({
+	  displayName: 'Asset',
+
+	  mixins: [Reflux.listenTo(assetActions.get.complete, 'onGetAsset')],
+	  contextTypes: {
+	    router: React.PropTypes.func
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      asset: {}
+	    };
+	  },
+	  componentWillMount: function componentWillMount() {
+	    this.getAsset();
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    this.getAsset();
+	  },
+	  getAsset: function getAsset() {
+	    var assetId = this.context.router.getCurrentParams().assetId;
+
+	    assetActions.get(assetId);
+	  },
+	  onGetAsset: function onGetAsset(asset) {
+	    this.setState({
+	      asset: asset
+	    });
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      null,
+	      this.state.asset.name
+	    );
+	  }
+	});
+
+	module.exports = Asset;
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Semantify;
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = $;
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(26),
-	    store = __webpack_require__(25);
+	    actions = __webpack_require__(30),
+	    store = __webpack_require__(29);
 
 	var Sidemenu = React.createClass({
 	  displayName: 'Sidemenu',
@@ -1474,14 +2009,14 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 19 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    orgActions = __webpack_require__(26);
+	    orgActions = __webpack_require__(30);
 
 	var ListMenu = React.createClass({
 	  displayName: 'ListMenu',
@@ -1524,14 +2059,50 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 20 */
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    Link = __webpack_require__(3).Link;
+
+	var ShowMenu = React.createClass({
+	  displayName: 'ShowMenu',
+
+	  contextTypes: {
+	    router: React.PropTypes.func
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      orgId: this.context.router.getCurrentParams().orgId
+	    };
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'ui vertical fluid menu' },
+	      React.createElement(
+	        Link,
+	        { to: 'newAsset', query: { org: this.state.orgId }, className: 'item' },
+	        React.createElement('i', { className: 'icon plus square' }),
+	        'Add an asset'
+	      )
+	    );
+	  }
+	});
+
+	module.exports = ShowMenu;
+
+/***/ },
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    templateActions = __webpack_require__(28);
+	    templateActions = __webpack_require__(32);
 
 	var ListMenu = React.createClass({
 	  displayName: 'ListMenu',
@@ -1574,7 +2145,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 21 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1582,8 +2153,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(32),
-	    store = __webpack_require__(31);
+	    actions = __webpack_require__(33),
+	    store = __webpack_require__(37);
 
 	var Sidemenu = React.createClass({
 	  displayName: 'Sidemenu',
@@ -1626,14 +2197,14 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 22 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    catActions = __webpack_require__(32);
+	    catActions = __webpack_require__(33);
 
 	var Menu = React.createClass({
 	  displayName: 'Menu',
@@ -1676,13 +2247,13 @@
 	module.exports = Menu;
 
 /***/ },
-/* 23 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fermata = __webpack_require__(36),
-	    config = __webpack_require__(37);
+	var fermata = __webpack_require__(41),
+	    config = __webpack_require__(42);
 
 	// sets up an API template - base url, headers, json parsing
 	function registerPlugin(token) {
@@ -1717,12 +2288,12 @@
 	// no data to parse
 
 /***/ },
-/* 24 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(23).base;
+	var api = __webpack_require__(27).base;
 
 	/**
 	 * Validates current auth token
@@ -1780,13 +2351,13 @@
 	};
 
 /***/ },
-/* 25 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(26);
+	    actions = __webpack_require__(30);
 
 	var orgStore = Reflux.createStore({
 	  listenables: actions,
@@ -1817,13 +2388,13 @@
 	module.exports = orgStore;
 
 /***/ },
-/* 26 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    orgApi = __webpack_require__(38);
+	    orgApi = __webpack_require__(43);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -1888,7 +2459,7 @@
 	module.exports = actions;
 
 /***/ },
-/* 27 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1896,11 +2467,11 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    Dropdown = __webpack_require__(17).Dropdown,
-	    orgActions = __webpack_require__(26),
-	    orgStore = __webpack_require__(25),
-	    classNames = __webpack_require__(34),
-	    _ = __webpack_require__(35);
+	    Dropdown = __webpack_require__(19).Dropdown,
+	    orgActions = __webpack_require__(30),
+	    orgStore = __webpack_require__(29),
+	    classNames = __webpack_require__(39),
+	    _ = __webpack_require__(40);
 
 	var OrgCard = React.createClass({
 	  displayName: 'OrgCard',
@@ -2147,13 +2718,13 @@
 	module.exports = OrgCard;
 
 /***/ },
-/* 28 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    templateApi = __webpack_require__(39);
+	    templateApi = __webpack_require__(44);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -2218,13 +2789,142 @@
 	module.exports = actions;
 
 /***/ },
-/* 29 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(28);
+	    categoriesApi = __webpack_require__(45);
+
+	var actions = Reflux.createActions({
+	  list: {
+	    children: ['complete', 'error']
+	  },
+	  create: {
+	    children: ['start', 'complete', 'cancel', 'error']
+	  },
+	  get: {
+	    children: ['complete', 'error']
+	  },
+	  update: {
+	    children: ['complete', 'error']
+	  },
+	  del: {
+	    children: ['complete', 'error']
+	  }
+	});
+
+	actions.list.preEmit = function () {
+	  categoriesApi.getList().then(function (res) {
+	    actions.list.complete(res.data);
+	  }, function (err) {
+	    actions.list.error(err);
+	  });
+	};
+
+	actions.create.preEmit = function (category) {
+	  if (!category) return;
+
+	  categoriesApi.create(category).then(function (cat) {
+	    actions.create.complete(cat);
+	  }, function (err) {
+	    actions.create.error(err);
+	  });
+	};
+
+	actions.get.preEmit = function (id) {
+	  categoriesApi.get(id).then(function (cat) {
+	    actions.get.complete(cat);
+	  }, function (err) {
+	    actions.get.error(err);
+	  });
+	};
+
+	actions.update.preEmit = function (category) {
+	  categoriesApi.update(category).then(function (cat) {
+	    actions.update.complete(cat);
+	  }, function (err) {
+	    actions.update.error(err);
+	  });
+	};
+
+	actions.del.preEmit = function (category) {
+	  categoriesApi.del(category).then(function () {
+	    actions.del.complete(category);
+	  }, function (err) {
+	    actions.del.error(err);
+	  });
+	};
+
+	module.exports = actions;
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
+	    api = __webpack_require__(46);
+
+	var actions = Reflux.createActions({
+	  get: {
+	    children: ['complete', 'error']
+	  },
+	  create: {
+	    children: ['complete', 'error']
+	  },
+	  update: {
+	    children: ['complete', 'error']
+	  },
+	  del: {
+	    children: ['complete', 'error']
+	  }
+	});
+
+	actions.get.preEmit = function (id) {
+	  api.get(id).then(function (res) {
+	    actions.get.complete(res);
+	  }, function (err) {
+	    actions.get.error(err);
+	  });
+	};
+
+	actions.create.preEmit = function (asset) {
+	  api.create(asset).then(function (res) {
+	    actions.create.complete(res);
+	  }, function (err) {
+	    actions.create.error(err);
+	  });
+	};
+
+	actions.update.preEmit = function (asset) {
+	  api.update(asset).then(function (res) {
+	    actions.update.complete(res);
+	  }, function (err) {
+	    actions.update.error(err);
+	  });
+	};
+
+	actions.del.preEmit = function (asset) {
+	  api.del(asset).then(function () {
+	    actions.del.complete(asset);
+	  }, function (err) {
+	    actions.del.error(err);
+	  });
+	};
+
+	module.exports = actions;
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(32);
 
 	var templateStore = Reflux.createStore({
 	  listenables: actions,
@@ -2255,18 +2955,18 @@
 	module.exports = templateStore;
 
 /***/ },
-/* 30 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    Dropdown = __webpack_require__(17).Dropdown,
-	    Checkbox = __webpack_require__(17).Checkbox,
-	    templateStore = __webpack_require__(29),
-	    templateActions = __webpack_require__(28),
-	    classNames = __webpack_require__(41);
+	    Dropdown = __webpack_require__(19).Dropdown,
+	    Checkbox = __webpack_require__(19).Checkbox,
+	    templateStore = __webpack_require__(35),
+	    templateActions = __webpack_require__(32),
+	    classNames = __webpack_require__(47);
 
 	var templateCard = React.createClass({
 	  displayName: 'templateCard',
@@ -2747,13 +3447,13 @@
 	module.exports = templateCard;
 
 /***/ },
-/* 31 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(32);
+	    actions = __webpack_require__(33);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -2782,90 +3482,19 @@
 	module.exports = store;
 
 /***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Reflux = __webpack_require__(2),
-	    categoriesApi = __webpack_require__(40);
-
-	var actions = Reflux.createActions({
-	  list: {
-	    children: ['complete', 'error']
-	  },
-	  create: {
-	    children: ['start', 'complete', 'cancel', 'error']
-	  },
-	  get: {
-	    children: ['complete', 'error']
-	  },
-	  update: {
-	    children: ['complete', 'error']
-	  },
-	  del: {
-	    children: ['complete', 'error']
-	  }
-	});
-
-	actions.list.preEmit = function () {
-	  categoriesApi.getList().then(function (res) {
-	    actions.list.complete(res.data);
-	  }, function (err) {
-	    actions.list.error(err);
-	  });
-	};
-
-	actions.create.preEmit = function (category) {
-	  if (!category) return;
-
-	  categoriesApi.create(category).then(function (cat) {
-	    actions.create.complete(cat);
-	  }, function (err) {
-	    actions.create.error(err);
-	  });
-	};
-
-	actions.get.preEmit = function (id) {
-	  categoriesApi.get(id).then(function (cat) {
-	    actions.get.complete(cat);
-	  }, function (err) {
-	    actions.get.error(err);
-	  });
-	};
-
-	actions.update.preEmit = function (category) {
-	  categoriesApi.update(category).then(function (cat) {
-	    actions.update.complete(cat);
-	  }, function (err) {
-	    actions.update.error(err);
-	  });
-	};
-
-	actions.del.preEmit = function (category) {
-	  categoriesApi.del(category).then(function () {
-	    actions.del.complete(category);
-	  }, function (err) {
-	    actions.del.error(err);
-	  });
-	};
-
-	module.exports = actions;
-
-/***/ },
-/* 33 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    Dropdown = __webpack_require__(17).Dropdown,
+	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    catStore = __webpack_require__(31),
-	    catActions = __webpack_require__(32),
-	    _ = __webpack_require__(35),
-	    classNames = __webpack_require__(34);
+	    catStore = __webpack_require__(37),
+	    catActions = __webpack_require__(33),
+	    _ = __webpack_require__(40),
+	    classNames = __webpack_require__(39);
 
 	var Card = React.createClass({
 	  displayName: 'Card',
@@ -3039,7 +3668,7 @@
 	module.exports = Card;
 
 /***/ },
-/* 34 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -3094,7 +3723,7 @@
 
 
 /***/ },
-/* 35 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -15333,16 +15962,16 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)(module), (function() { return this; }())))
 
 /***/ },
-/* 36 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = fermata;
 
 /***/ },
-/* 37 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15352,12 +15981,12 @@
 	};
 
 /***/ },
-/* 38 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(23).base;
+	var api = __webpack_require__(27).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15418,12 +16047,12 @@
 	};
 
 /***/ },
-/* 39 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(23).base;
+	var api = __webpack_require__(27).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15484,12 +16113,12 @@
 	};
 
 /***/ },
-/* 40 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(23).base;
+	var api = __webpack_require__(27).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -15550,7 +16179,62 @@
 	};
 
 /***/ },
-/* 41 */
+/* 46 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var api = __webpack_require__(27).base;
+
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api()('assets')(id).get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function create(asset) {
+	  return new Promise(function (resolve, reject) {
+	    api()('assets').post(asset, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function update(asset) {
+	  return new Promise(function (resolve, reject) {
+	    api()('assets')(asset.id).put(asset, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function del(asset) {
+	  return new Promise(function (resolve, reject) {
+	    api()('assets')(asset.id)['delete'](function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve();
+	    });
+	  });
+	}
+
+	module.exports = {
+	  get: get,
+	  create: create,
+	  update: update,
+	  del: del
+	};
+
+/***/ },
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -15605,7 +16289,7 @@
 
 
 /***/ },
-/* 42 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
