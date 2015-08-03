@@ -1961,7 +1961,7 @@
 	      var at = moment(date),
 	          cutOff = moment().subtract(1, 'day');
 
-	      if (cutOff.isBefore(at)) return at.fromNow();else return at;
+	      if (cutOff.isBefore(at)) return at.fromNow();else return at.format('M/D/YY H:mm');
 	    }
 
 	    return React.createElement(
@@ -2036,6 +2036,20 @@
 	              asset.creator.firstName,
 	              ' ',
 	              asset.creator.lastName
+	            )
+	          ),
+	          React.createElement(
+	            'tr',
+	            null,
+	            React.createElement(
+	              'td',
+	              null,
+	              'Updated'
+	            ),
+	            React.createElement(
+	              'td',
+	              { className: 'right aligned' },
+	              formatDate(asset.updatedAt)
 	            )
 	          )
 	        )

@@ -48,7 +48,7 @@ var Asset = React.createClass({
       if (cutOff.isBefore(at))
         return at.fromNow();
       else
-        return at;
+        return at.format('M/D/YY H:mm');
     }
 
     return (
@@ -77,6 +77,12 @@ var Asset = React.createClass({
               <td>Created</td>
               <td className="right aligned">
                 { formatDate(asset.createdAt) } by { asset.creator.firstName } { asset.creator.lastName }
+              </td>
+            </tr>
+            <tr>
+              <td>Updated</td>
+              <td className="right aligned">
+                { formatDate(asset.updatedAt) }
               </td>
             </tr>
           </table>
