@@ -74,11 +74,13 @@ var NewAsset = React.createClass({
     var asset = this.state.asset,
         org = _.find(this.state.orgs, o => o.id == val);
 
-    asset.organization = org;
-    asset.organizationId = org.id;
-    this.setState({
-      asset: asset
-    });
+    if (org) {
+      asset.organization = org;
+      asset.organizationId = org.id;
+      this.setState({
+        asset: asset
+      });
+    }
   },
   onCategorySelect: function(catId) {
     var asset = this.state.asset;

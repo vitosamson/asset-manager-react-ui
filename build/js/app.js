@@ -263,13 +263,13 @@
 	    State = __webpack_require__(3).State,
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(22),
-	    OrgListMenu = __webpack_require__(23),
-	    OrgShowMenu = __webpack_require__(24),
-	    TemplateListMenu = __webpack_require__(25),
-	    CategoryMenu = __webpack_require__(26),
-	    CategoryListMenu = __webpack_require__(27),
-	    AssetShowMenu = __webpack_require__(28);
+	    OrgMenu = __webpack_require__(21),
+	    OrgListMenu = __webpack_require__(22),
+	    OrgShowMenu = __webpack_require__(23),
+	    TemplateListMenu = __webpack_require__(24),
+	    CategoryMenu = __webpack_require__(25),
+	    CategoryListMenu = __webpack_require__(26),
+	    AssetShowMenu = __webpack_require__(27);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -353,7 +353,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(21);
+	    baseApi = __webpack_require__(28);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -476,7 +476,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(21);
+	    baseApi = __webpack_require__(28);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -615,7 +615,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(21);
+	    baseApi = __webpack_require__(28);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -1507,11 +1507,13 @@
 	      return o.id == val;
 	    });
 
-	    asset.organization = org;
-	    asset.organizationId = org.id;
-	    this.setState({
-	      asset: asset
-	    });
+	    if (org) {
+	      asset.organization = org;
+	      asset.organizationId = org.id;
+	      this.setState({
+	        asset: asset
+	      });
+	    }
 	  },
 	  onCategorySelect: function onCategorySelect(catId) {
 	    var asset = this.state.asset;
@@ -2229,51 +2231,6 @@
 
 	'use strict';
 
-	var fermata = __webpack_require__(43),
-	    config = __webpack_require__(45);
-
-	// sets up an API template - base url, headers, json parsing
-	function registerPlugin(token) {
-	  fermata.registerPlugin('base', function (transport, name, key) {
-	    this.base = config.API_BASE;
-
-	    return function (req, cb) {
-	      req.headers.Authorization = 'Bearer ' + token;
-
-	      // don't transform FormData requests (used for file uploads)
-	      if (req.data && !(req.data instanceof FormData)) {
-	        req.headers['Content-Type'] = 'application/json';
-	        req.data = JSON.stringify(req.data);
-	      }
-
-	      return transport(req, function (err, res) {
-	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
-	          try {
-	            res.data = JSON.parse(res.data);
-	          } catch (e) {}
-	        }
-
-	        cb(err, res);
-	      });
-	    };
-	  });
-	}
-
-	registerPlugin(localStorage.getItem('token'));
-
-	module.exports = {
-	  base: fermata.base,
-	  register: registerPlugin
-	};
-
-	// no data to parse
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
@@ -2321,7 +2278,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2371,7 +2328,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2407,7 +2364,7 @@
 	module.exports = ShowMenu;
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2457,7 +2414,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2509,7 +2466,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2559,7 +2516,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2700,12 +2657,57 @@
 	module.exports = Menu;
 
 /***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var fermata = __webpack_require__(43),
+	    config = __webpack_require__(45);
+
+	// sets up an API template - base url, headers, json parsing
+	function registerPlugin(token) {
+	  fermata.registerPlugin('base', function (transport, name, key) {
+	    this.base = config.API_BASE;
+
+	    return function (req, cb) {
+	      req.headers.Authorization = 'Bearer ' + token;
+
+	      // don't transform FormData requests (used for file uploads)
+	      if (req.data && !(req.data instanceof FormData)) {
+	        req.headers['Content-Type'] = 'application/json';
+	        req.data = JSON.stringify(req.data);
+	      }
+
+	      return transport(req, function (err, res) {
+	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
+	          try {
+	            res.data = JSON.parse(res.data);
+	          } catch (e) {}
+	        }
+
+	        cb(err, res);
+	      });
+	    };
+	  });
+	}
+
+	registerPlugin(localStorage.getItem('token'));
+
+	module.exports = {
+	  base: fermata.base,
+	  register: registerPlugin
+	};
+
+	// no data to parse
+
+/***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(21).base;
+	var api = __webpack_require__(28).base;
 
 	/**
 	 * Validates current auth token
@@ -3207,7 +3209,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    categoriesApi = __webpack_require__(48);
+	    categoriesApi = __webpack_require__(49);
 
 	var actions = Reflux.createActions({
 	  list: {
@@ -3278,7 +3280,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    api = __webpack_require__(49),
+	    api = __webpack_require__(48),
 	    $ = __webpack_require__(20);
 
 	var actions = Reflux.createActions({
@@ -19828,7 +19830,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(21).base;
+	var api = __webpack_require__(28).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -19894,7 +19896,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(21).base;
+	var api = __webpack_require__(28).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -19960,73 +19962,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(21).base;
-
-	function getList() {
-	  return new Promise(function (resolve, reject) {
-	    api()('categories').get(function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve(res);
-	    });
-	  });
-	}
-
-	function create(cat) {
-	  return new Promise(function (resolve, reject) {
-	    api()('categories').post(cat, function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve(res.data);
-	    });
-	  });
-	}
-
-	function get(id) {
-	  return new Promise(function (resolve, reject) {
-	    api()('categories')(id).get(function (err, res) {
-	      if (err) reject(err);
-
-	      resolve(res.data);
-	    });
-	  });
-	}
-
-	function update(cat) {
-	  return new Promise(function (resolve, reject) {
-	    api()('categories')(cat.id).put(cat, function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve(res.data);
-	    });
-	  });
-	}
-
-	function del(cat) {
-	  return new Promise(function (resolve, reject) {
-	    api()('categories')(cat.id)['delete'](function (err, res) {
-	      if (err) return reject(err);
-
-	      resolve();
-	    });
-	  });
-	}
-
-	module.exports = {
-	  getList: getList,
-	  create: create,
-	  get: get,
-	  update: update,
-	  del: del
-	};
-
-/***/ },
-/* 49 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var api = __webpack_require__(21).base,
+	var api = __webpack_require__(28).base,
 	    fermata = __webpack_require__(43);
 
 	function get(id) {
@@ -20103,6 +20039,72 @@
 	    upload: uploadFile,
 	    del: deleteFile
 	  }
+	};
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var api = __webpack_require__(28).base;
+
+	function getList() {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories').get(function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res);
+	    });
+	  });
+	}
+
+	function create(cat) {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories').post(cat, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function get(id) {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories')(id).get(function (err, res) {
+	      if (err) reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function update(cat) {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories')(cat.id).put(cat, function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve(res.data);
+	    });
+	  });
+	}
+
+	function del(cat) {
+	  return new Promise(function (resolve, reject) {
+	    api()('categories')(cat.id)['delete'](function (err, res) {
+	      if (err) return reject(err);
+
+	      resolve();
+	    });
+	  });
+	}
+
+	module.exports = {
+	  getList: getList,
+	  create: create,
+	  get: get,
+	  update: update,
+	  del: del
 	};
 
 /***/ },
