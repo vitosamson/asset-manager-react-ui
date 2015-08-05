@@ -4,11 +4,14 @@ var React = require('react'),
     Reflux = require('reflux'),
     _ = require('lodash'),
     moment = require('moment'),
-    assetActions = require('../actions');
+    assetActions = require('../actions'),
+    Files = require('./files');
 
 var Asset = React.createClass({
   mixins: [
-    Reflux.listenTo(assetActions.get.complete, 'onGetAsset')
+    Reflux.listenTo(assetActions.get.complete, 'onGetAsset'),
+    Reflux.listenTo(assetActions.files.upload.complete, 'onFileUpload'),
+    Reflux.listenTo(assetActions.files.del.complete, 'onFileDelete')
   ],
   contextTypes: {
     router: React.PropTypes.func
@@ -19,8 +22,10 @@ var Asset = React.createClass({
         fields: {},
         organization: {},
         category: {},
-        creator: {}
-      }
+        creator: {},
+        files: []
+      },
+      showNewFileForm: false
     };
   },
   componentWillMount: function() { this.getAsset(); },
@@ -35,6 +40,29 @@ var Asset = React.createClass({
       asset: asset
     });
     assetActions.setActiveAsset(asset);
+  },
+  toggleNewFileForm: function() {
+    this.setState({
+      showNewFileForm: !this.state.showNewFileForm
+    });
+  },
+  onFileUpload: function(file) {
+    var asset = this.state.asset;
+    asset.files.push(file);
+
+    this.setState({
+      asset: asset,
+      showNewFileForm: false
+    });
+  },
+  onFileDelete: function(file) {
+    var asset = this.state.asset,
+        idx = asset.files.indexOf(file);
+
+    asset.files.splice(idx, 1);
+    this.setState({
+      asset: asset
+    });
   },
   render: function() {
     var asset = this.state.asset;
@@ -105,15 +133,34 @@ var Asset = React.createClass({
           </table>
         </div>
 
-        <h3 className="ui top attached header">Notes</h3>
+
+        {/**
+          ** NOTES
+          **/}
+        <h3 className="ui top attached header">
+          Notes
+
+          <button className="mini ui basic button" style={{float: 'right'}}>New note</button>
+        </h3>
         <div className="ui attached segment">
 
         </div>
 
-        <h3 className="ui top attached header">Files</h3>
-        <div className="ui attached segment">
 
-        </div>
+        {/**
+          ** FILES
+          **/}
+        <h3 className="ui top attached header">
+          Files
+
+          <button className="mini ui basic button" style={{float: 'right'}} onClick={this.toggleNewFileForm}>
+            Upload file
+          </button>
+        </h3>
+
+        { this.state.showNewFileForm ? <Files.NewFileForm asset={this.state.asset} /> : null }
+
+        <Files.FileList files={asset.files} />
       </div>
     );
   }
@@ -148,7 +195,10 @@ var DataField = React.createClass({
         value = field.value;
         break;
       case 'select':
-        value = field.value.join(', ');
+        if (field.multiple)
+          value = field.value.join(', ');
+        else
+          value = field.value;
         break;
       case 'checkbox':
         if (field.value === true)

@@ -10,8 +10,12 @@ function registerPlugin(token) {
 
     return function(req, cb) {
       req.headers.Authorization = 'Bearer ' + token;
-      req.headers['Content-Type'] = 'application/json';
-      req.data = JSON.stringify(req.data);
+
+      // don't transform FormData requests (used for file uploads)
+      if (req.data && !(req.data instanceof FormData)) {
+        req.headers['Content-Type'] = 'application/json';
+        req.data = JSON.stringify(req.data);
+      }
 
       return transport(req, function(err, res) {
         if (res.status !== 200)

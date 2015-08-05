@@ -1,7 +1,8 @@
 'use strict';
 
 var Reflux = require('reflux'),
-    api = require('./api');
+    api = require('./api'),
+    $ = require('jQuery');
 
 var actions = Reflux.createActions({
   get: {
@@ -15,6 +16,13 @@ var actions = Reflux.createActions({
   },
   del: {
     children: ['complete', 'error']
+  },
+  files: {
+    children: {
+      upload: {
+        children: ['complete', 'error']
+      }
+    }
   },
   setActiveAsset: {}
 });
@@ -50,5 +58,32 @@ actions.del.preEmit = function(asset) {
     actions.del.error(err);
   });
 };
+
+var fileActions = Reflux.createActions({
+  upload: {
+    children: ['complete', 'error']
+  },
+  del: {
+    children: ['complete', 'error']
+  }
+});
+
+fileActions.upload.preEmit = function(asset, upload) {
+  api.files.upload(asset.id, upload).then(function(res) {
+    actions.files.upload.complete(res);
+  }, function(err) {
+    actions.files.upload.error(err);
+  });
+};
+
+fileActions.del.preEmit = function(file) {
+  api.files.del(file.assetId, file.id).then(function() {
+    actions.files.del.complete(file);
+  }, function(err) {
+    actions.files.del.error(err);
+  });
+};
+
+actions.files = fileActions;
 
 module.exports = actions;
