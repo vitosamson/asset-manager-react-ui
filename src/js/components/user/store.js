@@ -35,8 +35,8 @@ var store = Reflux.createStore({
     this.save();
   },
   onLogout: function() {
-    this.token = null;
-    this.save();
+    this.token = undefined;
+    localStorage.removeItem('token');
   },
   save: function() {
     localStorage.setItem('token', this.token);

@@ -386,8 +386,8 @@
 	    this.save();
 	  },
 	  onLogout: function onLogout() {
-	    this.token = null;
-	    this.save();
+	    this.token = undefined;
+	    localStorage.removeItem('token');
 	  },
 	  save: function save() {
 	    localStorage.setItem('token', this.token);
