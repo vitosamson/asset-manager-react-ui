@@ -263,13 +263,13 @@
 	    State = __webpack_require__(3).State,
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(21),
-	    OrgListMenu = __webpack_require__(22),
-	    OrgShowMenu = __webpack_require__(23),
-	    TemplateListMenu = __webpack_require__(24),
-	    CategoryMenu = __webpack_require__(25),
-	    CategoryListMenu = __webpack_require__(26),
-	    AssetShowMenu = __webpack_require__(27);
+	    OrgMenu = __webpack_require__(22),
+	    OrgListMenu = __webpack_require__(23),
+	    OrgShowMenu = __webpack_require__(24),
+	    TemplateListMenu = __webpack_require__(25),
+	    CategoryMenu = __webpack_require__(26),
+	    CategoryListMenu = __webpack_require__(27),
+	    AssetShowMenu = __webpack_require__(28);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -353,7 +353,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(28);
+	    baseApi = __webpack_require__(21);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -476,7 +476,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(28);
+	    baseApi = __webpack_require__(21);
 
 	var login = React.createClass({
 	  displayName: 'login',
@@ -615,7 +615,7 @@
 	    Link = __webpack_require__(3).Link,
 	    Navigation = __webpack_require__(3).Navigation,
 	    userActions = __webpack_require__(7),
-	    baseApi = __webpack_require__(28);
+	    baseApi = __webpack_require__(21);
 
 	var register = React.createClass({
 	  displayName: 'register',
@@ -2229,6 +2229,51 @@
 
 	'use strict';
 
+	var fermata = __webpack_require__(43),
+	    config = __webpack_require__(45);
+
+	// sets up an API template - base url, headers, json parsing
+	function registerPlugin(token) {
+	  fermata.registerPlugin('base', function (transport, name, key) {
+	    this.base = config.API_BASE;
+
+	    return function (req, cb) {
+	      req.headers.Authorization = 'Bearer ' + token;
+
+	      // don't transform FormData requests (used for file uploads)
+	      if (req.data && !(req.data instanceof FormData)) {
+	        req.headers['Content-Type'] = 'application/json';
+	        req.data = JSON.stringify(req.data);
+	      }
+
+	      return transport(req, function (err, res) {
+	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
+	          try {
+	            res.data = JSON.parse(res.data);
+	          } catch (e) {}
+	        }
+
+	        cb(err, res);
+	      });
+	    };
+	  });
+	}
+
+	registerPlugin(localStorage.getItem('token'));
+
+	module.exports = {
+	  base: fermata.base,
+	  register: registerPlugin
+	};
+
+	// no data to parse
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
@@ -2276,7 +2321,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2326,7 +2371,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2362,7 +2407,7 @@
 	module.exports = ShowMenu;
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2412,7 +2457,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2464,7 +2509,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2514,7 +2559,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2655,57 +2700,12 @@
 	module.exports = Menu;
 
 /***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var fermata = __webpack_require__(43),
-	    config = __webpack_require__(45);
-
-	// sets up an API template - base url, headers, json parsing
-	function registerPlugin(token) {
-	  fermata.registerPlugin('base', function (transport, name, key) {
-	    this.base = config.API_BASE;
-
-	    return function (req, cb) {
-	      req.headers.Authorization = 'Bearer ' + token;
-
-	      // don't transform FormData requests (used for file uploads)
-	      if (req.data && !(req.data instanceof FormData)) {
-	        req.headers['Content-Type'] = 'application/json';
-	        req.data = JSON.stringify(req.data);
-	      }
-
-	      return transport(req, function (err, res) {
-	        if (res.status !== 200) err = res;else if (res === null) err = { status: 500 };else {
-	          try {
-	            res.data = JSON.parse(res.data);
-	          } catch (e) {}
-	        }
-
-	        cb(err, res);
-	      });
-	    };
-	  });
-	}
-
-	registerPlugin(localStorage.getItem('token'));
-
-	module.exports = {
-	  base: fermata.base,
-	  register: registerPlugin
-	};
-
-	// no data to parse
-
-/***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var api = __webpack_require__(28).base;
+	var api = __webpack_require__(21).base;
 
 	/**
 	 * Validates current auth token
@@ -3743,6 +3743,10 @@
 	      });
 	      return;
 	    }
+
+	    template.fields = template.fields.filter(function (t) {
+	      return !!t.name && !!t.fieldType;
+	    });
 
 	    if (!template.id) templateActions.create(template);else templateActions.update(template);
 	  },
@@ -19824,7 +19828,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(28).base;
+	var api = __webpack_require__(21).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -19890,7 +19894,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(28).base;
+	var api = __webpack_require__(21).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -19956,7 +19960,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(28).base;
+	var api = __webpack_require__(21).base;
 
 	function getList() {
 	  return new Promise(function (resolve, reject) {
@@ -20022,7 +20026,7 @@
 
 	'use strict';
 
-	var api = __webpack_require__(28).base,
+	var api = __webpack_require__(21).base,
 	    fermata = __webpack_require__(43);
 
 	function get(id) {

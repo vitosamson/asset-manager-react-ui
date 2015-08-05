@@ -156,6 +156,10 @@ var templateCard = React.createClass({
       return;
     }
 
+    template.fields = template.fields.filter(function(t) {
+      return !!t.name && !!t.fieldType;
+    });
+
     if (!template.id)
       templateActions.create(template);
     else
