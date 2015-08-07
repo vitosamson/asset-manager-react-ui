@@ -12,7 +12,7 @@ var Sidemenu = React.createClass({
   ],
   getInitialState: function() {
     return {
-      categories: []
+      categories: store.categories
     };
   },
   componentWillMount: function() {

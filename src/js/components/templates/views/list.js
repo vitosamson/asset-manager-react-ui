@@ -15,7 +15,7 @@ var TemplateList = React.createClass({
   ],
   getInitialState: function() {
     return {
-      templates: []
+      templates: templateStore.templates
     };
   },
   onTemplatesUpdate: function(templates) {

@@ -1,7 +1,5 @@
 'use strict';
 
-var api = require('../../api').base;
-
 var restful = require('restful.js'),
     config = require('../../config'),
     baseApi = require('../../api');

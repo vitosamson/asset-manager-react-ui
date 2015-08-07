@@ -263,13 +263,13 @@
 	    State = __webpack_require__(3).State,
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(23),
-	    OrgListMenu = __webpack_require__(24),
-	    OrgShowMenu = __webpack_require__(25),
-	    TemplateListMenu = __webpack_require__(26),
-	    CategoryMenu = __webpack_require__(27),
-	    CategoryListMenu = __webpack_require__(28),
-	    AssetShowMenu = __webpack_require__(29);
+	    OrgMenu = __webpack_require__(25),
+	    OrgListMenu = __webpack_require__(26),
+	    OrgShowMenu = __webpack_require__(27),
+	    TemplateListMenu = __webpack_require__(28),
+	    CategoryMenu = __webpack_require__(29),
+	    CategoryListMenu = __webpack_require__(30),
+	    AssetShowMenu = __webpack_require__(31);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -353,7 +353,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(30);
+	    baseApi = __webpack_require__(23);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -406,7 +406,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(31);
+	    userApi = __webpack_require__(24);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -999,7 +999,7 @@
 	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdated'), Reflux.listenTo(orgActions.create.start, 'createNewOrg'), Reflux.listenTo(orgActions.create.cancel, 'cancelNewOrg')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: []
+	      orgs: orgStore.orgs
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
@@ -1195,8 +1195,8 @@
 	    Reflux = __webpack_require__(2),
 	    _ = __webpack_require__(20),
 	    templateActions = __webpack_require__(35),
-	    templateStore = __webpack_require__(39),
-	    Card = __webpack_require__(40);
+	    templateStore = __webpack_require__(36),
+	    Card = __webpack_require__(41);
 
 	var TemplateList = React.createClass({
 	  displayName: 'TemplateList',
@@ -1204,7 +1204,7 @@
 	  mixins: [Reflux.listenTo(templateStore, 'onTemplatesUpdate'), Reflux.listenTo(templateActions.create.start, 'createNewTemplate'), Reflux.listenTo(templateActions.create.cancel, 'cancelNewTemplate')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      templates: []
+	      templates: templateStore.templates
 	    };
 	  },
 	  onTemplatesUpdate: function onTemplatesUpdate(templates) {
@@ -1257,8 +1257,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    _ = __webpack_require__(20),
-	    catStore = __webpack_require__(41),
-	    catActions = __webpack_require__(36),
+	    catStore = __webpack_require__(37),
+	    catActions = __webpack_require__(38),
 	    Card = __webpack_require__(42);
 
 	var List = React.createClass({
@@ -1267,7 +1267,7 @@
 	  mixins: [Reflux.listenTo(catStore, 'onCategoriesUpdated'), Reflux.listenTo(catActions.create.start, 'addNewCategory'), Reflux.listenTo(catActions.create.cancel, 'cancelNewCategory')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      categories: []
+	      categories: catStore.categories
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
@@ -1318,8 +1318,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(36),
-	    store = __webpack_require__(41);
+	    actions = __webpack_require__(38),
+	    store = __webpack_require__(37);
 
 	var Show = React.createClass({
 	  displayName: 'Show',
@@ -1452,20 +1452,23 @@
 	    classNames = __webpack_require__(43),
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Checkbox = __webpack_require__(19).Checkbox,
-	    assetActions = __webpack_require__(37),
+	    assetActions = __webpack_require__(39),
+	    orgStore = __webpack_require__(32),
 	    orgActions = __webpack_require__(33),
+	    templateStore = __webpack_require__(36),
 	    templateActions = __webpack_require__(35),
-	    categoryActions = __webpack_require__(36);
+	    categoryStore = __webpack_require__(37),
+	    categoryActions = __webpack_require__(38);
 
 	var NewAsset = React.createClass({
 	  displayName: 'NewAsset',
 
-	  mixins: [Reflux.listenTo(orgActions.list.complete, 'onOrgsList'), Reflux.listenTo(templateActions.list.complete, 'onTemplatesList'), Reflux.listenTo(categoryActions.list.complete, 'onCategoriesList'), Reflux.listenTo(assetActions.create.complete, 'onAssetCreated'), Navigation],
+	  mixins: [Reflux.listenTo(orgStore, 'onOrgsList'), Reflux.listenTo(templateStore, 'onTemplatesList'), Reflux.listenTo(categoryStore, 'onCategoriesList'), Reflux.listenTo(assetActions.create.complete, 'onAssetCreated'), Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: [],
-	      templates: [],
-	      categories: [],
+	      orgs: orgStore.orgs,
+	      templates: templateStore.templates,
+	      categories: categoryStore.categories,
 	      asset: {
 	        fields: {},
 	        organization: {}
@@ -1926,8 +1929,8 @@
 	    Reflux = __webpack_require__(2),
 	    _ = __webpack_require__(20),
 	    moment = __webpack_require__(22),
-	    assetActions = __webpack_require__(37),
-	    Files = __webpack_require__(38);
+	    assetActions = __webpack_require__(39),
+	    Files = __webpack_require__(40);
 
 	var Asset = React.createClass({
 	  displayName: 'Asset',
@@ -2251,6 +2254,55 @@
 
 	'use strict';
 
+	var restful = __webpack_require__(44),
+	    config = __webpack_require__(45),
+	    token = window.localStorage.getItem('token');
+
+	var baseApi = restful(config.API_HOST).header('Authorization', 'Bearer ' + token).prefixUrl(config.API_PREFIX).port(config.API_PORT);
+
+	baseApi.updateToken = function (token) {
+	            baseApi.header('Authorization', 'Bearer ' + token);
+	};
+
+	module.exports = baseApi;
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var restful = __webpack_require__(44),
+	    config = __webpack_require__(45),
+	    baseApi = __webpack_require__(23);
+
+	var userApi = {
+	  base: baseApi.all('users'),
+	  validate: function validate() {
+	    return userApi.base.get('validate');
+	  },
+	  me: function me() {
+	    return userApi.base.get('me');
+	  },
+	  update: function update(data) {
+	    return userApi.base.put('me', data);
+	  },
+	  login: function login(user) {
+	    return baseApi.allUrl('login', userApi.base.url() + '/login').post(user);
+	  },
+	  register: function register(user) {
+	    return baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user);
+	  }
+	};
+
+	module.exports = userApi;
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
@@ -2263,7 +2315,7 @@
 	  mixins: [Reflux.listenTo(store, 'onOrgsUpdate')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: []
+	      orgs: store.orgs
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
@@ -2298,7 +2350,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2348,7 +2400,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2384,7 +2436,7 @@
 	module.exports = ShowMenu;
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2434,7 +2486,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2442,8 +2494,8 @@
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
-	    actions = __webpack_require__(36),
-	    store = __webpack_require__(41);
+	    actions = __webpack_require__(38),
+	    store = __webpack_require__(37);
 
 	var Sidemenu = React.createClass({
 	  displayName: 'Sidemenu',
@@ -2451,7 +2503,7 @@
 	  mixins: [Reflux.listenTo(store, 'onCategoriesUpdated')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      categories: []
+	      categories: store.categories
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
@@ -2486,14 +2538,14 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    catActions = __webpack_require__(36);
+	    catActions = __webpack_require__(38);
 
 	var Menu = React.createClass({
 	  displayName: 'Menu',
@@ -2536,7 +2588,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2545,7 +2597,7 @@
 	    Reflux = __webpack_require__(2),
 	    Checkbox = __webpack_require__(19).Checkbox,
 	    $ = __webpack_require__(21),
-	    assetActions = __webpack_require__(37);
+	    assetActions = __webpack_require__(39);
 
 	var Menu = React.createClass({
 	  displayName: 'Menu',
@@ -2677,57 +2729,6 @@
 	module.exports = Menu;
 
 /***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var restful = __webpack_require__(44),
-	    config = __webpack_require__(45),
-	    token = window.localStorage.getItem('token');
-
-	var baseApi = restful(config.API_HOST).header('Authorization', 'Bearer ' + token).prefixUrl(config.API_PREFIX).port(config.API_PORT);
-
-	baseApi.updateToken = function (token) {
-	            baseApi.header('Authorization', 'Bearer ' + token);
-	};
-
-	module.exports = baseApi;
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var api = __webpack_require__(30).base;
-
-	var restful = __webpack_require__(44),
-	    config = __webpack_require__(45),
-	    baseApi = __webpack_require__(30);
-
-	var userApi = {
-	  base: baseApi.all('users'),
-	  validate: function validate() {
-	    return userApi.base.get('validate');
-	  },
-	  me: function me() {
-	    return userApi.base.get('me');
-	  },
-	  update: function update(data) {
-	    return userApi.base.put('me', data);
-	  },
-	  login: function login(user) {
-	    return baseApi.allUrl('login', userApi.base.url() + '/login').post(user);
-	  },
-	  register: function register(user) {
-	    return baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user);
-	  }
-	};
-
-	module.exports = userApi;
-
-/***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2738,6 +2739,9 @@
 
 	var orgStore = Reflux.createStore({
 	  listenables: actions,
+	  init: function init() {
+	    this.orgs = [];
+	  },
 	  onListComplete: function onListComplete(orgs) {
 	    this.orgs = orgs;
 	    this.trigger(orgs);
@@ -3192,6 +3196,84 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(35);
+
+	var templateStore = Reflux.createStore({
+	  listenables: actions,
+	  init: function init() {
+	    this.templates = [];
+	  },
+	  onListComplete: function onListComplete(templates) {
+	    this.templates = templates;
+	    this.trigger(templates);
+	  },
+	  onCreateComplete: function onCreateComplete(template) {
+	    this.templates.unshift(template);
+	    this.trigger(this.templates);
+	  },
+	  onUpdateComplete: function onUpdateComplete(template) {
+	    this.templates = this.templates.map(function (t) {
+	      if (t.id === template.id) return template;
+
+	      return t;
+	    });
+	    this.trigger(this.templates);
+	  },
+	  onDelComplete: function onDelComplete(template) {
+	    this.templates = this.templates.filter(function (t) {
+	      return t.id !== template.id;
+	    });
+	    this.trigger(this.templates);
+	  }
+	});
+
+	module.exports = templateStore;
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
+	    actions = __webpack_require__(38);
+
+	var store = Reflux.createStore({
+	  listenables: actions,
+	  init: function init() {
+	    this.categories = [];
+	  },
+	  onListComplete: function onListComplete(categories) {
+	    this.categories = categories;
+	    this.trigger(categories);
+	  },
+	  onCreateComplete: function onCreateComplete(cat) {
+	    this.categories.unshift(cat);
+	    this.trigger(this.categories);
+	  },
+	  onUpdateComplete: function onUpdateComplete(cat) {
+	    this.categories = this.categories.map(function (c) {
+	      if (c.id === cat.id) return cat;
+
+	      return c;
+	    });
+	    this.trigger(this.categories);
+	  },
+	  onDelComplete: function onDelComplete(cat) {
+	    this.categories.splice(this.categories.indexOf(cat), 1);
+	    this.trigger(this.categories);
+	  }
+	});
+
+	module.exports = store;
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Reflux = __webpack_require__(2),
 	    categoriesApi = __webpack_require__(48);
 
 	var actions = Reflux.createActions({
@@ -3267,7 +3349,7 @@
 	module.exports = actions;
 
 /***/ },
-/* 37 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3369,14 +3451,14 @@
 	module.exports = actions;
 
 /***/ },
-/* 38 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(37),
+	    actions = __webpack_require__(39),
 	    $ = __webpack_require__(21),
 	    classNames = __webpack_require__(43),
 	    moment = __webpack_require__(22);
@@ -3558,44 +3640,7 @@
 	};
 
 /***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(35);
-
-	var templateStore = Reflux.createStore({
-	  listenables: actions,
-	  onListComplete: function onListComplete(templates) {
-	    this.templates = templates;
-	    this.trigger(templates);
-	  },
-	  onCreateComplete: function onCreateComplete(template) {
-	    this.templates.unshift(template);
-	    this.trigger(this.templates);
-	  },
-	  onUpdateComplete: function onUpdateComplete(template) {
-	    this.templates = this.templates.map(function (t) {
-	      if (t.id === template.id) return template;
-
-	      return t;
-	    });
-	    this.trigger(this.templates);
-	  },
-	  onDelComplete: function onDelComplete(template) {
-	    this.templates = this.templates.filter(function (t) {
-	      return t.id !== template.id;
-	    });
-	    this.trigger(this.templates);
-	  }
-	});
-
-	module.exports = templateStore;
-
-/***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3604,7 +3649,7 @@
 	    Reflux = __webpack_require__(2),
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Checkbox = __webpack_require__(19).Checkbox,
-	    templateStore = __webpack_require__(39),
+	    templateStore = __webpack_require__(36),
 	    templateActions = __webpack_require__(35),
 	    classNames = __webpack_require__(50);
 
@@ -4091,41 +4136,6 @@
 	module.exports = templateCard;
 
 /***/ },
-/* 41 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Reflux = __webpack_require__(2),
-	    actions = __webpack_require__(36);
-
-	var store = Reflux.createStore({
-	  listenables: actions,
-	  onListComplete: function onListComplete(categories) {
-	    this.categories = categories;
-	    this.trigger(categories);
-	  },
-	  onCreateComplete: function onCreateComplete(cat) {
-	    this.categories.unshift(cat);
-	    this.trigger(this.categories);
-	  },
-	  onUpdateComplete: function onUpdateComplete(cat) {
-	    this.categories = this.categories.map(function (c) {
-	      if (c.id === cat.id) return cat;
-
-	      return c;
-	    });
-	    this.trigger(this.categories);
-	  },
-	  onDelComplete: function onDelComplete(cat) {
-	    this.categories.splice(this.categories.indexOf(cat), 1);
-	    this.trigger(this.categories);
-	  }
-	});
-
-	module.exports = store;
-
-/***/ },
 /* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -4135,8 +4145,8 @@
 	    Reflux = __webpack_require__(2),
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    catStore = __webpack_require__(41),
-	    catActions = __webpack_require__(36),
+	    catStore = __webpack_require__(37),
+	    catActions = __webpack_require__(38),
 	    _ = __webpack_require__(20),
 	    classNames = __webpack_require__(43);
 
@@ -4390,7 +4400,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(30);
+	var baseApi = __webpack_require__(23);
 
 	var orgApi = {
 	  base: baseApi.all('organizations'),
@@ -4419,7 +4429,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(30);
+	var baseApi = __webpack_require__(23);
 
 	var templateApi = {
 	  base: baseApi.all('templates'),
@@ -4448,7 +4458,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(30);
+	var baseApi = __webpack_require__(23);
 
 	var categoryApi = {
 	  base: baseApi.all('categories'),
@@ -4477,7 +4487,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(30);
+	var baseApi = __webpack_require__(23);
 
 	var assetApi = {
 	  base: baseApi.all('assets'),

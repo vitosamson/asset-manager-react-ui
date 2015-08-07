@@ -5,6 +5,9 @@ var Reflux = require('reflux'),
 
 var store = Reflux.createStore({
   listenables: actions,
+  init: function() {
+    this.categories = [];
+  },
   onListComplete: function(categories) {
     this.categories = categories;
     this.trigger(categories);

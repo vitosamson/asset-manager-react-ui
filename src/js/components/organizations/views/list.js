@@ -15,7 +15,7 @@ var OrgList = React.createClass({
   ],
   getInitialState: function() {
     return {
-      orgs: []
+      orgs: orgStore.orgs
     };
   },
   componentWillMount: function() {

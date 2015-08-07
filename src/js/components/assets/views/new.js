@@ -9,23 +9,26 @@ var React = require('react'),
     Dropdown = require('react-semantify').Dropdown,
     Checkbox = require('react-semantify').Checkbox,
     assetActions = require('../actions'),
+    orgStore = require('../../organizations/store'),
     orgActions = require('../../organizations/actions'),
+    templateStore = require('../../templates/store'),
     templateActions = require('../../templates/actions'),
+    categoryStore = require('../../categories/store'),
     categoryActions = require('../../categories/actions');
 
 var NewAsset = React.createClass({
   mixins: [
-    Reflux.listenTo(orgActions.list.complete, 'onOrgsList'),
-    Reflux.listenTo(templateActions.list.complete, 'onTemplatesList'),
-    Reflux.listenTo(categoryActions.list.complete, 'onCategoriesList'),
+    Reflux.listenTo(orgStore, 'onOrgsList'),
+    Reflux.listenTo(templateStore, 'onTemplatesList'),
+    Reflux.listenTo(categoryStore, 'onCategoriesList'),
     Reflux.listenTo(assetActions.create.complete, 'onAssetCreated'),
     Navigation
   ],
   getInitialState: function() {
     return {
-      orgs: [],
-      templates: [],
-      categories: [],
+      orgs: orgStore.orgs,
+      templates: templateStore.templates,
+      categories: categoryStore.categories,
       asset: {
         fields: {},
         organization: {}

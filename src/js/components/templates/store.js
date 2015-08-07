@@ -5,6 +5,9 @@ var Reflux = require('reflux'),
 
 var templateStore = Reflux.createStore({
   listenables: actions,
+  init: function() {
+    this.templates = [];
+  },
   onListComplete: function(templates) {
     this.templates = templates;
     this.trigger(templates);

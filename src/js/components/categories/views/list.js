@@ -15,7 +15,7 @@ var List = React.createClass({
   ],
   getInitialState: function() {
     return {
-      categories: []
+      categories: catStore.categories
     };
   },
   componentWillMount: function() {
