@@ -22,8 +22,10 @@ var actions = Reflux.createActions({
 });
 
 actions.list.preEmit = function() {
-  categoriesApi.getList().then(function(res) {
-    actions.list.complete(res.data);
+  categoriesApi.all().then(function(res) {
+    var categories = res.body().map(r => r.data());
+
+    actions.list.complete(categories);
   }, function(err) {
     actions.list.error(err);
   });
@@ -33,24 +35,30 @@ actions.create.preEmit = function(category) {
   if (!category)
     return;
 
-  categoriesApi.create(category).then(function(cat) {
-    actions.create.complete(cat);
+  categoriesApi.create(category).then(function(res) {
+    var newCategory = res.body();
+
+    actions.create.complete(newCategory);
   }, function(err) {
     actions.create.error(err);
   });
 };
 
 actions.get.preEmit = function(id) {
-  categoriesApi.get(id).then(function(cat) {
-    actions.get.complete(cat);
+  categoriesApi.get(id).then(function(res) {
+    var category = res.body().data();
+
+    actions.get.complete(category);
   }, function(err) {
     actions.get.error(err);
   });
 };
 
 actions.update.preEmit = function(category) {
-  categoriesApi.update(category).then(function(cat) {
-    actions.update.complete(cat);
+  categoriesApi.update(category).then(function(res) {
+    var updatedCategory = res.body();
+
+    actions.update.complete(updatedCategory);
   }, function(err) {
     actions.update.error(err);
   });

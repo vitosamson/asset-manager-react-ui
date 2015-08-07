@@ -4,8 +4,7 @@ var React = require('react'),
     Reflux = require('reflux'),
     Link = require('react-router').Link,
     Navigation = require('react-router').Navigation,
-    userActions = require('../actions'),
-    baseApi = require('../../../api');
+    userActions = require('../actions');
 
 var login = React.createClass({
   mixins: [
@@ -21,7 +20,6 @@ var login = React.createClass({
     };
   },
   onLoginSuccess: function(token) {
-    baseApi.register(token);
     this.transitionTo('app');
   },
   onLoginError: function(err) {

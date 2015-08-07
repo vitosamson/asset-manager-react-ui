@@ -1,66 +1,14 @@
 'use strict';
 
-var api = require('../../api').base;
+var baseApi = require('../../api');
 
-function getList() {
-  return new Promise(function(resolve, reject) {
-    api()('organizations').get(function(err, res) {
-      if (err)
-        return reject(err);
-
-      resolve(res);
-    });
-  });
-}
-
-function get(id) {
-  return new Promise(function(resolve, reject) {
-    api()('organizations')(id).get(function(err, res) {
-      if (err)
-        return reject(err);
-
-      resolve(res.data);
-    });
-  });
-}
-
-function create(org) {
-  return new Promise(function(resolve, reject) {
-    api()('organizations').post(org, function(err, res) {
-      if (err)
-        return reject(err);
-
-      resolve(res.data);
-    });
-  });
-}
-
-function update(org) {
-  return new Promise(function(resolve, reject) {
-    api()('organizations')(org.id).put(org, function(err, res) {
-      if (err)
-        return reject(err);
-
-      resolve(res.data);
-    });
-  });
-}
-
-function del(org) {
-  return new Promise(function(resolve, reject) {
-    api()('organizations')(org.id).delete(function(err, res) {
-      if (err)
-        return reject(err);
-
-      resolve();
-    });
-  });
-}
-
-module.exports = {
-  getList: getList,
-  get: get,
-  create: create,
-  update: update,
-  del: del
+var orgApi = {
+  base: baseApi.all('organizations'),
+  all: () => orgApi.base.getAll(),
+  get: (id) => orgApi.base.get(id),
+  create: (org) => orgApi.base.post(org),
+  update: (org) => orgApi.base.put(org.id, org),
+  del: (org) => orgApi.base.delete(org.id)
 };
+
+module.exports = orgApi;

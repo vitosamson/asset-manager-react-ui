@@ -20,8 +20,10 @@ var vendorScripts = [
   bowerRoot + 'react-router/build/umd/ReactRouter.js',
   bowerRoot + 'semantic-ui/dist/semantic.js',
   bowerRoot + 'reflux/dist/reflux.js',
-  bowerRoot + 'fermata/fermata.js',
-  npmRoot + 'react-semantify/dst/react-semantify.js'
+  npmRoot + 'react-semantify/dst/react-semantify.js',
+  npmRoot + 'moment/moment.js',
+  npmRoot + 'lodash/index.js',
+  npmRoot + 'restful.js/dist/restful.min.js'
 ];
 
 var vendorCss = [
@@ -51,7 +53,9 @@ var externals = {
   'react-semantify': 'Semantify',
   'reflux': 'Reflux',
   'jQuery': '$',
-  'fermata': 'fermata'
+  'moment': 'moment',
+  'lodash': '_',
+  'restful.js': 'restful'
 };
 
 var webpack = {

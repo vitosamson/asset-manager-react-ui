@@ -2,62 +2,17 @@
 
 var api = require('../../api').base;
 
-/**
- * Validates current auth token
- */
-function validate(cb) {
-  return new Promise(function(resolve, reject) {
-    api()('users')('validate').get(function(err) {
-      if (err)
-        return reject(err);
-    });
-  });
-}
+var restful = require('restful.js'),
+    config = require('../../config'),
+    baseApi = require('../../api');
 
-function login(user) {
-  return new Promise(function(resolve, reject) {
-    api()('users')('login').post(user, function(err, data) {
-      if (err)
-        return reject(err);
-      resolve(data);
-    });
-  });
-}
-
-function register(user) {
-  return new Promise(function(resolve, reject) {
-    api()('users')('signup').post(user, function(err, data) {
-      if (err)
-        return reject(err);
-      resolve(data);
-    });
-  });
-}
-
-function me() {
-  return new Promise(function(resolve, reject) {
-    api()('users')('me').get(function(err, data) {
-      if (err)
-        return reject(err);
-      resolve(data);
-    });
-  });
-}
-
-function update(user) {
-  return new Promise(function(resolve, reject) {
-    api()('users')('me').put(user, function(err, data) {
-      if (err)
-        return reject(err);
-      resolve(data);
-    });
-  });
-}
-
-module.exports = {
-  validate: validate,
-  login: login,
-  register: register,
-  me: me,
-  update: update
+var userApi = {
+  base: baseApi.all('users'),
+  validate: () => userApi.base.get('validate'),
+  me: () => userApi.base.get('me'),
+  update: (data) => userApi.base.put('me', data),
+  login: (user) => baseApi.allUrl('login', userApi.base.url() + '/login').post(user),
+  register: (user) => baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user)
 };
+
+module.exports = userApi;

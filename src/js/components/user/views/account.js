@@ -28,10 +28,11 @@ var Account = React.createClass({
       loading: false
     });
 
-    if (success)
+    if (success) {
       setTimeout(function() {
         this.setState({success: false});
       }.bind(this), 2000);
+    }
   },
   onError: function(err) {
     console.error(err);

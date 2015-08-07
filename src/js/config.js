@@ -1,3 +1,5 @@
 module.exports = {
-  API_BASE: 'http://localhost:3000/v1'
+  API_HOST: 'localhost',
+  API_PORT: 3000,
+  API_PREFIX: 'v1'
 };

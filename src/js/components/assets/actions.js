@@ -29,7 +29,9 @@ var actions = Reflux.createActions({
 
 actions.get.preEmit = function(id) {
   api.get(id).then(function(res) {
-    actions.get.complete(res);
+    var asset = res.body().data();
+
+    actions.get.complete(asset);
   }, function(err) {
     actions.get.error(err);
   });
@@ -37,7 +39,9 @@ actions.get.preEmit = function(id) {
 
 actions.create.preEmit = function(asset) {
   api.create(asset).then(function(res) {
-    actions.create.complete(res);
+    var newAsset = res.body();
+
+    actions.create.complete(newAsset);
   }, function(err) {
     actions.create.error(err);
   });
@@ -45,7 +49,9 @@ actions.create.preEmit = function(asset) {
 
 actions.update.preEmit = function(asset) {
   api.update(asset).then(function(res) {
-    actions.update.complete(res);
+    var updatedAsset = res.body();
+
+    actions.update.complete(updatedAsset);
   }, function(err) {
     actions.update.error(err);
   });
@@ -70,7 +76,9 @@ var fileActions = Reflux.createActions({
 
 fileActions.upload.preEmit = function(asset, upload) {
   api.files.upload(asset.id, upload).then(function(res) {
-    actions.files.upload.complete(res);
+    var file = res.body();
+
+    actions.files.upload.complete(file);
   }, function(err) {
     actions.files.upload.error(err);
   });

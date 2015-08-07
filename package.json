@@ -26,6 +26,7 @@
     "classnames": "^2.1.2",
     "lodash": "^3.9.3",
     "moment": "^2.10.6",
-    "react-semantify": "^0.3.1"
+    "react-semantify": "^0.3.1",
+    "restful.js": "vitosamson/restful.js"
   }
 }

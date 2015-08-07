@@ -17,21 +17,23 @@ var store = Reflux.createStore({
     this.token = token;
     this.user = user;
     this.save();
+    baseApi.updateToken(token);
   },
   onRegisterComplete: function(token, user) {
     this.token = token;
     this.user = user;
     this.save();
+    baseApi.updateToken(token);
   },
   onMeComplete: function(user) {
-    this.user = user.data;
+    this.user = user;
     this.save();
   },
   onMeError: function(err) {
     console.error(err);
   },
   onUpdateComplete: function(user) {
-    this.user = user.data;
+    this.user = user;
     this.save();
   },
   onLogout: function() {

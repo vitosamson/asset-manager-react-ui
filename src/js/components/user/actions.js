@@ -24,7 +24,9 @@ var actions = Reflux.createActions({
 
 actions.login.preEmit = function(user) {
   userApi.login(user).then(function(res) {
-    actions.login.complete(res.data.token, res.data.user);
+    var data = res.body();
+
+    actions.login.complete(data.token, data.user);
   }, function(err) {
     actions.login.error(err);
   });
@@ -32,14 +34,18 @@ actions.login.preEmit = function(user) {
 
 actions.register.preEmit = function(user) {
   userApi.register(user).then(function(res) {
-    actions.register.complete(res.data.token, res.data.user);
+    var data = res.body();
+
+    actions.register.complete(data.token, data.user);
   }, function(err) {
     actions.register.error(err);
   });
 };
 
 actions.me.preEmit = function() {
-  userApi.me().then(function(user) {
+  userApi.me().then(function(res) {
+    var user = res.body().data();
+
     actions.me.complete(user);
   }, function(err) {
     actions.me.error(err);
@@ -47,7 +53,9 @@ actions.me.preEmit = function() {
 };
 
 actions.update.preEmit = function(user) {
-  userApi.update(user).then(function(updatedUser) {
+  userApi.update(user).then(function(res) {
+    var updatedUser = res.body();
+
     actions.update.complete(updatedUser);
   }, function(err) {
     actions.update.error(err);

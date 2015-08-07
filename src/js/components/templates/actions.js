@@ -22,15 +22,19 @@ var actions = Reflux.createActions({
 });
 
 actions.list.preEmit = function() {
-  templateApi.getList().then(function(res) {
-    actions.list.complete(res.data);
+  templateApi.all().then(function(res) {
+    var templates = res.body().map(r => r.data());
+
+    actions.list.complete(templates);
   }, function(err) {
     actions.list.error(err);
   });
 };
 
 actions.get.preEmit = function(templateId) {
-  templateApi.get(templateId).then(function(template) {
+  templateApi.get(templateId).then(function(res) {
+    var template = res.body().data();
+
     actions.get.complete(template);
   }, function(err) {
     actions.get.error(err);
@@ -41,16 +45,20 @@ actions.create.preEmit = function(template) {
   if (!template)
     return;
 
-  templateApi.create(template).then(function(template) {
-    actions.create.complete(template);
+  templateApi.create(template).then(function(res) {
+    var newTemplate = res.body();
+
+    actions.create.complete(newTemplate);
   }, function(err) {
     actions.create.error(err);
   });
 };
 
 actions.update.preEmit = function(template) {
-  templateApi.update(template).then(function(template) {
-    actions.update.complete(template);
+  templateApi.update(template).then(function(res) {
+    var updatedTemplate = res.body();
+
+    actions.update.complete(updatedTemplate);
   }, function(err) {
     actions.update.error(err);
   });
