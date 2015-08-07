@@ -15,15 +15,15 @@ var OrgList = React.createClass({
   ],
   getInitialState: function() {
     return {
-      orgs: orgStore.orgs
+      orgs: orgStore.flatOrgs
     };
   },
   componentWillMount: function() {
-    orgActions.list();
+    orgActions.flatList();
   },
   onOrgsUpdated: function(orgs) {
     this.setState({
-      orgs: _.extend([], orgs)
+      orgs: _.extend([], orgs.flatOrgs)
     });
   },
   createNewOrg: function() {
@@ -47,11 +47,11 @@ var OrgList = React.createClass({
 
     return (
       <div className="ui two doubling cards">
-        {orgs.length ? orgs.map(function(org, idx) {
+        {orgs.map(function(org, idx) {
           return (
             <OrgCard org={org} key={idx} new={org.id === undefined}/>
           );
-        }) : ''}
+        })}
       </div>
     );
   }

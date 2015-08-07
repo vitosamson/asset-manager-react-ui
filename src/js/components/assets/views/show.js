@@ -99,7 +99,7 @@ var Asset = React.createClass({
             </tr>
             <tr>
               <td>Category</td>
-              <td className="right aligned">{ asset.category.name }</td>
+              <td className="right aligned">{ asset.category ? asset.category.name : '' }</td>
             </tr>
             <tr>
               <td>Created</td>

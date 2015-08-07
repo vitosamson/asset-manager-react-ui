@@ -26,7 +26,7 @@ var NewAsset = React.createClass({
   ],
   getInitialState: function() {
     return {
-      orgs: orgStore.orgs,
+      orgs: orgStore.nestedOrgs,
       templates: templateStore.templates,
       categories: categoryStore.categories,
       asset: {
@@ -48,6 +48,7 @@ var NewAsset = React.createClass({
   },
   getOrgs: function() {
     orgActions.list();
+    orgActions.flatList();
   },
   getTemplates: function() {
     templateActions.list();
@@ -57,7 +58,7 @@ var NewAsset = React.createClass({
   },
   onOrgsList: function(orgs) {
     this.setState({
-      orgs: orgs
+      orgs: orgs.nestedOrgs
     });
 
     if (this.props.query.org)
@@ -75,7 +76,7 @@ var NewAsset = React.createClass({
   },
   onOrgSelect: function(val) {
     var asset = this.state.asset,
-        org = _.find(this.state.orgs, o => o.id == val);
+        org = _.find(orgStore.flatOrgs, o => o.id == val);
 
     if (org) {
       asset.organization = org;
@@ -233,17 +234,19 @@ var NewAsset = React.createClass({
     });
 
     return (
-      <form className="ui form" onSubmit={this.saveAsset}>
+      <form className="ui form segment" onSubmit={this.saveAsset}>
         <h2>New asset</h2>
 
         <div className={ orgFieldClass }>
           <label>Organization</label>
-          <Dropdown className="selection" init={{onChange: this.onOrgSelect}}>
-            <div className="default text">{this.state.asset.organization.name}</div>
+          <Dropdown className="basic button" init={{onChange: this.onOrgSelect, allowCategorySelection:true}}>
+            <div className="text">
+              {this.state.asset.organization.name || 'Select an organization'}
+            </div>
             <i className="dropdown icon"></i>
             <div className="menu">
               {this.state.orgs.map((org, idx) =>
-                <div className='item' data-value={org.id} key={idx}>{ org.name }</div>
+                <OrgDropdownItem org={org} key={org.id}/>
               )}
             </div>
           </Dropdown>
@@ -376,6 +379,41 @@ var NewField = React.createClass({
         </div>
       </Dropdown>
     );
+  }
+});
+
+var OrgDropdownItem = React.createClass({
+  getInitialState: function() {
+    return {
+      org: this.props.org
+    };
+  },
+  componentWillReceiveProps: function(props) {
+    this.setState({
+      org: props.org
+    });
+  },
+  render: function() {
+    var org = this.props.org;
+
+    if (!org.children || !org.children.length) {
+      return (
+        <div className="item" data-value={org.id} key={org.id}>{org.name}</div>
+      );
+    } else {
+      return (
+        <div className="item" key={org.id}>
+          <i className="dropdown icon"></i>
+          <span className="text">{org.name}</span>
+          <div className="menu">
+
+            {org.children.map(child =>
+              <OrgDropdownItem org={child} key={child.id}/>
+            )}
+          </div>
+        </div>
+      );
+    }
   }
 });
 

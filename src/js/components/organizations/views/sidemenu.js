@@ -3,6 +3,7 @@
 var React = require('react'),
     Reflux = require('reflux'),
     Link = require('react-router').Link,
+    Dropdown = require('react-semantify').Dropdown,
     actions = require('../actions'),
     store = require('../store');
 
@@ -12,7 +13,7 @@ var Sidemenu = React.createClass({
   ],
   getInitialState: function() {
     return {
-      orgs: store.orgs
+      orgs: store.nestedOrgs
     };
   },
   componentWillMount: function() {
@@ -20,7 +21,7 @@ var Sidemenu = React.createClass({
   },
   onOrgsUpdate: function(orgs) {
     this.setState({
-      orgs: orgs
+      orgs: orgs.nestedOrgs
     });
   },
   render: function() {
@@ -31,10 +32,46 @@ var Sidemenu = React.createClass({
       
         <div className="menu">
           {this.state.orgs.map(org =>
-            <Link to="org" key={org.id} params={{orgId: org.id}} className="item">{org.name}</Link>
+            org.parentId === null ? <RootOrg org={org} key={org.id}/> : null
           )}
         </div>
       </div>
+    );
+  }
+});
+
+var RootOrg = React.createClass({
+  render: function() {
+    var org = this.props.org;
+
+    if (org.children && org.children.length) {
+      return (<OrgWithChildren org={org}/>);
+    } else {
+      return (
+        <Link to="org" params={{orgId: org.id}} className="item">{org.name}</Link>
+      );
+    }
+  }
+});
+
+var OrgWithChildren = React.createClass({
+  render: function() {
+    var org = this.props.org,
+        children = org.children;
+
+    return (
+      <Dropdown className="item" init={true}>
+        <i className="dropdown icon"></i>
+        { org.name }
+
+        <div className="menu">
+          <Link to="org" params={{orgId: org.id}} className="item">{ org.name }</Link>
+
+          { children.map(child =>
+            child.children && child.children.length ? <OrgWithChildren org={child} key={child.id}/> : <RootOrg org={child} key={child.id}/>
+          )}
+        </div>
+      </Dropdown>
     );
   }
 });

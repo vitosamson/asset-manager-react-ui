@@ -16,7 +16,7 @@ var OrgCard = React.createClass({
   getInitialState: function() {
     return {
       org: this.props.org,
-      orgs: orgStore.orgs || [],
+      orgs: orgStore.nestedOrgs || [],
       editing: this.props.new,
       editTmp: _.extend({}, this.props.org),
       error: {}
@@ -32,7 +32,7 @@ var OrgCard = React.createClass({
   },
   onOrgsUpdate: function(orgs) {
     this.setState({
-      orgs: orgs
+      orgs: orgs.nestedOrgs
     });
   },
   onChange: function(e) {
@@ -187,16 +187,14 @@ var OrgCard = React.createClass({
               <input type="text" placeholder="Description" value={editTmp.description} onChange={this.onChange} name="description"/>
             </div>
             <div className="field ui small input">
-              <Dropdown init={{onChange: this.setParent}} name="parent" className="search selection fluid">
+              <Dropdown init={{onChange: this.setParent, allowCategorySelection:true}} name="parent" className="basic button">
                 <div className="default text">Parent organization</div>
                 <i className="dropdown icon"></i>
             
                 <div className="menu">
-                  {orgs.map(function(org, idx) {
-                    return (
-                      <div className="item" data-value={org.id} key={idx}>{org.name}</div>
-                    );
-                  })}
+                  {orgs.map(org =>
+                    <NewOrgParentDropdownItem org={org}/>
+                  )}
                 </div>
               </Dropdown>
             </div>
@@ -206,6 +204,42 @@ var OrgCard = React.createClass({
         </div>
       </div>
     );
+  }
+});
+
+var NewOrgParentDropdownItem = React.createClass({
+  getInitialState: function() {
+    return {
+      org: this.props.org
+    };
+  },
+  componentWillReceiveProps: function(props) {
+    this.setState({
+      org: props.org
+    });
+  },
+  render: function() {
+    var org = this.props.org;
+
+
+    if (!org.children || !org.children.length) {
+      return (
+        <div className="item" data-value={org.id} key={org.id}>{org.name}</div>
+      );
+    } else {
+      return (
+        <div className="item">
+          <i className="dropdown icon"></i>
+          <span className="text">{org.name}</span>
+          <div className="menu">
+
+            {org.children.map(child =>
+              <NewOrgParentDropdownItem org={child}/>
+            )}
+          </div>
+        </div>
+      );
+    }
   }
 });
 

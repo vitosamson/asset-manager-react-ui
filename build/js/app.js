@@ -263,13 +263,13 @@
 	    State = __webpack_require__(3).State,
 	    Dropdown = __webpack_require__(19).Dropdown,
 	    Link = __webpack_require__(3).Link,
-	    OrgMenu = __webpack_require__(25),
-	    OrgListMenu = __webpack_require__(26),
-	    OrgShowMenu = __webpack_require__(27),
-	    TemplateListMenu = __webpack_require__(28),
-	    CategoryMenu = __webpack_require__(29),
-	    CategoryListMenu = __webpack_require__(30),
-	    AssetShowMenu = __webpack_require__(31);
+	    OrgMenu = __webpack_require__(23),
+	    OrgListMenu = __webpack_require__(24),
+	    OrgShowMenu = __webpack_require__(25),
+	    TemplateListMenu = __webpack_require__(26),
+	    CategoryMenu = __webpack_require__(27),
+	    CategoryListMenu = __webpack_require__(28),
+	    AssetShowMenu = __webpack_require__(29);
 
 	var sidemenu = React.createClass({
 	  displayName: 'sidemenu',
@@ -353,7 +353,7 @@
 
 	var Reflux = __webpack_require__(2),
 	    actions = __webpack_require__(7),
-	    baseApi = __webpack_require__(23);
+	    baseApi = __webpack_require__(30);
 
 	var store = Reflux.createStore({
 	  listenables: actions,
@@ -406,7 +406,7 @@
 	'use strict';
 
 	var Reflux = __webpack_require__(2),
-	    userApi = __webpack_require__(24);
+	    userApi = __webpack_require__(31);
 
 	var actions = Reflux.createActions({
 	  login: {
@@ -999,15 +999,15 @@
 	  mixins: [Reflux.listenTo(orgStore, 'onOrgsUpdated'), Reflux.listenTo(orgActions.create.start, 'createNewOrg'), Reflux.listenTo(orgActions.create.cancel, 'cancelNewOrg')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: orgStore.orgs
+	      orgs: orgStore.flatOrgs
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
-	    orgActions.list();
+	    orgActions.flatList();
 	  },
 	  onOrgsUpdated: function onOrgsUpdated(orgs) {
 	    this.setState({
-	      orgs: _.extend([], orgs)
+	      orgs: _.extend([], orgs.flatOrgs)
 	    });
 	  },
 	  createNewOrg: function createNewOrg() {
@@ -1032,9 +1032,9 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'ui two doubling cards' },
-	      orgs.length ? orgs.map(function (org, idx) {
+	      orgs.map(function (org, idx) {
 	        return React.createElement(OrgCard, { org: org, key: idx, 'new': org.id === undefined });
-	      }) : ''
+	      })
 	    );
 	  }
 	});
@@ -1466,7 +1466,7 @@
 	  mixins: [Reflux.listenTo(orgStore, 'onOrgsList'), Reflux.listenTo(templateStore, 'onTemplatesList'), Reflux.listenTo(categoryStore, 'onCategoriesList'), Reflux.listenTo(assetActions.create.complete, 'onAssetCreated'), Navigation],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: orgStore.orgs,
+	      orgs: orgStore.nestedOrgs,
 	      templates: templateStore.templates,
 	      categories: categoryStore.categories,
 	      asset: {
@@ -1488,6 +1488,7 @@
 	  },
 	  getOrgs: function getOrgs() {
 	    orgActions.list();
+	    orgActions.flatList();
 	  },
 	  getTemplates: function getTemplates() {
 	    templateActions.list();
@@ -1497,7 +1498,7 @@
 	  },
 	  onOrgsList: function onOrgsList(orgs) {
 	    this.setState({
-	      orgs: orgs
+	      orgs: orgs.nestedOrgs
 	    });
 
 	    if (this.props.query.org) this.onOrgSelect(this.props.query.org);
@@ -1514,7 +1515,7 @@
 	  },
 	  onOrgSelect: function onOrgSelect(val) {
 	    var asset = this.state.asset,
-	        org = _.find(this.state.orgs, function (o) {
+	        org = _.find(orgStore.flatOrgs, function (o) {
 	      return o.id == val;
 	    });
 
@@ -1691,7 +1692,7 @@
 
 	    return React.createElement(
 	      'form',
-	      { className: 'ui form', onSubmit: this.saveAsset },
+	      { className: 'ui form segment', onSubmit: this.saveAsset },
 	      React.createElement(
 	        'h2',
 	        null,
@@ -1707,22 +1708,18 @@
 	        ),
 	        React.createElement(
 	          Dropdown,
-	          { className: 'selection', init: { onChange: this.onOrgSelect } },
+	          { className: 'basic button', init: { onChange: this.onOrgSelect, allowCategorySelection: true } },
 	          React.createElement(
 	            'div',
-	            { className: 'default text' },
-	            this.state.asset.organization.name
+	            { className: 'text' },
+	            this.state.asset.organization.name || 'Select an organization'
 	          ),
 	          React.createElement('i', { className: 'dropdown icon' }),
 	          React.createElement(
 	            'div',
 	            { className: 'menu' },
 	            this.state.orgs.map(function (org, idx) {
-	              return React.createElement(
-	                'div',
-	                { className: 'item', 'data-value': org.id, key: idx },
-	                org.name
-	              );
+	              return React.createElement(OrgDropdownItem, { org: org, key: org.id });
 	            })
 	          )
 	        )
@@ -1917,6 +1914,50 @@
 	  }
 	});
 
+	var OrgDropdownItem = React.createClass({
+	  displayName: 'OrgDropdownItem',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      org: this.props.org
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(props) {
+	    this.setState({
+	      org: props.org
+	    });
+	  },
+	  render: function render() {
+	    var org = this.props.org;
+
+	    if (!org.children || !org.children.length) {
+	      return React.createElement(
+	        'div',
+	        { className: 'item', 'data-value': org.id, key: org.id },
+	        org.name
+	      );
+	    } else {
+	      return React.createElement(
+	        'div',
+	        { className: 'item', key: org.id },
+	        React.createElement('i', { className: 'dropdown icon' }),
+	        React.createElement(
+	          'span',
+	          { className: 'text' },
+	          org.name
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'menu' },
+	          org.children.map(function (child) {
+	            return React.createElement(OrgDropdownItem, { org: child, key: child.id });
+	          })
+	        )
+	      );
+	    }
+	  }
+	});
+
 	module.exports = NewAsset;
 
 /***/ },
@@ -2056,7 +2097,7 @@
 	            React.createElement(
 	              'td',
 	              { className: 'right aligned' },
-	              asset.category.name
+	              asset.category ? asset.category.name : ''
 	            )
 	          ),
 	          React.createElement(
@@ -2254,58 +2295,10 @@
 
 	'use strict';
 
-	var restful = __webpack_require__(44),
-	    config = __webpack_require__(45),
-	    token = window.localStorage.getItem('token');
-
-	var baseApi = restful(config.API_HOST).header('Authorization', 'Bearer ' + token).prefixUrl(config.API_PREFIX).port(config.API_PORT);
-
-	baseApi.updateToken = function (token) {
-	            baseApi.header('Authorization', 'Bearer ' + token);
-	};
-
-	module.exports = baseApi;
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var restful = __webpack_require__(44),
-	    config = __webpack_require__(45),
-	    baseApi = __webpack_require__(23);
-
-	var userApi = {
-	  base: baseApi.all('users'),
-	  validate: function validate() {
-	    return userApi.base.get('validate');
-	  },
-	  me: function me() {
-	    return userApi.base.get('me');
-	  },
-	  update: function update(data) {
-	    return userApi.base.put('me', data);
-	  },
-	  login: function login(user) {
-	    return baseApi.allUrl('login', userApi.base.url() + '/login').post(user);
-	  },
-	  register: function register(user) {
-	    return baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user);
-	  }
-	};
-
-	module.exports = userApi;
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var React = __webpack_require__(1),
 	    Reflux = __webpack_require__(2),
 	    Link = __webpack_require__(3).Link,
+	    Dropdown = __webpack_require__(19).Dropdown,
 	    actions = __webpack_require__(33),
 	    store = __webpack_require__(32);
 
@@ -2315,7 +2308,7 @@
 	  mixins: [Reflux.listenTo(store, 'onOrgsUpdate')],
 	  getInitialState: function getInitialState() {
 	    return {
-	      orgs: store.orgs
+	      orgs: store.nestedOrgs
 	    };
 	  },
 	  componentWillMount: function componentWillMount() {
@@ -2323,7 +2316,7 @@
 	  },
 	  onOrgsUpdate: function onOrgsUpdate(orgs) {
 	    this.setState({
-	      orgs: orgs
+	      orgs: orgs.nestedOrgs
 	    });
 	  },
 	  render: function render() {
@@ -2336,11 +2329,53 @@
 	        'div',
 	        { className: 'menu' },
 	        this.state.orgs.map(function (org) {
-	          return React.createElement(
-	            Link,
-	            { to: 'org', key: org.id, params: { orgId: org.id }, className: 'item' },
-	            org.name
-	          );
+	          return org.parentId === null ? React.createElement(RootOrg, { org: org, key: org.id }) : null;
+	        })
+	      )
+	    );
+	  }
+	});
+
+	var RootOrg = React.createClass({
+	  displayName: 'RootOrg',
+
+	  render: function render() {
+	    var org = this.props.org;
+
+	    if (org.children && org.children.length) {
+	      return React.createElement(OrgWithChildren, { org: org });
+	    } else {
+	      return React.createElement(
+	        Link,
+	        { to: 'org', params: { orgId: org.id }, className: 'item' },
+	        org.name
+	      );
+	    }
+	  }
+	});
+
+	var OrgWithChildren = React.createClass({
+	  displayName: 'OrgWithChildren',
+
+	  render: function render() {
+	    var org = this.props.org,
+	        children = org.children;
+
+	    return React.createElement(
+	      Dropdown,
+	      { className: 'item', init: true },
+	      React.createElement('i', { className: 'dropdown icon' }),
+	      org.name,
+	      React.createElement(
+	        'div',
+	        { className: 'menu' },
+	        React.createElement(
+	          Link,
+	          { to: 'org', params: { orgId: org.id }, className: 'item' },
+	          org.name
+	        ),
+	        children.map(function (child) {
+	          return child.children && child.children.length ? React.createElement(OrgWithChildren, { org: child, key: child.id }) : React.createElement(RootOrg, { org: child, key: child.id });
 	        })
 	      )
 	    );
@@ -2350,7 +2385,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 26 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2400,7 +2435,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 27 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2436,7 +2471,7 @@
 	module.exports = ShowMenu;
 
 /***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2486,7 +2521,7 @@
 	module.exports = ListMenu;
 
 /***/ },
-/* 29 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2538,7 +2573,7 @@
 	module.exports = Sidemenu;
 
 /***/ },
-/* 30 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2588,7 +2623,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 31 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2729,6 +2764,55 @@
 	module.exports = Menu;
 
 /***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var restful = __webpack_require__(44),
+	    config = __webpack_require__(45),
+	    token = window.localStorage.getItem('token');
+
+	var baseApi = restful(config.API_HOST).header('Authorization', 'Bearer ' + token).prefixUrl(config.API_PREFIX).port(config.API_PORT);
+
+	baseApi.updateToken = function (token) {
+	            baseApi.header('Authorization', 'Bearer ' + token);
+	};
+
+	module.exports = baseApi;
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var restful = __webpack_require__(44),
+	    config = __webpack_require__(45),
+	    baseApi = __webpack_require__(30);
+
+	var userApi = {
+	  base: baseApi.all('users'),
+	  validate: function validate() {
+	    return userApi.base.get('validate');
+	  },
+	  me: function me() {
+	    return userApi.base.get('me');
+	  },
+	  update: function update(data) {
+	    return userApi.base.put('me', data);
+	  },
+	  login: function login(user) {
+	    return baseApi.allUrl('login', userApi.base.url() + '/login').post(user);
+	  },
+	  register: function register(user) {
+	    return baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user);
+	  }
+	};
+
+	module.exports = userApi;
+
+/***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2740,29 +2824,39 @@
 	var orgStore = Reflux.createStore({
 	  listenables: actions,
 	  init: function init() {
-	    this.orgs = [];
+	    this.nestedOrgs = [];
+	    this.flatOrgs = [];
+	  },
+	  sort: function sort(orgs) {
+	    return orgs.sort(function (a, b) {
+	      if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;else if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;else return 0;
+	    });
 	  },
 	  onListComplete: function onListComplete(orgs) {
-	    this.orgs = orgs;
-	    this.trigger(orgs);
+	    this.nestedOrgs = this.sort(orgs);
+	    this._trigger();
+	  },
+	  onFlatListComplete: function onFlatListComplete(orgs) {
+	    this.flatOrgs = this.sort(orgs);
+	    this._trigger();
 	  },
 	  onCreateComplete: function onCreateComplete(org) {
-	    this.orgs.unshift(org);
-	    this.trigger(this.orgs);
+	    actions.list();
+	    actions.flatList();
 	  },
 	  onUpdateComplete: function onUpdateComplete(org) {
-	    this.orgs = this.orgs.map(function (o) {
-	      if (o.id === org.id) return org;
-
-	      return o;
-	    });
-	    this.trigger(this.orgs);
+	    actions.list();
+	    actions.flatList();
 	  },
-	  onDelComplete: function onDelComplete(org) {
-	    this.orgs = this.orgs.filter(function (o) {
-	      return o.id !== org.id;
+	  onDelComplete: function onDelComplete() {
+	    actions.list();
+	    actions.flatList();
+	  },
+	  _trigger: function _trigger() {
+	    this.trigger({
+	      nestedOrgs: this.nestedOrgs,
+	      flatOrgs: this.flatOrgs
 	    });
-	    this.trigger(this.orgs);
 	  }
 	});
 
@@ -2779,6 +2873,9 @@
 
 	var actions = Reflux.createActions({
 	  list: {
+	    children: ['complete', 'error']
+	  },
+	  flatList: {
 	    children: ['complete', 'error']
 	  },
 	  get: {
@@ -2804,6 +2901,18 @@
 	    actions.list.complete(orgs);
 	  }, function (err) {
 	    actions.list.error(err);
+	  });
+	};
+
+	actions.flatList.preEmit = function () {
+	  orgApi.all({ flat: true }).then(function (res) {
+	    var orgs = res.body().map(function (r) {
+	      return r.data();
+	    });
+
+	    actions.flatList.complete(orgs);
+	  }, function (err) {
+	    actions.flatList.error(err);
 	  });
 	};
 
@@ -2871,7 +2980,7 @@
 	  getInitialState: function getInitialState() {
 	    return {
 	      org: this.props.org,
-	      orgs: orgStore.orgs || [],
+	      orgs: orgStore.nestedOrgs || [],
 	      editing: this.props['new'],
 	      editTmp: _.extend({}, this.props.org),
 	      error: {}
@@ -2887,7 +2996,7 @@
 	  },
 	  onOrgsUpdate: function onOrgsUpdate(orgs) {
 	    this.setState({
-	      orgs: orgs
+	      orgs: orgs.nestedOrgs
 	    });
 	  },
 	  onChange: function onChange(e) {
@@ -3070,7 +3179,7 @@
 	            { className: 'field ui small input' },
 	            React.createElement(
 	              Dropdown,
-	              { init: { onChange: this.setParent }, name: 'parent', className: 'search selection fluid' },
+	              { init: { onChange: this.setParent, allowCategorySelection: true }, name: 'parent', className: 'basic button' },
 	              React.createElement(
 	                'div',
 	                { className: 'default text' },
@@ -3080,12 +3189,8 @@
 	              React.createElement(
 	                'div',
 	                { className: 'menu' },
-	                orgs.map(function (org, idx) {
-	                  return React.createElement(
-	                    'div',
-	                    { className: 'item', 'data-value': org.id, key: idx },
-	                    org.name
-	                  );
+	                orgs.map(function (org) {
+	                  return React.createElement(NewOrgParentDropdownItem, { org: org });
 	                })
 	              )
 	            )
@@ -3103,6 +3208,50 @@
 	        )
 	      )
 	    );
+	  }
+	});
+
+	var NewOrgParentDropdownItem = React.createClass({
+	  displayName: 'NewOrgParentDropdownItem',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      org: this.props.org
+	    };
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(props) {
+	    this.setState({
+	      org: props.org
+	    });
+	  },
+	  render: function render() {
+	    var org = this.props.org;
+
+	    if (!org.children || !org.children.length) {
+	      return React.createElement(
+	        'div',
+	        { className: 'item', 'data-value': org.id, key: org.id },
+	        org.name
+	      );
+	    } else {
+	      return React.createElement(
+	        'div',
+	        { className: 'item' },
+	        React.createElement('i', { className: 'dropdown icon' }),
+	        React.createElement(
+	          'span',
+	          { className: 'text' },
+	          org.name
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'menu' },
+	          org.children.map(function (child) {
+	            return React.createElement(NewOrgParentDropdownItem, { org: child });
+	          })
+	        )
+	      );
+	    }
 	  }
 	});
 
@@ -4400,12 +4549,12 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(23);
+	var baseApi = __webpack_require__(30);
 
 	var orgApi = {
 	  base: baseApi.all('organizations'),
-	  all: function all() {
-	    return orgApi.base.getAll();
+	  all: function all(params) {
+	    return orgApi.base.getAll(params);
 	  },
 	  get: function get(id) {
 	    return orgApi.base.get(id);
@@ -4429,7 +4578,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(23);
+	var baseApi = __webpack_require__(30);
 
 	var templateApi = {
 	  base: baseApi.all('templates'),
@@ -4458,7 +4607,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(23);
+	var baseApi = __webpack_require__(30);
 
 	var categoryApi = {
 	  base: baseApi.all('categories'),
@@ -4487,7 +4636,7 @@
 
 	'use strict';
 
-	var baseApi = __webpack_require__(23);
+	var baseApi = __webpack_require__(30);
 
 	var assetApi = {
 	  base: baseApi.all('assets'),

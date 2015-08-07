@@ -7,6 +7,9 @@ var actions = Reflux.createActions({
   list: {
     children: ['complete', 'error']
   },
+  flatList: {
+    children: ['complete', 'error']
+  },
   get: {
     children: ['complete', 'error']
   },
@@ -28,6 +31,16 @@ actions.list.preEmit = function() {
     actions.list.complete(orgs);
   }, function(err) {
     actions.list.error(err);
+  });
+};
+
+actions.flatList.preEmit = function() {
+  orgApi.all({flat: true}).then(function(res) {
+    var orgs = res.body().map(r => r.data());
+
+    actions.flatList.complete(orgs);
+  }, function(err) {
+    actions.flatList.error(err);
   });
 };
 

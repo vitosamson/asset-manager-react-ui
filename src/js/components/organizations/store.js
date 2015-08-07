@@ -6,30 +6,44 @@ var Reflux = require('reflux'),
 var orgStore = Reflux.createStore({
   listenables: actions,
   init: function() {
-    this.orgs = [];
+    this.nestedOrgs = [];
+    this.flatOrgs = [];
+  },
+  sort: function(orgs) {
+    return orgs.sort(function(a, b) {
+      if (a.name.toLowerCase() > b.name.toLowerCase())
+        return 1;
+      else if (a.name.toLowerCase() < b.name.toLowerCase())
+        return -1;
+      else
+        return 0;
+    });
   },
   onListComplete: function(orgs) {
-    this.orgs = orgs;
-    this.trigger(orgs);
+    this.nestedOrgs = this.sort(orgs);
+    this._trigger();
+  },
+  onFlatListComplete: function(orgs) {
+    this.flatOrgs = this.sort(orgs);
+    this._trigger();
   },
   onCreateComplete: function(org) {
-    this.orgs.unshift(org);
-    this.trigger(this.orgs);
+    actions.list();
+    actions.flatList();
   },
   onUpdateComplete: function(org) {
-    this.orgs = this.orgs.map(function(o) {
-      if (o.id === org.id)
-        return org;
-
-      return o;
-    });
-    this.trigger(this.orgs);
+    actions.list();
+    actions.flatList();
   },
-  onDelComplete: function(org) {
-    this.orgs = this.orgs.filter(function(o) {
-      return o.id !== org.id;
+  onDelComplete: function() {
+    actions.list();
+    actions.flatList();
+  },
+  _trigger: function() {
+    this.trigger({
+      nestedOrgs: this.nestedOrgs,
+      flatOrgs: this.flatOrgs
     });
-    this.trigger(this.orgs);
   }
 });
 
