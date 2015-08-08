@@ -1,10 +1,11 @@
 'use strict';
 
-var restful = require('restful.js'),
-    config = require('./config'),
-    token = window.localStorage.getItem('token');
+import restful from 'restful.js';
+import config from './config';
 
-var baseApi = restful(config.API_HOST)
+const token = window.localStorage.getItem('token');
+
+const baseApi = restful(config.API_HOST)
             .header('Authorization', 'Bearer ' + token)
             .prefixUrl(config.API_PREFIX)
             .port(config.API_PORT);
@@ -13,4 +14,4 @@ baseApi.updateToken = function(token) {
   baseApi.header('Authorization', 'Bearer ' + token);
 };
 
-module.exports = baseApi;
+export default baseApi;

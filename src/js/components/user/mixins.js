@@ -1,11 +1,12 @@
 'use strict';
 
-var userStore = require('./store'),
-    Navigation = require('react-router').Navigation,
-    Reflux = require('reflux'),
-    userActions = require('./actions');
+import Reflux from 'reflux';
+import { Navigation } from 'react-router';
 
-var Authenticated = {
+import userStore from './store';
+import userActions from './actions';
+
+export var Authenticated = {
   mixins: [
     Navigation,
     Reflux.listenTo(userActions.validate.error, 'onValidateError')
@@ -23,7 +24,7 @@ var Authenticated = {
   }
 };
 
-var Unauthenticated = {
+export var Unauthenticated = {
   mixins: [
     Navigation
   ],
@@ -33,9 +34,4 @@ var Unauthenticated = {
         transition.redirect('app', {});
     }
   },
-};
-
-module.exports = {
-  Authenticated: Authenticated,
-  Unauthenticated: Unauthenticated
 };

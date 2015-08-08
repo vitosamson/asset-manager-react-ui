@@ -1,10 +1,11 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    catActions = require('../actions');
+import React from 'react';
+import Reflux from 'reflux';
 
-var Menu = React.createClass({
+import catActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(catActions.create.cancel, 'enableNewBtn'),
     Reflux.listenTo(catActions.create.complete, 'enableNewBtn')
@@ -41,5 +42,3 @@ var Menu = React.createClass({
     );
   }
 });
-
-module.exports = Menu;

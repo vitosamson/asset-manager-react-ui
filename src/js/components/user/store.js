@@ -1,10 +1,11 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    actions = require('./actions'),
-    baseApi = require('../../api');
+import Reflux from 'reflux';
 
-var store = Reflux.createStore({
+import actions from './actions';
+import baseApi from '../../api';
+
+export default Reflux.createStore({
   listenables: actions,
   init: function() {
     this.load();
@@ -45,5 +46,3 @@ var store = Reflux.createStore({
     this.trigger(this.token, this.user);
   }
 });
-
-module.exports = store;

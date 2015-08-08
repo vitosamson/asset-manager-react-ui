@@ -1,13 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    _ = require('lodash'),
-    catStore = require('../store'),
-    catActions = require('../actions'),
-    Card = require('./card');
+import React from 'react';
+import Reflux from 'reflux';
+import _ from 'lodash';
 
-var List = React.createClass({
+import catStore from '../store';
+import catActions from '../actions';
+import Card from './card';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(catStore, 'onCategoriesUpdated'),
     Reflux.listenTo(catActions.create.start, 'addNewCategory'),
@@ -54,5 +55,3 @@ var List = React.createClass({
     );
   }
 });
-
-module.exports = List;

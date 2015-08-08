@@ -1,10 +1,9 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    api = require('./api'),
-    $ = require('jQuery');
+import Reflux from 'reflux';
+import api from './api';
 
-var actions = Reflux.createActions({
+const actions = Reflux.createActions({
   get: {
     children: ['complete', 'error']
   },
@@ -26,6 +25,8 @@ var actions = Reflux.createActions({
   },
   setActiveAsset: {}
 });
+
+export default actions;
 
 actions.get.preEmit = function(id) {
   api.get(id).then(function(res) {

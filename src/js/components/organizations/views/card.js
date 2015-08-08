@@ -1,15 +1,15 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    Dropdown = require('react-semantify').Dropdown,
-    orgActions = require('../actions'),
-    orgStore = require('../store'),
-    classNames = require('classnames'),
-    _ = require('lodash');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link } from 'react-router';
+import { Dropdown } from 'react-semantify';
+import orgActions from '../actions';
+import orgStore from '../store';
+import 'classNames';
+import _ from 'lodash';
 
-var OrgCard = React.createClass({
+export default React.createClass({
   mixins: [
     Reflux.listenTo(orgStore, 'onOrgsUpdate'),
   ],
@@ -207,7 +207,7 @@ var OrgCard = React.createClass({
   }
 });
 
-var NewOrgParentDropdownItem = React.createClass({
+const NewOrgParentDropdownItem = React.createClass({
   getInitialState: function() {
     return {
       org: this.props.org
@@ -242,5 +242,3 @@ var NewOrgParentDropdownItem = React.createClass({
     }
   }
 });
-
-module.exports = OrgCard;

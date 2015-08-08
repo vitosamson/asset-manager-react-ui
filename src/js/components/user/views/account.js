@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    userStore = require('../store'),
-    userActions = require('../actions'),
-    classNames = require('classnames');
+import React from 'react';
+import Reflux from 'reflux';
+import classNames from 'classnames';
 
-var Account = React.createClass({
+import userStore from '../store';
+import userActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(userStore, 'onUpdate'),
     Reflux.listenTo(userActions.update.error, 'onError')
@@ -115,5 +116,3 @@ var Account = React.createClass({
     );
   }
 });
-
-module.exports = Account;

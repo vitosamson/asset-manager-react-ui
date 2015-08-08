@@ -1,9 +1,9 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    categoriesApi = require('./api');
+import Reflux from 'reflux';
+import categoriesApi from './api';
 
-var actions = Reflux.createActions({
+const actions = Reflux.createActions({
   list: {
     children: ['complete', 'error']
   },
@@ -20,6 +20,8 @@ var actions = Reflux.createActions({
     children: ['complete', 'error']
   }
 });
+
+export default actions;
 
 actions.list.preEmit = function() {
   categoriesApi.all().then(function(res) {
@@ -71,5 +73,3 @@ actions.del.preEmit = function(category) {
     actions.del.error(err);
   });
 };
-
-module.exports = actions;

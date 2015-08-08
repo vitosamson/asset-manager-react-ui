@@ -20,7 +20,7 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-webpack": "^1.4.0",
     "node-libs-browser": "^0.5.2",
-    "webpack": "^1.9.10"
+    "webpack": "^1.11.0"
   },
   "dependencies": {
     "classnames": "^2.1.2",

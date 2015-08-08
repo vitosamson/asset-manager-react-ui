@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Checkbox = require('react-semantify').Checkbox,
-    $ = require('jQuery'),
-    assetActions = require('../actions');
+import React from 'react';
+import Reflux from 'reflux';
+import { Checkbox } from 'react-semantify';
+import $ from 'jQuery';
 
-var Menu = React.createClass({
+import assetActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(assetActions.setActiveAsset, 'onAssetSelect'),
     Reflux.listenTo(assetActions.update.complete, 'onAssetSelect')
@@ -48,7 +49,7 @@ var Menu = React.createClass({
   }
 });
 
-var ActiveToggle = React.createClass({
+const ActiveToggle = React.createClass({
   getInitialState: function() {
     return {
       active: this.props.active
@@ -83,7 +84,7 @@ var ActiveToggle = React.createClass({
   }
 });
 
-var FlaggedToggle = React.createClass({
+const FlaggedToggle = React.createClass({
   getInitialState: function() {
     return {
       flagged: this.props.flagged
@@ -117,5 +118,3 @@ var FlaggedToggle = React.createClass({
     );
   }
 });
-
-module.exports = Menu;

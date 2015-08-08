@@ -1,13 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    _ = require('lodash'),
-    templateActions = require('../actions'),
-    templateStore = require('../store'),
-    Card = require('./card');
+import React from 'react';
+import Reflux from 'reflux';
+import _ from 'lodash';
 
-var TemplateList = React.createClass({
+import templateActions from '../actions';
+import templateStore from '../store';
+import Card from './card';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(templateStore, 'onTemplatesUpdate'),
     Reflux.listenTo(templateActions.create.start, 'createNewTemplate'),
@@ -58,5 +59,3 @@ var TemplateList = React.createClass({
     );
   }
 });
-
-module.exports = TemplateList;

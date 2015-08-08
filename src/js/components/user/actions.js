@@ -1,9 +1,10 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    userApi = require('./api');
+import Reflux from 'reflux';
 
-var actions = Reflux.createActions({
+import userApi from './api';
+
+const actions = Reflux.createActions({
   login: {
     children: ['complete', 'error']
   },
@@ -21,6 +22,8 @@ var actions = Reflux.createActions({
   },
   logout: {}
 });
+
+export default actions;
 
 actions.login.preEmit = function(user) {
   userApi.login(user).then(function(res) {

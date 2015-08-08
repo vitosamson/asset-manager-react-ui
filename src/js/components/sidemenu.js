@@ -1,18 +1,25 @@
 'use strict';
 
-var React = require('react'),
-    State = require('react-router').State,
-    Dropdown = require('react-semantify').Dropdown,
-    Link = require('react-router').Link,
-    OrgMenu = require('./organizations/views/sidemenu'),
-    OrgListMenu = require('./organizations/views/listMenu'),
-    OrgShowMenu = require('./organizations/views/showMenu'),
-    TemplateListMenu = require('./templates/views/listMenu'),
-    CategoryMenu = require('./categories/views/sidemenu'),
-    CategoryListMenu = require('./categories/views/listMenu'),
-    AssetShowMenu = require('./assets/views/showMenu');
+import React from 'react';
+import { State, Link } from 'react-router';
+import { Dropdown } from 'react-semantify';
 
-var sidemenu = React.createClass({
+// organization menus
+import OrgMenu from './organizations/views/sidemenu';
+import OrgListMenu from './organizations/views/listMenu';
+import OrgShowMenu from './organizations/views/showMenu';
+
+// template menus
+import TemplateListMenu from './templates/views/listMenu';
+
+// category menus
+import CategoryMenu from './categories/views/sidemenu';
+import CategoryListMenu from './categories/views/listMenu';
+
+// asset menus
+import AssetShowMenu from './assets/views/showMenu';
+
+export default React.createClass({
   mixins: [
     State
   ],
@@ -61,5 +68,3 @@ var sidemenu = React.createClass({
     );
   }
 });
-
-module.exports = sidemenu;

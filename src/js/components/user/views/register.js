@@ -1,12 +1,12 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    Navigation = require('react-router').Navigation,
-    userActions = require('../actions');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link, Navigation } from 'react-router';
 
-var register = React.createClass({
+import userActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Navigation,
     Reflux.listenTo(userActions.register.complete, 'onRegisterSuccess'),
@@ -117,5 +117,3 @@ var register = React.createClass({
     );
   }
 });
-
-module.exports = register;

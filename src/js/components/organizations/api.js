@@ -1,6 +1,6 @@
 'use strict';
 
-var baseApi = require('../../api');
+import baseApi from '../../api';
 
 var orgApi = {
   base: baseApi.all('organizations'),
@@ -11,4 +11,4 @@ var orgApi = {
   del: (org) => orgApi.base.delete(org.id)
 };
 
-module.exports = orgApi;
+export default orgApi;

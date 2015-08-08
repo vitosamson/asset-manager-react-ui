@@ -1,13 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    _ = require('lodash'),
-    moment = require('moment'),
-    assetActions = require('../actions'),
-    Files = require('./files');
+import React from 'react';
+import Reflux from 'reflux';
+import _ from 'lodash';
+import moment from 'moment';
 
-var Asset = React.createClass({
+import assetActions from '../actions';
+import { NewFileForm, FileList } from './files';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(assetActions.get.complete, 'onGetAsset'),
     Reflux.listenTo(assetActions.files.upload.complete, 'onFileUpload'),
@@ -158,15 +159,15 @@ var Asset = React.createClass({
           </button>
         </h3>
 
-        { this.state.showNewFileForm ? <Files.NewFileForm asset={this.state.asset} /> : null }
+        { this.state.showNewFileForm ? <NewFileForm asset={this.state.asset} /> : null }
 
-        <Files.FileList files={asset.files} />
+        <FileList files={asset.files} />
       </div>
     );
   }
 });
 
-var DataField = React.createClass({
+const DataField = React.createClass({
   getInitialState: function() {
     return {
       field: this.props.field
@@ -216,5 +217,3 @@ var DataField = React.createClass({
     );
   }
 });
-
-module.exports = Asset;

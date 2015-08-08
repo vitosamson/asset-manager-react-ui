@@ -1,9 +1,10 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    orgApi = require('./api');
+import Reflux from 'reflux';
 
-var actions = Reflux.createActions({
+import orgApi from './api';
+
+const actions = Reflux.createActions({
   list: {
     children: ['complete', 'error']
   },
@@ -23,6 +24,8 @@ var actions = Reflux.createActions({
     children: ['complete', 'error']
   }
 });
+
+export default actions;
 
 actions.list.preEmit = function() {
   orgApi.all().then(function(res) {

@@ -1,13 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    Dropdown = require('react-semantify').Dropdown,
-    actions = require('../actions'),
-    store = require('../store');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link } from 'react-router';
+import { Dropdown } from 'react-semantify';
 
-var Sidemenu = React.createClass({
+import actions from '../actions';
+import store from '../store';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(store, 'onOrgsUpdate')
   ],
@@ -40,7 +41,7 @@ var Sidemenu = React.createClass({
   }
 });
 
-var RootOrg = React.createClass({
+const RootOrg = React.createClass({
   render: function() {
     var org = this.props.org;
 
@@ -54,7 +55,7 @@ var RootOrg = React.createClass({
   }
 });
 
-var OrgWithChildren = React.createClass({
+const OrgWithChildren = React.createClass({
   render: function() {
     var org = this.props.org,
         children = org.children;
@@ -75,5 +76,3 @@ var OrgWithChildren = React.createClass({
     );
   }
 });
-
-module.exports = Sidemenu;

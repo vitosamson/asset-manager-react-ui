@@ -1,14 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Dropdown = require('react-semantify').Dropdown,
-    Checkbox = require('react-semantify').Checkbox,
-    templateStore = require('../store'),
-    templateActions = require('../actions'),
-    classNames = require('classNames');
+import React from 'react';
+import Reflux from 'reflux';
+import { Dropdown, Checkbox } from 'react-semantify';
+import classNames from 'classnames';
 
-var templateCard = React.createClass({
+import templateStore from '../store';
+import templateActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(templateActions.get.complete, 'getOriginalTemplate')
   ],
@@ -298,8 +298,7 @@ var templateCard = React.createClass({
   },
   renderEditing: function() {
     var template = this.state.template,
-        fields = template.fields,
-        self = this;
+        fields = template.fields;
 
     var nameClass = classNames({
       field: true,
@@ -367,5 +366,3 @@ var templateCard = React.createClass({
     );
   }
 });
-
-module.exports = templateCard;

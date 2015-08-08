@@ -1,8 +1,8 @@
 'use strict';
 
-var baseApi = require('../../api');
+import baseApi from '../../api';
 
-var templateApi = {
+const templateApi = {
   base: baseApi.all('templates'),
   all: () => templateApi.base.getAll(),
   get: (id) => templateApi.base.get(id),
@@ -11,4 +11,4 @@ var templateApi = {
   del: (template) => templateApi.base.delete(template.id)
 };
 
-module.exports = templateApi;
+export default templateApi;

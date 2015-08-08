@@ -1,9 +1,10 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    actions = require('./actions');
+import Reflux from 'reflux';
 
-var orgStore = Reflux.createStore({
+import actions from './actions';
+
+export default Reflux.createStore({
   listenables: actions,
   init: function() {
     this.nestedOrgs = [];
@@ -46,5 +47,3 @@ var orgStore = Reflux.createStore({
     });
   }
 });
-
-module.exports = orgStore;

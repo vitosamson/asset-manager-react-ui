@@ -1,14 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Dropdown = require('react-semantify').Dropdown,
-    Reflux = require('reflux'),
-    Navigation = require('react-router').Navigation,
-    Link = require('react-router').Link,
-    userStore = require('./user/store'),
-    userActions = require('./user/actions');
+import React from 'react';
+import { Dropdown } from 'react-semantify';
+import Reflux from 'reflux';
+import { Link, Navigation } from 'react-router';
+import userStore from './user/store';
+import userActions from './user/actions';
 
-var topNav = React.createClass({
+export default React.createClass({
   mixins: [
     Reflux.listenTo(userStore, 'onUserUpdate'),
     Navigation
@@ -31,6 +30,7 @@ var topNav = React.createClass({
   },
   render: function() {
     var user = this.state.user;
+
     return (
       <div className="row">
         <div className="sixteen wide column">
@@ -60,5 +60,3 @@ var topNav = React.createClass({
     );
   }
 });
-
-module.exports = topNav;

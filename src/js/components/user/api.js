@@ -1,8 +1,6 @@
 'use strict';
 
-var restful = require('restful.js'),
-    config = require('../../config'),
-    baseApi = require('../../api');
+import baseApi from '../../api';
 
 var userApi = {
   base: baseApi.all('users'),
@@ -13,4 +11,4 @@ var userApi = {
   register: (user) => baseApi.allUrl('signup', userApi.base.url() + '/signup').post(user)
 };
 
-module.exports = userApi;
+export default userApi;

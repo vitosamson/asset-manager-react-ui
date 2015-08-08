@@ -1,9 +1,10 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    templateApi = require('./api');
+import Reflux from 'reflux';
 
-var actions = Reflux.createActions({
+import templateApi from './api';
+
+const actions = Reflux.createActions({
   list: {
     children: ['complete', 'error']
   },
@@ -20,6 +21,8 @@ var actions = Reflux.createActions({
     children: ['complete', 'error']
   }
 });
+
+export default actions;
 
 actions.list.preEmit = function() {
   templateApi.all().then(function(res) {
@@ -71,5 +74,3 @@ actions.del.preEmit = function(template) {
     actions.del.error(err);
   });
 };
-
-module.exports = actions;

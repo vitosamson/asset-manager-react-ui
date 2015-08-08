@@ -1,15 +1,16 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Dropdown = require('react-semantify').Dropdown,
-    Link = require('react-router').Link,
-    catStore = require('../store'),
-    catActions = require('../actions'),
-    _ = require('lodash'),
-    classNames = require('classnames');
+import React from 'react';
+import Reflux from 'reflux';
+import { Dropdown } from 'react-semantify';
+import { Link } from 'react-router';
+import _ from 'lodash';
+import classNames from 'classnames';
 
-var Card = React.createClass({
+import catStore from '../store';
+import catActions from '../actions';
+
+export default React.createClass({
   getInitialState: function() {
     return {
       category: this.props.category,
@@ -137,5 +138,3 @@ var Card = React.createClass({
     );
   }
 });
-
-module.exports = Card;

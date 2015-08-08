@@ -1,8 +1,8 @@
 'use strict';
 
-var baseApi = require('../../api');
+import baseApi from '../../api';
 
-var categoryApi = {
+const categoryApi = {
   base: baseApi.all('categories'),
   all: () => categoryApi.base.getAll(),
   get: (id) => categoryApi.base.get(id),
@@ -11,4 +11,4 @@ var categoryApi = {
   del: (cat) => categoryApi.base.delete(cat.id)
 };
 
-module.exports = categoryApi;
+export default categoryApi;

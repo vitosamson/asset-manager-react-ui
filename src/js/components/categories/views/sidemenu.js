@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    actions = require('../actions'),
-    store = require('../store');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link } from 'react-router';
 
-var Sidemenu = React.createClass({
+import actions from '../actions';
+import store from '../store';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(store, 'onCategoriesUpdated')
   ],
@@ -38,5 +39,3 @@ var Sidemenu = React.createClass({
     );
   }
 });
-
-module.exports = Sidemenu;

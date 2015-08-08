@@ -1,13 +1,14 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    _ = require('lodash'),
-    orgStore = require('../store'),
-    orgActions = require('../actions'),
-    OrgCard = require('./card');
+import React from 'react';
+import Reflux from 'reflux';
+import _ from 'lodash';
 
-var OrgList = React.createClass({
+import orgStore from '../store';
+import orgActions from '../actions';
+import OrgCard from './card';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(orgStore, 'onOrgsUpdated'),
     Reflux.listenTo(orgActions.create.start, 'createNewOrg'),
@@ -56,5 +57,3 @@ var OrgList = React.createClass({
     );
   }
 });
-
-module.exports = OrgList;

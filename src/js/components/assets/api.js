@@ -1,8 +1,8 @@
 'use strict';
 
-var baseApi = require('../../api');
+import baseApi from '../../api';
 
-var assetApi = {
+const assetApi = {
   base: baseApi.all('assets'),
   all: () => assetApi.base.getAll(),
   get: (id) => assetApi.base.get(id),
@@ -14,6 +14,8 @@ var assetApi = {
     del: (assetId, fileId) => baseApi.one('assets', assetId).all('files').delete(fileId)
   }
 };
+
+export default assetApi;
 
 function uploadFile(assetId, upload) {
   var data = new FormData();
@@ -30,5 +32,3 @@ function uploadFile(assetId, upload) {
         .all('files')
         .post(data);
 }
-
-module.exports = assetApi;

@@ -1,22 +1,22 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Navigation = require('react-router').Navigation,
-    _ = require('lodash'),
-    $ = require('jQuery'),
-    classNames = require('classnames'),
-    Dropdown = require('react-semantify').Dropdown,
-    Checkbox = require('react-semantify').Checkbox,
-    assetActions = require('../actions'),
-    orgStore = require('../../organizations/store'),
-    orgActions = require('../../organizations/actions'),
-    templateStore = require('../../templates/store'),
-    templateActions = require('../../templates/actions'),
-    categoryStore = require('../../categories/store'),
-    categoryActions = require('../../categories/actions');
+import React from 'react';
+import Reflux from 'reflux';
+import { Navigation } from 'react-router';
+import _ from 'lodash';
+import $ from 'jQuery';
+import classNames from 'classnames';
+import { Checkbox, Dropdown } from 'react-semantify';
 
-var NewAsset = React.createClass({
+import assetActions from '../actions';
+import orgStore from '../../organizations/store';
+import orgActions from '../../organizations/actions';
+import templateStore from '../../templates/store';
+import templateActions from '../../templates/actions';
+import categoryStore from '../../categories/store';
+import categoryActions from '../../categories/actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(orgStore, 'onOrgsList'),
     Reflux.listenTo(templateStore, 'onTemplatesList'),
@@ -307,7 +307,7 @@ var NewAsset = React.createClass({
   }
 });
 
-var NewField = React.createClass({
+const NewField = React.createClass({
   getInitialState: function() {
     return {
       field: {
@@ -382,7 +382,7 @@ var NewField = React.createClass({
   }
 });
 
-var OrgDropdownItem = React.createClass({
+const OrgDropdownItem = React.createClass({
   getInitialState: function() {
     return {
       org: this.props.org
@@ -416,5 +416,3 @@ var OrgDropdownItem = React.createClass({
     }
   }
 });
-
-module.exports = NewAsset;

@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    orgStore = require('../store'),
-    orgActions = require('../actions');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link } from 'react-router';
 
-var OrgShow = React.createClass({
+import orgStore from '../store';
+import orgActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(orgActions.get.complete, 'onOrgUpdate')
   ],
@@ -71,7 +72,7 @@ var OrgShow = React.createClass({
       );
     });
 
-    var noAssets = (<tr><td>No assets</td></tr>);
+    const noAssets = (<tr><td>No assets</td></tr>);
 
     return (
       <div>
@@ -95,5 +96,3 @@ var OrgShow = React.createClass({
     );
   }
 });
-
-module.exports = OrgShow;

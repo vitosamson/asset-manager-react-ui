@@ -1,9 +1,10 @@
 'use strict';
 
-var Reflux = require('reflux'),
-    actions = require('./actions');
+import Reflux from 'reflux';
 
-var store = Reflux.createStore({
+import actions from './actions';
+
+export default Reflux.createStore({
   listenables: actions,
   init: function() {
     this.categories = [];
@@ -30,5 +31,3 @@ var store = Reflux.createStore({
     this.trigger(this.categories);
   }
 });
-
-module.exports = store;

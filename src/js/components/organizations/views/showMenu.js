@@ -1,9 +1,9 @@
 'use strict';
 
-var React = require('react'),
-    Link = require('react-router').Link;
+import React from 'react';
+import { Link } from 'react-router';
 
-var ShowMenu = React.createClass({
+export default React.createClass({
   contextTypes: {
     router: React.PropTypes.func
   },
@@ -23,5 +23,3 @@ var ShowMenu = React.createClass({
     );
   }
 });
-
-module.exports = ShowMenu;

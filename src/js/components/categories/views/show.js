@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Link = require('react-router').Link,
-    actions = require('../actions'),
-    store = require('../store');
+import React from 'react';
+import Reflux from 'reflux';
+import { Link } from 'react-router';
 
-var Show = React.createClass({
+import actions from '../actions';
+import store from '../store';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(actions.get.complete, 'onCatUpdate')
   ],
@@ -57,7 +58,7 @@ var Show = React.createClass({
         </tr>
     );
 
-    var noAssets = (<tr><td>No assets</td></tr>);
+    const noAssets = (<tr><td>No assets</td></tr>);
 
     return (
       <div>
@@ -80,5 +81,3 @@ var Show = React.createClass({
     );
   }
 });
-
-module.exports = Show;

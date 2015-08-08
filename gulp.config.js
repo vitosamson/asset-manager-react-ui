@@ -69,7 +69,8 @@ var webpack = {
           loader: 'babel-loader'
         }
       ]
-    }
+    },
+    devtool: 'inline-source-map'
   }
 };
 

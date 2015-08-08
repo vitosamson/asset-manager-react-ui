@@ -1,13 +1,12 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    actions = require('../actions'),
-    $ = require('jQuery'),
-    classNames = require('classnames'),
-    moment = require('moment');
+import React from 'react';
+import Reflux from 'reflux';
+import actions from '../actions';
+import classNames from 'classnames';
+import moment from 'moment';
 
-var NewFileForm = React.createClass({
+export const NewFileForm = React.createClass({
   mixins: [
     Reflux.listenTo(actions.files.upload.complete, 'onUploadComplete')
   ],
@@ -17,7 +16,7 @@ var NewFileForm = React.createClass({
     };
   },
   setFileName: function(e) {
-    var name = $(e.target).val(),
+    var name = e.target.value,
         upload = this.state.upload;
 
     upload.name = name;
@@ -81,7 +80,18 @@ var NewFileForm = React.createClass({
   }
 });
 
-var FileList = React.createClass({
+const fileIcons = {
+  image: 'file image outline icon',
+  video: 'file video outline icon',
+  word: 'file word outline icon',
+  excel: 'file excel outline icon',
+  powerpoint: 'file powerpoint outline icon',
+  pdf: 'file pdf outline icon',
+  text: 'file text outline icon',
+  other: 'file outline icon'
+};
+
+export const FileList = React.createClass({
   getInitialState: function() {
     return {
       files: this.props.files || []
@@ -96,17 +106,6 @@ var FileList = React.createClass({
     actions.files.del(file);
   },
   fileIcon: function(file) {
-    var fileIcons = {
-      image: 'file image outline icon',
-      video: 'file video outline icon',
-      word: 'file word outline icon',
-      excel: 'file excel outline icon',
-      powerpoint: 'file powerpoint outline icon',
-      pdf: 'file pdf outline icon',
-      text: 'file text outline icon',
-      other: 'file outline icon'
-    };
-
     var fileType = file.mimeType;
 
     if (!fileType)
@@ -176,8 +175,3 @@ var FileList = React.createClass({
     );
   }
 });
-
-module.exports = {
-  NewFileForm: NewFileForm,
-  FileList: FileList
-};

@@ -1,37 +1,53 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    Router = require('react-router'),
-    Route = Router.Route,
-    TopNav = require('./components/topnav'),
-    Sidemenu = require('./components/sidemenu'),
-    userStore = require('./components/user/store'),
-    userActions = require('./components/user/actions'),
-    Login = require('./components/user/views/login'),
-    Register = require('./components/user/views/register'),
-    Account = require('./components/user/views/account'),
-    UserMixins = require('./components/user/mixins'),
-    Orgs = require('./components/organizations/views/list'),
-    Org = require('./components/organizations/views/show'),
-    Templates = require('./components/templates/views/list'),
-    Categories = require('./components/categories/views/list'),
-    Category = require('./components/categories/views/show'),
-    NewAsset = require('./components/assets/views/new'),
-    ShowAsset = require('./components/assets/views/show');
+import React from 'react';
+import Reflux from 'reflux';
+import {
+  RouteHandler,
+  Route,
+  DefaultRoute,
+  Navigation,
+  default as Router} from 'react-router';
 
-var App = React.createClass({
+// nav components
+import TopNav from './components/topnav';
+import Sidemenu from './components/sidemenu';
+
+// user components
+import userStore from './components/user/store';
+import userActions from './components/user/actions';
+import Login from './components/user/views/login';
+import Register from './components/user/views/register';
+import Account from './components/user/views/account';
+import { Authenticated, Unauthenticated } from './components/user/mixins';
+
+// organization components
+import Orgs from './components/organizations/views/list';
+import Org from './components/organizations/views/show';
+
+// template components
+import Templates from './components/templates/views/list';
+
+// category components
+import Categories from './components/categories/views/list';
+import Category from './components/categories/views/show';
+
+// asset components
+import NewAsset from './components/assets/views/new';
+import ShowAsset from './components/assets/views/show';
+
+const App = React.createClass({
   mixins: [
-    Router.Navigation
+    Navigation
   ],
   render: function() {
     return (
-      <Router.RouteHandler/>
+      <RouteHandler/>
     );
   }
 });
 
-var Dashboard = React.createClass({
+const Dashboard = React.createClass({
   render: function() {
     return (
       <div></div>
@@ -39,9 +55,9 @@ var Dashboard = React.createClass({
   }
 });
 
-var LoggedIn = React.createClass({
+const LoggedIn = React.createClass({
   mixins: [
-    UserMixins.Authenticated,
+    Authenticated,
     Reflux.listenTo(userActions.logout, 'onLogout')
   ],
   onLogout: function(token, user) {
@@ -56,7 +72,7 @@ var LoggedIn = React.createClass({
           <Sidemenu/>
 
           <div className="twelve wide column">
-            <Router.RouteHandler/>
+            <RouteHandler/>
           </div>
         </div>
       </div>
@@ -64,25 +80,25 @@ var LoggedIn = React.createClass({
   }
 });
 
-var LoggedOut = React.createClass({
+const LoggedOut = React.createClass({
   mixins: [
-    UserMixins.Unauthenticated
+    Unauthenticated
   ],
   render: function() {
     return (
-      <Router.RouteHandler/>
+      <RouteHandler/>
     );
   }
 });
 
-var routes = (
+const routes = (
   <Route handler={App}>
     <Route path='/' name='user' handler={LoggedOut}>
-      <Router.DefaultRoute name='login' handler={Login}/>
+      <DefaultRoute name='login' handler={Login}/>
       <Route path='register' name='register' handler={Register}/>
     </Route>
     <Route path='/app' name='app' handler={LoggedIn}>
-      <Router.DefaultRoute name='dashboard' handler={Dashboard}/>
+      <DefaultRoute name='dashboard' handler={Dashboard}/>
       <Route path='account' name='account' handler={Account}/>
 
       <Route path='orgs' name='orgs' handler={Orgs}/>

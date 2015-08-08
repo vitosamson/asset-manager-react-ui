@@ -1,10 +1,11 @@
 'use strict';
 
-var React = require('react'),
-    Reflux = require('reflux'),
-    orgActions = require('../actions');
+import React from 'react';
+import Reflux from 'reflux';
 
-var ListMenu = React.createClass({
+import orgActions from '../actions';
+
+export default React.createClass({
   mixins: [
     Reflux.listenTo(orgActions.create.cancel, 'enableNewBtn'),
     Reflux.listenTo(orgActions.create.complete, 'enableNewBtn')
@@ -41,5 +42,3 @@ var ListMenu = React.createClass({
     );
   }
 });
-
-module.exports = ListMenu;
